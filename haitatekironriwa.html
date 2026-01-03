@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>論理演算デモ</title>
+<style>
+  body { font-family: sans-serif; text-align: center; padding: 20px; }
+  .switch {
+    display: inline-block; margin: 20px;
+  }
+  .btn {
+    width: 80px; height: 80px;
+    font-size: 24px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .on { background: #4caf50; color: white; }
+  .off { background: #ccc; color: black; }
+  .lamp {
+    display: inline-block;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    margin: 10px;
+    background: #444;
+    box-shadow: inset 0 0 10px #000;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .lit {
+    background: yellow;
+    box-shadow: 0 0 20px yellow;
+  }
+  table {
+    margin: 20px auto; border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #999; padding: 6px 12px;
+  }
+  .highlight { background: #ffecb3; }
+</style>
+</head>
+<body>
+<h2>AND / OR / XOR デモ</h2>
+
+<div>
+  <div class="switch">
+    <button id="btnA" class="btn off">A=0</button>
+  </div>
+  <div class="switch">
+    <button id="btnB" class="btn off">B=0</button>
+  </div>
+</div>
+
+<h3>結果</h3>
+<p>AND: <span id="andLamp" class="lamp"></span></p>
+<p>OR : <span id="orLamp"  class="lamp"></span></p>
+<p>XOR: <span id="xorLamp" class="lamp"></span></p>
+
+<h3>真理表</h3>
+<table>
+  <thead>
+    <tr><th>A</th><th>B</th><th>AND</th><th>OR</th><th>XOR</th></tr>
+  </thead>
+  <tbody id="truthTable">
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<script>
+let A = 0, B = 0;
+
+function update() {
+  // 計算
+  const AND = A & B;
+  const OR  = A | B;
+  const XOR = A ^ B;
+
+  // ランプ更新
+  document.getElementById("andLamp").className = "lamp" + (AND ? " lit" : "");
+  document.getElementById("orLamp").className  = "lamp" + (OR  ? " lit" : "");
+  document.getElementById("xorLamp").className = "lamp" + (XOR ? " lit" : "");
+
+  // ボタン更新
+  const btnA = document.getElementById("btnA");
+  btnA.textContent = "A=" + A;
+  btnA.className = "btn " + (A ? "on" : "off");
+
+  const btnB = document.getElementById("btnB");
+  btnB.textContent = "B=" + B;
+  btnB.className = "btn " + (B ? "on" : "off");
+
+  // 真理表のハイライト
+  const rows = document.querySelectorAll("#truthTable tr");
+  rows.forEach(r => r.classList.remove("highlight"));
+
+  // インデックスは「A=0/1, B=0/1」で決める
+  // 真理表は (0,0), (0,1), (1,0), (1,1) の順なので
+  let index;
+  if (A === 0 && B === 0) index = 0;
+  if (A === 0 && B === 1) index = 1;
+  if (A === 1 && B === 0) index = 2;
+  if (A === 1 && B === 1) index = 3;
+
+  rows[index].classList.add("highlight");
+}
+
+// ボタン動作
+document.getElementById("btnA").addEventListener("click", () => {
+  A = 1 - A;
+  update();
+});
+document.getElementById("btnB").addEventListener("click", () => {
+  B = 1 - B;
+  update();
+});
+
+update(); // 初期表示
+</script>
+</body>
+</html>
