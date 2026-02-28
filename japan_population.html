@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本の人口推移</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --vermillion: #c0392b;
+    --gold: #b8860b;
+    --muted: #7a6e5f;
+    --light: #e8e0d0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(180,160,120,0.15) 39px, rgba(180,160,120,0.15) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(180,160,120,0.1) 39px, rgba(180,160,120,0.1) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 1s ease both;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--vermillion);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+  }
+
+  .divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--vermillion), transparent);
+    margin: 16px auto;
+  }
+
+  .chart-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--light);
+    border-radius: 2px;
+    padding: 36px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.8) inset;
+    backdrop-filter: blur(4px);
+    animation: fadeUp 1.2s ease 0.3s both;
+    position: relative;
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--vermillion) 30%, var(--gold) 70%, transparent);
+  }
+
+  .chart-wrapper {
+    position: relative;
+    height: 460px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 28px;
+    animation: fadeUp 1.2s ease 0.6s both;
+  }
+
+  .stat-box {
+    text-align: center;
+    padding: 18px 12px;
+    border: 1px solid var(--light);
+    background: rgba(255,255,255,0.5);
+    position: relative;
+  }
+
+  .stat-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: var(--vermillion);
+  }
+
+  .stat-value {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--vermillion);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .note {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    letter-spacing: 0.1em;
+  }
+
+  footer {
+    margin-top: 24px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-align: center;
+    animation: fadeUp 1s ease 0.9s both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .chart-card { padding: 20px; }
+    .chart-wrapper { height: 320px; }
+    .stats-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <p class="eyebrow">Statistics Japan</p>
+    <h1>日本の人口推移</h1>
+    <div class="divider"></div>
+    <p class="subtitle">1872年〜2070年（推計含む）</p>
+  </header>
+
+  <div class="chart-card">
+    <div class="chart-wrapper">
+      <canvas id="populationChart"></canvas>
+    </div>
+    <p class="note">※ 2025年以降は国立社会保障・人口問題研究所による中位推計</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <span class="stat-value">1億2808万</span>
+      <span class="stat-label">ピーク人口（2008年）</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-value">▲0.5%</span>
+      <span class="stat-label">直近年間減少率</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-value">8700万</span>
+      <span class="stat-label">2070年推計人口</span>
+    </div>
+  </div>
+
+  <footer>出典：総務省統計局・国立社会保障・人口問題研究所</footer>
+</div>
+
+<script>
+const historicalData = [
+  { year: 1872, pop: 34.8 }, { year: 1880, pop: 36.6 }, { year: 1890, pop: 39.9 },
+  { year: 1900, pop: 44.0 }, { year: 1910, pop: 50.0 }, { year: 1920, pop: 55.9 },
+  { year: 1930, pop: 64.4 }, { year: 1940, pop: 73.1 }, { year: 1950, pop: 84.1 },
+  { year: 1960, pop: 93.4 }, { year: 1970, pop: 103.7 }, { year: 1980, pop: 117.1 },
+  { year: 1990, pop: 123.6 }, { year: 2000, pop: 126.9 }, { year: 2005, pop: 127.7 },
+  { year: 2008, pop: 128.1 }, { year: 2010, pop: 128.1 }, { year: 2015, pop: 127.1 },
+  { year: 2020, pop: 126.1 }, { year: 2023, pop: 124.4 },
+];
+
+const projectedData = [
+  { year: 2023, pop: 124.4 }, { year: 2025, pop: 123.2 }, { year: 2030, pop: 120.0 },
+  { year: 2035, pop: 116.6 }, { year: 2040, pop: 112.8 }, { year: 2050, pop: 104.1 },
+  { year: 2060, pop: 95.6 }, { year: 2070, pop: 87.0 },
+];
+
+const allYears = [...new Set([...historicalData, ...projectedData].map(d => d.year))].sort((a,b)=>a-b);
+
+function getVal(year, data) {
+  const d = data.find(x => x.year === year);
+  return d ? d.pop : null;
+}
+
+const ctx = document.getElementById('populationChart').getContext('2d');
+
+const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+gradient.addColorStop(0, 'rgba(192,57,43,0.25)');
+gradient.addColorStop(1, 'rgba(192,57,43,0)');
+
+const gradientProj = ctx.createLinearGradient(0, 0, 0, 400);
+gradientProj.addColorStop(0, 'rgba(184,134,11,0.2)');
+gradientProj.addColorStop(1, 'rgba(184,134,11,0)');
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: allYears,
+    datasets: [
+      {
+        label: '実績値（万人）',
+        data: allYears.map(y => getVal(y, historicalData)),
+        borderColor: '#c0392b',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#c0392b',
+        pointBorderColor: '#f5f0e8',
+        pointBorderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        spanGaps: true,
+      },
+      {
+        label: '推計値（万人）',
+        data: allYears.map(y => getVal(y, projectedData)),
+        borderColor: '#b8860b',
+        backgroundColor: gradientProj,
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointRadius: 4,
+        pointBackgroundColor: '#b8860b',
+        pointBorderColor: '#f5f0e8',
+        pointBorderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        spanGaps: true,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { family: 'Noto Serif JP', size: 12 },
+          color: '#1a1208',
+          usePointStyle: true,
+          pointStyleWidth: 20,
+          padding: 20,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(26,18,8,0.88)',
+        titleFont: { family: 'Noto Serif JP', size: 13 },
+        bodyFont: { family: 'Noto Serif JP', size: 12 },
+        padding: 14,
+        cornerRadius: 2,
+        callbacks: {
+          label: ctx => {
+            if (ctx.parsed.y === null) return null;
+            return ` ${ctx.dataset.label.replace('（万人）','')}：${ctx.parsed.y.toFixed(1)} 百万人`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(180,160,120,0.2)', drawTicks: false },
+        ticks: {
+          font: { family: 'Noto Serif JP', size: 11 },
+          color: '#7a6e5f',
+          maxTicksLimit: 12,
+          callback: val => allYears[val] + '年'
+        },
+        border: { color: 'rgba(180,160,120,0.4)' }
+      },
+      y: {
+        grid: { color: 'rgba(180,160,120,0.2)', drawTicks: false },
+        ticks: {
+          font: { family: 'Noto Serif JP', size: 11 },
+          color: '#7a6e5f',
+          callback: val => val + ' M'
+        },
+        border: { color: 'transparent', dash: [4,4] },
+        title: {
+          display: true,
+          text: '人口（百万人）',
+          font: { family: 'Noto Serif JP', size: 11 },
+          color: '#7a6e5f',
+          padding: { bottom: 10 }
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
