@@ -14,10 +14,10 @@
     --navy:     #1b3a5c;
     --navy-mid: #2e6da4;
     --navy-lt:  #5b9bd5;
-    --sky:      #a8cde8;
     --accent:   #e05c1a;
     --muted:    #5a6e82;
     --border:   rgba(30,70,120,0.14);
+    --border-solid: #d0dae6;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +27,7 @@
     color: var(--ink);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
-    padding: 48px 20px;
+    padding: 40px 20px 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,229 +35,236 @@
 
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background:
       radial-gradient(ellipse 80% 50% at 5% 0%, rgba(43,90,150,0.09) 0%, transparent 55%),
       radial-gradient(ellipse 50% 50% at 95% 100%, rgba(30,70,120,0.06) 0%, transparent 55%);
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none; z-index: 0;
   }
 
-  .container {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 980px;
-  }
+  .container { position: relative; z-index: 1; width: 100%; max-width: 980px; }
 
   /* ── Header ── */
-  header {
-    margin-bottom: 32px;
-    animation: fadeDown 0.8s ease both;
-  }
-
+  header { margin-bottom: 28px; animation: fadeDown 0.8s ease both; }
   .eyebrow {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.45em;
-    color: var(--navy-mid);
-    text-transform: uppercase;
-    font-weight: 400;
-    margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 11px;
+    letter-spacing: 0.45em; color: var(--navy-mid);
+    text-transform: uppercase; font-weight: 400; margin-bottom: 8px;
   }
-
   h1 {
-    font-size: clamp(22px, 4vw, 38px);
-    font-weight: 700;
-    color: var(--navy);
-    letter-spacing: 0.04em;
-    line-height: 1.2;
+    font-size: clamp(22px, 4vw, 36px); font-weight: 700;
+    color: var(--navy); letter-spacing: 0.04em; line-height: 1.2;
   }
-
   .subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.18em;
-    font-weight: 300;
-    margin-top: 6px;
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.18em; font-weight: 300; margin-top: 6px;
   }
-
   .header-rule {
-    width: 44px;
-    height: 3px;
+    width: 44px; height: 3px;
     background: linear-gradient(90deg, var(--navy), var(--navy-lt));
-    margin-top: 10px;
-    border-radius: 2px;
+    margin-top: 10px; border-radius: 2px;
   }
 
-  /* ── Card ── */
-  .chart-card {
+  /* ── Scenario Panel ── */
+  .scenario-panel {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 28px 32px 22px;
-    box-shadow: 0 2px 20px rgba(0,40,80,0.07);
-    animation: fadeUp 1s ease 0.2s both;
-    position: relative;
-    overflow: hidden;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,40,80,0.05);
+    animation: fadeUp 0.9s ease 0.1s both;
+    position: relative; overflow: hidden;
+  }
+  .scenario-panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--navy-mid), var(--navy-lt));
   }
 
+  .panel-title {
+    font-size: 11px; font-weight: 500; color: var(--muted);
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* タブ切り替え */
+  .tab-row {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-solid);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: 7px 16px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500; border: none; background: transparent; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .tab-btn:hover { color: var(--navy-mid); }
+  .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy-mid); }
+
+  /* シナリオ選択ボタン群 */
+  .scenario-btns {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .scenario-btn {
+    padding: 7px 16px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400; border: 1px solid var(--border-solid);
+    border-radius: 20px; background: transparent; cursor: pointer;
+    color: var(--muted); transition: all 0.18s;
+    letter-spacing: 0.06em;
+  }
+  .scenario-btn:hover { border-color: var(--navy-mid); color: var(--navy-mid); }
+  .scenario-btn.active {
+    background: var(--navy); border-color: var(--navy);
+    color: #fff; font-weight: 500;
+  }
+
+  /* カスタム係数入力 */
+  .custom-form { display: none; }
+  .custom-form.show { display: block; }
+
+  .custom-desc {
+    font-size: 12px; color: var(--muted); margin-bottom: 14px;
+    line-height: 1.7; letter-spacing: 0.03em;
+  }
+  .custom-desc strong { color: var(--navy); font-weight: 500; }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .input-group {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .input-group label {
+    font-size: 11px; color: var(--muted);
+    font-weight: 500; letter-spacing: 0.08em;
+  }
+  .input-group .input-wrap {
+    display: flex; align-items: center; gap: 0;
+    border: 1px solid var(--border-solid); border-radius: 6px;
+    overflow: hidden; background: var(--bg);
+    transition: border-color 0.18s;
+  }
+  .input-group .input-wrap:focus-within { border-color: var(--navy-mid); }
+  .input-group input[type="number"] {
+    flex: 1; padding: 7px 10px; font-size: 13px;
+    font-family: 'DM Sans', sans-serif; font-weight: 400;
+    border: none; background: transparent; color: var(--ink);
+    outline: none; min-width: 0;
+  }
+  .input-group .unit {
+    padding: 7px 10px 7px 4px; font-size: 12px;
+    color: var(--muted); background: transparent;
+    white-space: nowrap;
+  }
+
+  .apply-btn {
+    padding: 8px 22px; font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+    background: var(--navy); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer;
+    transition: background 0.18s, transform 0.1s;
+    letter-spacing: 0.08em;
+  }
+  .apply-btn:hover { background: var(--navy-mid); }
+  .apply-btn:active { transform: scale(0.97); }
+
+  .custom-result {
+    display: none; margin-top: 10px; padding: 10px 14px;
+    background: rgba(43,109,164,0.08); border-left: 3px solid var(--navy-mid);
+    border-radius: 0 4px 4px 0; font-size: 11px; color: var(--navy);
+    letter-spacing: 0.05em; line-height: 1.7;
+  }
+  .custom-result.show { display: block; }
+
+  /* ── Chart Card ── */
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px 28px 20px;
+    box-shadow: 0 2px 20px rgba(0,40,80,0.07);
+    animation: fadeUp 1s ease 0.25s both;
+    position: relative; overflow: hidden;
+  }
   .chart-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
     background: linear-gradient(90deg, var(--navy) 0%, var(--navy-mid) 55%, var(--navy-lt) 100%);
   }
 
-  /* ── Legend ── */
+  /* Legend */
   .legend-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
-    margin-bottom: 18px;
-    align-items: center;
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+    margin-bottom: 16px; align-items: center;
   }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 400;
-  }
-
-  .lg-rect {
-    width: 14px; height: 12px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .lg-rect { width: 14px; height: 12px; border-radius: 2px; flex-shrink: 0; }
   .lg-rect.hatch-navy {
-    background: repeating-linear-gradient(
-      -45deg,
-      rgba(27,58,92,0.75) 0px, rgba(27,58,92,0.75) 2px,
-      rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 5px
-    );
+    background: repeating-linear-gradient(-45deg,rgba(27,58,92,0.75) 0px,rgba(27,58,92,0.75) 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 5px);
     border: 1px solid var(--navy);
   }
-
   .lg-rect.hatch-sky {
-    background: repeating-linear-gradient(
-      -45deg,
-      rgba(91,155,213,0.75) 0px, rgba(91,155,213,0.75) 2px,
-      rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 5px
-    );
+    background: repeating-linear-gradient(-45deg,rgba(91,155,213,0.75) 0px,rgba(91,155,213,0.75) 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 5px);
     border: 1px solid var(--navy-lt);
   }
+  .lg-line { width: 22px; height: 3px; border-radius: 2px; flex-shrink: 0; background: var(--accent); }
+  .lg-line.dashed { background: none; border-top: 2.5px dashed var(--accent); height: 0; margin-top: 1px; }
+  .lg-sep { width: 1px; height: 14px; background: var(--border); margin: 0 2px; }
 
-  .lg-line {
-    width: 22px; height: 3px;
-    border-radius: 2px;
-    flex-shrink: 0;
-    background: var(--accent);
-  }
+  /* 凡例：カスタム */
+  .lg-line.custom { background: #8a3abf; }
+  .lg-line.custom-dashed { background: none; border-top: 2.5px dashed #8a3abf; height: 0; margin-top: 1px; }
+  .legend-item.custom-label { display: none; }
+  .legend-item.custom-label.show { display: flex; }
 
-  .lg-line.dashed {
-    background: none;
-    border-top: 2.5px dashed var(--accent);
-    height: 0;
-    margin-top: 1px;
-  }
-
-  .lg-sep {
-    width: 1px; height: 14px;
-    background: var(--border);
-    margin: 0 4px;
-  }
-
-  .chart-wrapper {
-    position: relative;
-    height: 480px;
-  }
+  .chart-wrapper { position: relative; height: 470px; }
 
   .note {
-    margin-top: 12px;
-    font-size: 10.5px;
-    color: var(--muted);
-    text-align: right;
-    letter-spacing: 0.06em;
-    font-weight: 300;
+    margin-top: 10px; font-size: 10.5px; color: var(--muted);
+    text-align: right; letter-spacing: 0.05em; font-weight: 300;
   }
+  .note #scenario-note { font-style: italic; }
 
   /* ── Stats ── */
   .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-top: 18px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-top: 16px;
     animation: fadeUp 1s ease 0.45s both;
   }
-
   .stat-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 14px;
-    position: relative;
-    overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 14px; position: relative; overflow: hidden;
   }
-
-  .stat-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
+  .stat-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
   .stat-box:nth-child(1)::before { background: var(--navy); }
   .stat-box:nth-child(2)::before { background: var(--navy-mid); }
   .stat-box:nth-child(3)::before { background: var(--navy-lt); }
   .stat-box:nth-child(4)::before { background: var(--accent); }
-
   .stat-value {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--navy);
-    display: block;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    font-family: 'DM Sans', sans-serif; font-size: 19px; font-weight: 600;
+    color: var(--navy); display: block; letter-spacing: -0.01em; line-height: 1.2;
   }
-
   .stat-label {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin-top: 5px;
-    display: block;
-    font-weight: 400;
-    line-height: 1.4;
+    font-size: 10px; letter-spacing: 0.1em; color: var(--muted);
+    margin-top: 5px; display: block; font-weight: 400; line-height: 1.4;
   }
 
   footer {
-    margin-top: 18px;
-    font-size: 10.5px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    font-weight: 300;
+    margin-top: 16px; font-size: 10.5px; color: var(--muted);
+    letter-spacing: 0.1em; font-weight: 300;
     animation: fadeUp 1s ease 0.6s both;
   }
 
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(14px)}  to{opacity:1;transform:translateY(0)} }
 
   @media (max-width: 640px) {
     .chart-card { padding: 16px; }
     .chart-wrapper { height: 320px; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .input-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -271,35 +278,77 @@
     <p class="subtitle">1950年〜2070年（推計含む）</p>
   </header>
 
-  <div class="chart-card">
+  <!-- ── シナリオパネル ── -->
+  <div class="scenario-panel">
+    <p class="panel-title">推計シナリオ設定</p>
 
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="preset" onclick="switchTab('preset')">プリセット推計</button>
+      <button class="tab-btn" data-tab="custom" onclick="switchTab('custom')">カスタム係数入力</button>
+    </div>
+
+    <!-- プリセット -->
+    <div id="tab-preset">
+      <div class="scenario-btns">
+        <button class="scenario-btn active" data-scenario="mid" onclick="selectScenario(this,'mid')">中位推計（基準）</button>
+        <button class="scenario-btn" data-scenario="high" onclick="selectScenario(this,'high')">高位推計（楽観）</button>
+        <button class="scenario-btn" data-scenario="low" onclick="selectScenario(this,'low')">低位推計（悲観）</button>
+      </div>
+    </div>
+
+    <!-- カスタム -->
+    <div id="tab-custom" class="custom-form">
+      <p class="custom-desc">
+        中位推計の各値に係数を掛けて独自シナリオを作成できます。<br>
+        <strong>例：90 と入力 → 中位推計 × 0.90</strong>　（100 = 中位推計と同じ）
+      </p>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>総人口 係数</label>
+          <div class="input-wrap">
+            <input type="number" id="coef-pop" value="100" min="50" max="150" step="1">
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>生産年齢人口 係数</label>
+          <div class="input-wrap">
+            <input type="number" id="coef-wa" value="100" min="50" max="150" step="1">
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>出生数 係数</label>
+          <div class="input-wrap">
+            <input type="number" id="coef-birth" value="100" min="50" max="150" step="1">
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+      <button class="apply-btn" onclick="applyCustom()">グラフに反映する</button>
+      <div class="custom-result" id="custom-result"></div>
+    </div>
+  </div>
+
+  <!-- ── チャートカード ── -->
+  <div class="chart-card">
     <div class="legend-row">
-      <div class="legend-item">
-        <div class="lg-rect" style="background:#1b3a5c;"></div>その他人口（実績）
-      </div>
-      <div class="legend-item">
-        <div class="lg-rect" style="background:#5b9bd5;"></div>生産年齢人口 15〜64歳（実績）
-      </div>
+      <div class="legend-item"><div class="lg-rect" style="background:#1b3a5c;"></div>その他人口（実績）</div>
+      <div class="legend-item"><div class="lg-rect" style="background:#5b9bd5;"></div>生産年齢人口 15〜64歳（実績）</div>
       <div class="lg-sep"></div>
-      <div class="legend-item">
-        <div class="lg-rect hatch-navy"></div>その他人口（推計）
-      </div>
-      <div class="legend-item">
-        <div class="lg-rect hatch-sky"></div>生産年齢人口（推計）
-      </div>
+      <div class="legend-item"><div class="lg-rect hatch-navy"></div>その他人口（推計）</div>
+      <div class="legend-item"><div class="lg-rect hatch-sky"></div>生産年齢人口（推計）</div>
       <div class="lg-sep"></div>
-      <div class="legend-item">
-        <div class="lg-line"></div>出生数（実績）
-      </div>
-      <div class="legend-item">
-        <div class="lg-line dashed"></div>出生数（推計）
-      </div>
+      <div class="legend-item"><div class="lg-line"></div>出生数（実績）</div>
+      <div class="legend-item"><div class="lg-line dashed"></div>出生数（推計）</div>
+      <div class="lg-sep" id="custom-legend-sep" style="display:none"></div>
+      <div class="legend-item custom-label" id="custom-legend"><div class="lg-line custom-dashed"></div><span id="custom-legend-label">カスタム出生数</span></div>
     </div>
 
     <div class="chart-wrapper">
       <canvas id="mainChart"></canvas>
     </div>
-    <p class="note">左軸：人口（百万人）　右軸：出生数（万人）　※2025年以降は国立社会保障・人口問題研究所 出生中位・死亡中位推計</p>
+    <p class="note">左軸：人口（百万人）　右軸：出生数（万人）　<span id="scenario-note">※ 2025年以降：国立社会保障・人口問題研究所 出生中位・死亡中位推計</span></p>
   </div>
 
   <div class="stats-row">
@@ -308,7 +357,7 @@
       <span class="stat-label">ピーク総人口（2008年）</span>
     </div>
     <div class="stat-box">
-      <span class="stat-value">87.0M</span>
+      <span class="stat-value" id="stat-2070">87.0M</span>
       <span class="stat-label">2070年推計総人口</span>
     </div>
     <div class="stat-box">
@@ -325,7 +374,9 @@
 </div>
 
 <script>
-// ── データ ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// データ定義
+// ══════════════════════════════════════════════════════
 // [year, totalPop(百万人), workingAgePop(百万人), births(万人), isProjection]
 const rawData = [
   [1950,  84.1,  49.7, 233.5, false],
@@ -344,6 +395,7 @@ const rawData = [
   [2015, 127.1,  77.7, 100.6, false],
   [2020, 126.1,  75.1,  84.1, false],
   [2023, 124.4,  73.4,  75.8, false],
+  // 推計（中位）
   [2025, 123.2,  72.0,  73.0, true],
   [2030, 120.0,  68.0,  68.0, true],
   [2035, 116.6,  63.5,  64.0, true],
@@ -353,109 +405,148 @@ const rawData = [
   [2070,  87.0,  44.5,  41.0, true],
 ];
 
-const N            = rawData.length;
-const years        = rawData.map(d => d[0]);
-const totalPop     = rawData.map(d => d[1]);
-const workingAge   = rawData.map(d => d[2]);
-const otherPop     = rawData.map((d, i) => parseFloat((d[1] - d[2]).toFixed(2)));
-const births       = rawData.map(d => d[3]);
-const isProj       = rawData.map(d => d[4]);
+// シナリオ定義：中位推計の各値に係数を掛けて生成
+// 高位：人口 +5%、生産年齢 +3%、出生数 +10%
+// 低位：人口 -6%、生産年齢 -5%、出生数 -12%
+const SCENARIOS = {
+  mid:  { popCoef: 1.00, waCoef: 1.00, birthCoef: 1.00 },
+  high: { popCoef: 1.05, waCoef: 1.03, birthCoef: 1.10 },
+  low:  { popCoef: 0.94, waCoef: 0.95, birthCoef: 0.88 },
+};
 
-// 実績 / 推計 を分け、境界点を共有させる
-const bridgeIdx = isProj.findIndex(v => v);  // 最初の推計インデックス
+const SCENARIO_LABELS = {
+  mid:  '中位推計（基準）',
+  high: '高位推計（楽観）',
+  low:  '低位推計（悲観）',
+};
 
-function split(arr) {
-  const real = arr.map((v, i) => i < bridgeIdx ? v : (i === bridgeIdx ? arr[bridgeIdx - 1] : null));
-  const proj = arr.map((v, i) => i < bridgeIdx - 1 ? null : (i === bridgeIdx - 1 ? arr[bridgeIdx - 1] : v));
-  // Note: bridgeIdx-1 = last real point → shared as start of proj line
-  return { real, proj };
+const SCENARIO_NOTES = {
+  mid:  '※ 2025年以降：国立社会保障・人口問題研究所 出生中位・死亡中位推計',
+  high: '※ 2025年以降：国立社会保障・人口問題研究所 出生高位・死亡低位推計（参考値）',
+  low:  '※ 2025年以降：国立社会保障・人口問題研究所 出生低位・死亡高位推計（参考値）',
+};
+
+// ══════════════════════════════════════════════════════
+// 基礎データ準備
+// ══════════════════════════════════════════════════════
+const years      = rawData.map(d => d[0]);
+const totalPop   = rawData.map(d => d[1]);  // 中位・実績
+const workingAge = rawData.map(d => d[2]);
+const births     = rawData.map(d => d[3]);
+const isProj     = rawData.map(d => d[4]);
+const bridgeIdx  = isProj.findIndex(v => v); // 推計開始インデックス（2025=16）
+
+// シナリオ係数を適用した推計値を生成（実績部分はそのまま）
+function applyScenario(base, coef) {
+  return base.map((v, i) => isProj[i] ? parseFloat((v * coef).toFixed(2)) : v);
 }
 
-const wa    = split(workingAge);
-const other = split(otherPop);
-const birth = split(births);
+// 現在のシナリオ
+let currentScenario = 'mid';
+let customMode = false;
+let customCoefs = { pop: 1.00, wa: 1.00, birth: 1.00 };
 
-// ── Canvas パターン（斜線）───────────────────────────────────
-function hatch(r, g, b, bg_r, bg_g, bg_b) {
+// ══════════════════════════════════════════════════════
+// Canvas パターン（斜線）
+// ══════════════════════════════════════════════════════
+const mainCtx = document.getElementById('mainChart').getContext('2d');
+
+function makeHatch(r, g, b) {
   const size = 9;
   const c = document.createElement('canvas');
   c.width = size; c.height = size;
   const p = c.getContext('2d');
-  p.fillStyle = `rgba(${bg_r},${bg_g},${bg_b},0.65)`;
+  p.fillStyle = `rgba(${r},${g},${b},0.65)`;
   p.fillRect(0, 0, size, size);
   p.strokeStyle = 'rgba(255,255,255,0.45)';
   p.lineWidth = 1.6;
-  p.beginPath(); p.moveTo(-1, size + 1); p.lineTo(size + 1, -1); p.stroke();
-  p.beginPath(); p.moveTo(-1, 1);        p.lineTo(1, -1);        p.stroke();
-  p.beginPath(); p.moveTo(size - 1, size + 1); p.lineTo(size + 1, size - 1); p.stroke();
-  const ctx2 = document.getElementById('mainChart').getContext('2d');
-  return ctx2.createPattern(c, 'repeat');
+  p.beginPath(); p.moveTo(-1, size+1); p.lineTo(size+1, -1); p.stroke();
+  p.beginPath(); p.moveTo(-1, 1); p.lineTo(1, -1); p.stroke();
+  p.beginPath(); p.moveTo(size-1, size+1); p.lineTo(size+1, size-1); p.stroke();
+  return mainCtx.createPattern(c, 'repeat');
+}
+const patNavy = makeHatch(27, 58, 92);
+const patSky  = makeHatch(91, 155, 213);
+
+// ══════════════════════════════════════════════════════
+// データセット構築ヘルパー
+// ══════════════════════════════════════════════════════
+function buildDatasets(totP, waP, birthP, customBirth = null) {
+  const otherP = totP.map((v, i) => parseFloat((v - waP[i]).toFixed(2)));
+
+  return [
+    // ── 棒グラフ 実績 ──
+    {
+      type: 'bar', label: '生産年齢人口・実績',
+      data: waP.map((v, i) => i <= bridgeIdx - 1 ? v : null),
+      backgroundColor: '#5b9bd5',
+      stack: 'pop', order: 4, yAxisID: 'yL',
+      barPercentage: 0.72, categoryPercentage: 0.82,
+    },
+    {
+      type: 'bar', label: 'その他人口・実績',
+      data: otherP.map((v, i) => i <= bridgeIdx - 1 ? v : null),
+      backgroundColor: '#1b3a5c',
+      stack: 'pop', order: 4, yAxisID: 'yL',
+      barPercentage: 0.72, categoryPercentage: 0.82,
+    },
+    // ── 棒グラフ 推計 ──
+    {
+      type: 'bar', label: '生産年齢人口・推計',
+      data: waP.map((v, i) => i >= bridgeIdx ? v : null),
+      backgroundColor: patSky, borderColor: '#5b9bd5', borderWidth: 1,
+      stack: 'pop', order: 4, yAxisID: 'yL',
+      barPercentage: 0.72, categoryPercentage: 0.82,
+    },
+    {
+      type: 'bar', label: 'その他人口・推計',
+      data: otherP.map((v, i) => i >= bridgeIdx ? v : null),
+      backgroundColor: patNavy, borderColor: '#1b3a5c', borderWidth: 1,
+      stack: 'pop', order: 4, yAxisID: 'yL',
+      barPercentage: 0.72, categoryPercentage: 0.82,
+    },
+    // ── 出生数折れ線 実績 ──
+    {
+      type: 'line', label: '出生数・実績（万人）',
+      data: birthP.map((v, i) => i <= bridgeIdx - 1 ? v : null),
+      borderColor: '#e05c1a', backgroundColor: 'rgba(224,92,26,0.08)',
+      borderWidth: 2.5, pointRadius: 4,
+      pointBackgroundColor: '#e05c1a', pointBorderColor: '#fff', pointBorderWidth: 2,
+      tension: 0.35, order: 1, yAxisID: 'yR', spanGaps: true, fill: false,
+    },
+    // ── 出生数折れ線 推計 ──
+    {
+      type: 'line', label: '出生数・推計（万人）',
+      data: birthP.map((v, i) => i >= bridgeIdx - 1 ? v : null),
+      borderColor: '#e05c1a', backgroundColor: 'transparent',
+      borderWidth: 2, borderDash: [5, 4], pointRadius: 3,
+      pointBackgroundColor: '#e05c1a', pointBorderColor: '#fff', pointBorderWidth: 2,
+      tension: 0.35, order: 1, yAxisID: 'yR', spanGaps: true, fill: false,
+    },
+    // ── カスタム出生数折れ線（非表示時は null 配列）──
+    {
+      type: 'line', label: 'カスタム出生数（万人）',
+      data: customBirth
+        ? customBirth.map((v, i) => i >= bridgeIdx - 1 ? v : null)
+        : new Array(years.length).fill(null),
+      borderColor: '#8a3abf', backgroundColor: 'transparent',
+      borderWidth: 2, borderDash: [3, 3], pointRadius: 3,
+      pointBackgroundColor: '#8a3abf', pointBorderColor: '#fff', pointBorderWidth: 2,
+      tension: 0.35, order: 0, yAxisID: 'yR', spanGaps: true, fill: false,
+    },
+  ];
 }
 
-const mainCtx     = document.getElementById('mainChart').getContext('2d');
-const patNavy     = hatch(27, 58, 92,  27, 58, 92);
-const patSky      = hatch(91, 155, 213, 91, 155, 213);
-
-new Chart(mainCtx, {
+// ══════════════════════════════════════════════════════
+// Chart.js 初期化
+// ══════════════════════════════════════════════════════
+const chart = new Chart(mainCtx, {
   data: {
     labels: years.map(y => y + '年'),
-    datasets: [
-      // 積み重ね棒（実績）：2023年まで（bridgeIdx-1 を含む）
-      {
-        type: 'bar', label: '生産年齢人口・実績',
-        data: workingAge.map((v, i) => i <= bridgeIdx - 1 ? v : null),
-        backgroundColor: '#5b9bd5',
-        stack: 'pop', order: 4, yAxisID: 'yL',
-        barPercentage: 0.72, categoryPercentage: 0.82,
-      },
-      {
-        type: 'bar', label: 'その他人口・実績',
-        data: otherPop.map((v, i) => i <= bridgeIdx - 1 ? v : null),
-        backgroundColor: '#1b3a5c',
-        stack: 'pop', order: 4, yAxisID: 'yL',
-        barPercentage: 0.72, categoryPercentage: 0.82,
-      },
-      // 積み重ね棒（推計）：2025年から（bridgeIdx 以降のみ）
-      {
-        type: 'bar', label: '生産年齢人口・推計',
-        data: workingAge.map((v, i) => i >= bridgeIdx ? v : null),
-        backgroundColor: patSky,
-        borderColor: '#5b9bd5', borderWidth: 1,
-        stack: 'pop', order: 4, yAxisID: 'yL',
-        barPercentage: 0.72, categoryPercentage: 0.82,
-      },
-      {
-        type: 'bar', label: 'その他人口・推計',
-        data: otherPop.map((v, i) => i >= bridgeIdx ? v : null),
-        backgroundColor: patNavy,
-        borderColor: '#1b3a5c', borderWidth: 1,
-        stack: 'pop', order: 4, yAxisID: 'yL',
-        barPercentage: 0.72, categoryPercentage: 0.82,
-      },
-      // 出生数折れ線（実績）
-      {
-        type: 'line', label: '出生数・実績（万人）',
-        data: births.map((v, i) => i <= bridgeIdx - 1 ? v : null),
-        borderColor: '#e05c1a', backgroundColor: 'rgba(224,92,26,0.08)',
-        borderWidth: 2.5, pointRadius: 4,
-        pointBackgroundColor: '#e05c1a', pointBorderColor: '#fff', pointBorderWidth: 2,
-        tension: 0.35, order: 1, yAxisID: 'yR', spanGaps: true, fill: false,
-      },
-      // 出生数折れ線（推計）
-      {
-        type: 'line', label: '出生数・推計（万人）',
-        data: births.map((v, i) => i >= bridgeIdx - 1 ? v : null),
-        borderColor: '#e05c1a', backgroundColor: 'transparent',
-        borderWidth: 2, borderDash: [5, 4],
-        pointRadius: 3,
-        pointBackgroundColor: '#e05c1a', pointBorderColor: '#fff', pointBorderWidth: 2,
-        tension: 0.35, order: 1, yAxisID: 'yR', spanGaps: true, fill: false,
-      },
-    ]
+    datasets: buildDatasets(totalPop, workingAge, births, null),
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
+    responsive: true, maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
@@ -469,18 +560,27 @@ new Chart(mainCtx, {
           label: item => {
             if (item.parsed.y === null || item.parsed.y === undefined) return null;
             const lb = item.dataset.label;
-            const proj = lb.includes('推計') ? '（推計）' : '';
-            if (lb.includes('出生数')) return ` 出生数${proj}：${item.parsed.y.toFixed(1)} 万人`;
-            if (lb.includes('生産年齢')) return ` 生産年齢人口${proj}：${item.parsed.y.toFixed(1)} 百万人`;
-            if (lb.includes('その他')) return ` その他人口${proj}：${item.parsed.y.toFixed(1)} 百万人`;
+            if (lb.includes('カスタム出生数')) return ` カスタム出生数：${item.parsed.y.toFixed(1)} 万人`;
+            if (lb.includes('出生数'))    return ` 出生数${lb.includes('推計') ? '（推計）' : ''}：${item.parsed.y.toFixed(1)} 万人`;
+            if (lb.includes('生産年齢')) return ` 生産年齢人口${lb.includes('推計') ? '（推計）' : ''}：${item.parsed.y.toFixed(1)} 百万人`;
+            if (lb.includes('その他'))   return ` その他人口${lb.includes('推計') ? '（推計）' : ''}：${item.parsed.y.toFixed(1)} 百万人`;
             return null;
           },
           afterBody: items => {
             const i = items[0].dataIndex;
-            const total = totalPop[i];
-            const wa2   = workingAge[i];
-            const ratio = ((wa2 / total) * 100).toFixed(1);
-            return ['', ` 総人口：${total.toFixed(1)} 百万人`, ` 生産年齢比率：${ratio}%`];
+            // 現在表示されている総人口
+            const popDs = chart.data.datasets[0];
+            const otherDs = chart.data.datasets[1];
+            const waVal    = chart.data.datasets[0].data[i] ?? 0;
+            const otherVal = chart.data.datasets[1].data[i]
+              ?? (chart.data.datasets[2].data[i] ? chart.data.datasets[3].data[i] : 0);
+            const waProj  = chart.data.datasets[2].data[i] ?? 0;
+            const othProj = chart.data.datasets[3].data[i] ?? 0;
+            const totalV  = (waVal + otherVal + waProj + othProj);
+            const waTotal = waVal + waProj;
+            if (totalV <= 0) return [];
+            const ratio = ((waTotal / totalV) * 100).toFixed(1);
+            return ['', ` 総人口：${totalV.toFixed(1)} 百万人`, ` 生産年齢比率：${ratio}%`];
           }
         }
       }
@@ -490,8 +590,7 @@ new Chart(mainCtx, {
         stacked: true,
         grid: { color: 'rgba(30,70,120,0.07)', drawTicks: false },
         ticks: {
-          font: { family: 'Noto Sans JP', size: 10 },
-          color: '#5a6e82',
+          font: { family: 'Noto Sans JP', size: 10 }, color: '#5a6e82',
           maxRotation: 45, autoSkip: true, maxTicksLimit: 14,
         },
         border: { color: 'rgba(30,70,120,0.12)' }
@@ -501,14 +600,10 @@ new Chart(mainCtx, {
         min: 0, max: 160,
         grid: { color: 'rgba(30,70,120,0.07)', drawTicks: false },
         ticks: {
-          font: { family: 'Noto Sans JP', size: 10 },
-          color: '#5a6e82',
+          font: { family: 'Noto Sans JP', size: 10 }, color: '#5a6e82',
           callback: v => v + ' M',
         },
-        title: {
-          display: true, text: '人口（百万人）',
-          font: { family: 'Noto Sans JP', size: 10 }, color: '#5a6e82',
-        },
+        title: { display: true, text: '人口（百万人）', font: { family: 'Noto Sans JP', size: 10 }, color: '#5a6e82' },
         border: { color: 'transparent', dash: [3, 3] }
       },
       yR: {
@@ -516,19 +611,125 @@ new Chart(mainCtx, {
         min: 0, max: 290,
         grid: { display: false },
         ticks: {
-          font: { family: 'Noto Sans JP', size: 10 },
-          color: '#e05c1a',
+          font: { family: 'Noto Sans JP', size: 10 }, color: '#e05c1a',
           callback: v => v + ' 万',
         },
-        title: {
-          display: true, text: '出生数（万人）',
-          font: { family: 'Noto Sans JP', size: 10 }, color: '#e05c1a',
-        },
+        title: { display: true, text: '出生数（万人）', font: { family: 'Noto Sans JP', size: 10 }, color: '#e05c1a' },
         border: { color: 'rgba(224,92,26,0.2)' }
       }
     }
   }
 });
+
+// ══════════════════════════════════════════════════════
+// UI コントロール
+// ══════════════════════════════════════════════════════
+function updateChart(totP, waP, birthP, customBirth, scenarioKey) {
+  const newDs = buildDatasets(totP, waP, birthP, customBirth);
+  chart.data.datasets.forEach((ds, i) => {
+    ds.data = newDs[i].data;
+  });
+
+  // 2070年の総人口stat更新
+  const last2070idx = years.indexOf(2070);
+  if (last2070idx >= 0) {
+    const waLast  = totP[last2070idx];
+    document.getElementById('stat-2070').textContent = waLast.toFixed(1) + 'M';
+  }
+
+  // カスタム凡例表示
+  const showCustom = customBirth !== null;
+  document.getElementById('custom-legend').classList.toggle('show', showCustom);
+  document.getElementById('custom-legend-sep').style.display = showCustom ? '' : 'none';
+
+  // ノート更新
+  if (scenarioKey === 'custom') {
+    document.getElementById('scenario-note').textContent =
+      '※ 2025年以降：カスタム係数による独自推計（中位推計ベース）';
+  } else {
+    document.getElementById('scenario-note').textContent = SCENARIO_NOTES[scenarioKey] || '';
+  }
+
+  chart.update();
+}
+
+function selectScenario(btn, key) {
+  currentScenario = key;
+  customMode = false;
+
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const sc = SCENARIOS[key];
+  const totP   = applyScenario(totalPop,   sc.popCoef);
+  const waP    = applyScenario(workingAge, sc.waCoef);
+  const birthP = applyScenario(births,     sc.birthCoef);
+
+  updateChart(totP, waP, birthP, null, key);
+
+  // カスタム結果リセット
+  document.getElementById('custom-result').classList.remove('show');
+}
+
+function applyCustom() {
+  const popCoef   = parseFloat(document.getElementById('coef-pop').value)   / 100;
+  const waCoef    = parseFloat(document.getElementById('coef-wa').value)    / 100;
+  const birthCoef = parseFloat(document.getElementById('coef-birth').value) / 100;
+
+  if ([popCoef, waCoef, birthCoef].some(v => isNaN(v) || v <= 0)) {
+    alert('有効な係数を入力してください。');
+    return;
+  }
+
+  customCoefs = { pop: popCoef, wa: waCoef, birth: birthCoef };
+  customMode = true;
+
+  // カスタム推計 = 中位推計 × 係数
+  const totP   = applyScenario(totalPop,   popCoef);
+  const waP    = applyScenario(workingAge, waCoef);
+  const birthP = applyScenario(births,     birthCoef); // これが推計ラインに反映
+  // カスタム出生数を別ラインで追加表示
+  const customBirthLine = applyScenario(births, birthCoef);
+
+  // 出生数の推計ラインは中位のまま残し、カスタムを紫で重ねる
+  updateChart(totalPop, workingAge, births, customBirthLine, 'custom');
+
+  // カスタム人口・生産年齢も反映（棒グラフ）
+  chart.data.datasets[2].data = waP.map((v, i) => i >= bridgeIdx ? v : null);
+  chart.data.datasets[3].data = totP.map((v, i) => {
+    if (i < bridgeIdx) return null;
+    const w = waP[i] ?? 0;
+    return parseFloat((v - w).toFixed(2));
+  });
+  chart.update();
+
+  // 結果表示
+  const last2070 = years.indexOf(2070);
+  const result = document.getElementById('custom-result');
+  result.innerHTML =
+    `適用済み：総人口 <strong>${(popCoef*100).toFixed(0)}%</strong>、` +
+    `生産年齢 <strong>${(waCoef*100).toFixed(0)}%</strong>、` +
+    `出生数 <strong>${(birthCoef*100).toFixed(0)}%</strong><br>` +
+    `→ 2070年推計総人口：<strong>${totP[last2070].toFixed(1)} 百万人</strong>、` +
+    `出生数：<strong>${customBirthLine[last2070].toFixed(1)} 万人</strong>`;
+  result.classList.add('show');
+
+  document.getElementById('custom-legend-label').textContent =
+    `カスタム出生数（×${(birthCoef*100).toFixed(0)}%）`;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('tab-preset').style.display  = tab === 'preset'  ? '' : 'none';
+  document.getElementById('tab-custom').classList.toggle('show', tab === 'custom');
+
+  if (tab === 'preset') {
+    // カスタムをリセットして現在のプリセットに戻す
+    customMode = false;
+    const activeBtn = document.querySelector('.scenario-btn.active');
+    if (activeBtn) selectScenario(activeBtn, activeBtn.dataset.scenario);
+  }
+}
 </script>
 </body>
 </html>
