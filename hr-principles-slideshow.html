@@ -25,25 +25,201 @@
       --sans: 'Noto Sans JP', sans-serif;
     }
 
-    html, body {
-      height: 100%;
+    /* ── Reset: html height:100% が body を viewport に固定するのが根本原因 ── */
+    html {
       background: var(--lightgray);
-      color: var(--navy);
-      font-family: var(--sans);
+      /* height: 100% を外し、スクロール可能にする */
     }
 
     body {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       padding: 2rem 1.5rem 1.5rem;
-      min-height: 100vh;
-      overflow-y: auto;
+      min-height: 100vh;         /* 高さは min- で指定 → 内容が多ければ伸びる */
+      /* height: 100% を外す */
     }
 
-    @media (min-height: 600px) {
-      body { justify-content: center; }
+    /* ════════════════════════════
+       全画面モード overlay
+    ════════════════════════════ */
+    body.fullscreen-mode {
+      background: #000;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body.fullscreen-mode .slider {
+      max-width: 100vw;
+      padding: 0;
+    }
+
+    body.fullscreen-mode .slider-track-outer {
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    body.fullscreen-mode .controls {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,32,62,0.85);
+      backdrop-filter: blur(8px);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      z-index: 100;
+    }
+
+    body.fullscreen-mode .btn-arrow { background: rgba(255,255,255,0.15); }
+    body.fullscreen-mode .btn-arrow:hover:not(:disabled) { background: var(--blue); }
+    body.fullscreen-mode .dot { background: rgba(255,255,255,0.3); }
+    body.fullscreen-mode .dot.active { background: var(--white); }
+
+    /* ════════════════════════════
+       全スライド表示モード
+    ════════════════════════════ */
+    .all-slides-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,32,62,0.92);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .all-slides-overlay.open { display: block; }
+
+    .all-slides-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .all-slides-header h3 {
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-close-all {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--white);
+      font-size: 1.1rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s;
+    }
+
+    .btn-close-all:hover { background: rgba(255,255,255,0.15); }
+
+    .all-slides-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .thumb-item {
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.18s, transform 0.18s;
+      position: relative;
+    }
+
+    .thumb-item:hover { transform: translateY(-3px); border-color: var(--blue); }
+    .thumb-item.active-thumb { border-color: var(--white); }
+
+    .thumb-preview {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--lightgray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--navy);
+      font-weight: 700;
+      padding: 0.6rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .thumb-num {
+      position: absolute;
+      bottom: 0.35rem;
+      right: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.7);
+      background: rgba(15,32,62,0.7);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+
+    /* ════════════════════════════
+       ツールバーボタン群
+    ════════════════════════════ */
+    .toolbar {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-tool {
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      height: 2.3rem;
+      padding: 0 0.75rem;
+      font-size: 0.65rem;
+      font-family: var(--mono);
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 6px;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+
+    .btn-tool:hover { background: var(--blue); }
+
+    .btn-tool svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .btn-tool kbd {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 3px;
+      padding: 0.05rem 0.3rem;
+      margin-left: 0.15rem;
+      letter-spacing: 0;
+    }
+
+    @media (max-width: 600px) {
+      .all-slides-grid { grid-template-columns: repeat(2, 1fr); }
+      .btn-tool span { display: none; }
+      .btn-tool { padding: 0 0.55rem; }
     }
 
     .slider {
@@ -441,10 +617,22 @@
       .slide { padding: 3rem 1.2rem 2rem; }
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
       .detail-points { grid-template-columns: 1fr; }
+      .all-slides-grid { grid-template-columns: repeat(2, 1fr); }
+      .btn-tool span { display: none; }
+      .btn-tool { padding: 0 0.55rem; }
     }
   </style>
 </head>
 <body>
+
+<!-- 全スライド一覧オーバーレイ -->
+<div class="all-slides-overlay" id="allSlidesOverlay">
+  <div class="all-slides-header">
+    <h3>全スライド一覧</h3>
+    <button class="btn-close-all" id="btnCloseAll" aria-label="閉じる">✕</button>
+  </div>
+  <div class="all-slides-grid" id="thumbGrid"></div>
+</div>
 
 <div class="slider">
   <div class="slider-track-outer">
@@ -759,18 +947,44 @@
     <button class="btn-arrow" id="btnPrev" aria-label="前へ">&#8249;</button>
     <div class="pagination" id="pagination"></div>
     <button class="btn-arrow" id="btnNext" aria-label="次へ">&#8250;</button>
+    <div class="toolbar">
+      <button class="btn-tool" id="btnAllSlides" aria-label="全スライド表示" title="全スライド一覧 (G)">
+        <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="4" rx="1"/><rect x="9" y="1" width="6" height="4" rx="1"/><rect x="1" y="7" width="6" height="4" rx="1"/><rect x="9" y="7" width="6" height="4" rx="1"/><rect x="1" y="13" width="6" height="2" rx="1"/><rect x="9" y="13" width="6" height="2" rx="1"/></svg>
+        <span>一覧 <kbd>G</kbd></span>
+      </button>
+      <button class="btn-tool" id="btnFullscreen" aria-label="全画面表示" title="全画面 (F)">
+        <svg viewBox="0 0 16 16"><path d="M1 1h4v2H3v2H1V1zm10 0h4v4h-2V3h-2V1zM1 11h2v2h2v2H1v-4zm12 2h-2v-2h-2v2h-2v2h6v-4h-2v2z"/></svg>
+        <span>全画面 <kbd>F</kbd></span>
+      </button>
+    </div>
   </div>
 </div>
 
 <script>
-  const track      = document.getElementById('track');
-  const btnPrev    = document.getElementById('btnPrev');
-  const btnNext    = document.getElementById('btnNext');
-  const pagination = document.getElementById('pagination');
-  const slides     = Array.from(track.children);
-  const total      = slides.length;
-  let current      = 0;
+  const track           = document.getElementById('track');
+  const btnPrev         = document.getElementById('btnPrev');
+  const btnNext         = document.getElementById('btnNext');
+  const pagination      = document.getElementById('pagination');
+  const btnFullscreen   = document.getElementById('btnFullscreen');
+  const btnAllSlides    = document.getElementById('btnAllSlides');
+  const allSlidesOverlay= document.getElementById('allSlidesOverlay');
+  const btnCloseAll     = document.getElementById('btnCloseAll');
+  const thumbGrid       = document.getElementById('thumbGrid');
+  const slides          = Array.from(track.children);
+  const total           = slides.length;
+  let current           = 0;
 
+  // スライドタイトル一覧（サムネイル表示用）
+  const slideTitles = [
+    '9原則サマリー',
+    '詳細① 目的明確化の原則',
+    '詳細② アカウンタビリティの原則',
+    '詳細③ 人間関与原則',
+    'その他6原則 ブレイクダウン',
+    '出典 / References',
+  ];
+
+  // ── ページネーションドット生成 ──
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -779,14 +993,29 @@
     pagination.appendChild(dot);
   });
 
+  // ── サムネイルグリッド生成 ──
+  slides.forEach((_, i) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item' + (i === 0 ? ' active-thumb' : '');
+    item.innerHTML = `
+      <div class="thumb-preview">${slideTitles[i] || 'Slide ' + (i+1)}</div>
+      <span class="thumb-num">${i + 1}</span>
+    `;
+    item.addEventListener('click', () => {
+      goTo(i);
+      closeAllSlides();
+    });
+    thumbGrid.appendChild(item);
+  });
+
+  // ── スライド移動 ──
   function goTo(index) {
     track.style.transform = `translateX(-${index * 100}%)`;
     slides[index].classList.remove('slide-enter');
     void slides[index].offsetWidth;
     slides[index].classList.add('slide-enter');
-    pagination.querySelectorAll('.dot').forEach((d, i) => {
-      d.classList.toggle('active', i === index);
-    });
+    pagination.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === index));
+    thumbGrid.querySelectorAll('.thumb-item').forEach((t, i) => t.classList.toggle('active-thumb', i === index));
     current = index;
     btnPrev.disabled = current === 0;
     btnNext.disabled = current === total - 1;
@@ -795,9 +1024,64 @@
   btnPrev.addEventListener('click', () => { if (current > 0) goTo(current - 1); });
   btnNext.addEventListener('click', () => { if (current < total - 1) goTo(current + 1); });
 
+  // ── キーボード ──
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft'  && current > 0)        goTo(current - 1);
-    if (e.key === 'ArrowRight' && current < total - 1) goTo(current + 1);
+    if (e.key === 'ArrowLeft'  && current > 0)         goTo(current - 1);
+    if (e.key === 'ArrowRight' && current < total - 1)  goTo(current + 1);
+    if (e.key === 'Escape') {
+      if (allSlidesOverlay.classList.contains('open')) closeAllSlides();
+      else if (document.body.classList.contains('fullscreen-mode')) exitFullscreen();
+    }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    if (e.key === 'g' || e.key === 'G') toggleAllSlides();
+  });
+
+  // ── 全画面モード ──
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      exitFullscreen();
+    } else {
+      enterFullscreen();
+    }
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    document.body.classList.add('fullscreen-mode');
+    btnFullscreen.querySelector('span') && (btnFullscreen.querySelector('span').innerHTML = '解除 <kbd>F</kbd>');
+  }
+
+  function exitFullscreen() {
+    if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    document.body.classList.remove('fullscreen-mode');
+    btnFullscreen.querySelector('span') && (btnFullscreen.querySelector('span').innerHTML = '全画面 <kbd>F</kbd>');
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      document.body.classList.remove('fullscreen-mode');
+      btnFullscreen.querySelector('span') && (btnFullscreen.querySelector('span').innerHTML = '全画面 <kbd>F</kbd>');
+    }
+  });
+
+  btnFullscreen.addEventListener('click', toggleFullscreen);
+
+  // ── 全スライド一覧 ──
+  function toggleAllSlides() {
+    allSlidesOverlay.classList.toggle('open');
+  }
+
+  function closeAllSlides() {
+    allSlidesOverlay.classList.remove('open');
+  }
+
+  btnAllSlides.addEventListener('click', toggleAllSlides);
+  btnCloseAll.addEventListener('click', closeAllSlides);
+  allSlidesOverlay.addEventListener('click', e => {
+    if (e.target === allSlidesOverlay) closeAllSlides();
   });
 
   goTo(0);
