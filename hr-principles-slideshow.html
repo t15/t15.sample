@@ -61,16 +61,28 @@
       box-shadow: none;
     }
 
+    /* 全画面時: controls をスライド下部にオーバーレイ、普段は非表示 */
     body.fullscreen-mode .controls {
       position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15,32,62,0.85);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 0.6rem 1.5rem;
+      background: rgba(15,32,62,0.82);
       backdrop-filter: blur(8px);
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
+      border-radius: 0;
       z-index: 100;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    /* マウスをスライド下部に近づけたとき or フォーカス時に表示 */
+    body.fullscreen-mode:hover .controls,
+    body.fullscreen-mode .controls:focus-within {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     body.fullscreen-mode .btn-arrow { background: rgba(255,255,255,0.15); }
@@ -1023,6 +1035,25 @@
 
   btnPrev.addEventListener('click', () => { if (current > 0) goTo(current - 1); });
   btnNext.addEventListener('click', () => { if (current < total - 1) goTo(current + 1); });
+
+  // ── タッチスワイプ ──
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    // 横方向の動きが縦より大きく、かつ30px以上のとき
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+      if (dx < 0 && current < total - 1) goTo(current + 1); // 左スワイプ→次
+      if (dx > 0 && current > 0)         goTo(current - 1); // 右スワイプ→前
+    }
+  }, { passive: true });
 
   // ── キーボード ──
   document.addEventListener('keydown', e => {
