@@ -1,12 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<title>Hello world</title>
+<meta charset="UTF-8">
+<title>t15.sample</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; color: #222; }
+  h1 { font-size: 1.2rem; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+  section { margin: 24px 0; }
+  h2 { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { margin: 6px 0; }
+  a { color: #0070f3; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
 </head>
 <body>
-<p>Hello world - Sample</p>
-<a href="flashcard.html">flashcard.html</a>
-<a href="haitatekironriwa.html">haitatekironriwa.html</a>
-<a href="japan_population.html">japan_population.html</a>
+<div id="nav"></div>
+
+<script>
+const data = [
+  {
+    category: "データ可視化",
+    items: [
+      { file: "japan_population.html", label: "日本の人口推移" },
+      { file: "data-visual-attention.html", label: "データの目立たせ方" }
+    ]
+  },
+  {
+    category: "お勉強",
+    items: [
+      { file: "flashcard.html", label: "フラッシュカード" },
+      { file: "haitatekironriwa.html", label: "排他的論理和" }
+    ]
+  },
+  {
+    category: "スライド",
+    items: [
+      { file: "hr-principles-slideshow.html", label: "人事データ利活用原則" }
+    ]
+  }
+];
+
+const nav = document.getElementById("nav");
+data.forEach(({ category, items }) => {
+  const links = items.map(({ file, label }) => `<li><a href="${file}">${label}</a></li>`).join("");
+  nav.innerHTML += `<section><h2>${category}</h2><ul>${links}</ul></section>`;
+});
+</script>
 </body>
 </html>
