@@ -6,6 +6,7 @@
   <title>ADKARモデル｜チェンジマネジメント</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" rel="stylesheet">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -918,8 +919,86 @@
     }
 
     /* ════════════════════════════
-       Controls
+       ADKAR card icon
     ════════════════════════════ */
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 1.3rem;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      color: var(--blue);
+      margin-bottom: 0.2rem;
+    }
+
+    /* ════════════════════════════
+       Slide 4 — read detail list
+    ════════════════════════════ */
+    .read-heatmap {
+      margin-bottom: 0.5rem;
+    }
+    .read-heatmap .r-role {
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .read-detail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      flex: 1;
+    }
+
+    .rd-item {
+      display: grid;
+      grid-template-columns: 1.1rem 5.2rem 1fr;
+      gap: 0 0.5rem;
+      align-items: center;
+      padding: 0.32rem 0.6rem;
+      border-radius: 4px;
+      background: var(--lightgray);
+      font-size: 0.64rem;
+    }
+
+    .rd-item.rd-ok   { border-left: 3px solid var(--navy); }
+    .rd-item.rd-warn { border-left: 3px solid var(--amber); }
+    .rd-item.rd-bad  { border-left: 3px solid rgb(200,50,50); }
+
+    .rd-letter {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .rd-label {
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .rd-text {
+      color: var(--muted);
+    }
+
+    /* ════════════════════════════
+       Citation title link
+    ════════════════════════════ */
+    .citation-item .c-title a {
+      color: var(--navy);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .citation-item .c-title a:hover {
+      color: var(--blue);
+      border-color: var(--blue);
+    }
     .controls {
       display: flex;
       align-items: center;
@@ -1026,6 +1105,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 1</span>
+                <span class="material-symbols-outlined">visibility</span>
                 <span class="adkar-letter">A</span>
                 <div class="adkar-word">Awareness</div>
                 <div class="adkar-def">なぜ変化が必要かを理解している</div>
@@ -1034,6 +1114,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 2</span>
+                <span class="material-symbols-outlined">favorite</span>
                 <span class="adkar-letter">D</span>
                 <div class="adkar-word">Desire</div>
                 <div class="adkar-def">変化に参加したいと思っている</div>
@@ -1042,6 +1123,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 3</span>
+                <span class="material-symbols-outlined">menu_book</span>
                 <span class="adkar-letter">K</span>
                 <div class="adkar-word">Knowledge</div>
                 <div class="adkar-def">どう変わるかを知っている</div>
@@ -1050,6 +1132,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 4</span>
+                <span class="material-symbols-outlined">build</span>
                 <span class="adkar-letter">A</span>
                 <div class="adkar-word">Ability</div>
                 <div class="adkar-def">実際にできる</div>
@@ -1058,6 +1141,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 5</span>
+                <span class="material-symbols-outlined">recycling</span>
                 <span class="adkar-letter">R</span>
                 <div class="adkar-word">Reinforcement</div>
                 <div class="adkar-def">続ける理由・後押しがある</div>
@@ -1116,7 +1200,7 @@
             </div>
           </div>
           <div class="premise-insight">
-            <div class="why-label">👉 Key Point</div>
+            <div class="why-label">Key Point</div>
             <p><strong>「組織全体を1つのADKAR段階で語らない」</strong>ことが、ADKAR診断を正しく使うための出発点。</p>
           </div>
         </div>
@@ -1140,11 +1224,11 @@
               <thead>
                 <tr>
                   <th>ロール</th>
-                  <th>Awareness</th>
-                  <th>Desire</th>
-                  <th>Knowledge</th>
-                  <th>Ability</th>
-                  <th>Reinforcement</th>
+                  <th>A</th>
+                  <th>D</th>
+                  <th>K</th>
+                  <th>A</th>
+                  <th>R</th>
                 </tr>
               </thead>
               <tbody>
@@ -1182,7 +1266,7 @@
             </div>
           </div>
           <div class="heatmap-insight">
-            <p>👉 ハイライト行（管理職層）が次のスライドで詳細分析の対象。<strong>これがADKAR診断の基本形（ヒートマップ）</strong>。</p>
+            <p>ハイライト行（管理職層）が次のスライドで詳細分析の対象。<strong>これがADKAR診断の基本形（ヒートマップ）</strong>。</p>
           </div>
         </div>
         <div class="slide-pagenum">3</div>
@@ -1201,42 +1285,35 @@
             <div class="read-premise">
               AwarenessもKnowledgeも充足しているにもかかわらず動かない管理職層。「理解させれば動く」という前提が崩れる典型例として、<strong>管理職層の行</strong>に着目する。
             </div>
-            <table class="read-table">
+            <table class="read-table read-heatmap">
               <thead>
                 <tr>
-                  <th>ADKAR</th>
-                  <th>状態</th>
-                  <th>読み取り</th>
+                  <th>ロール</th>
+                  <th>A</th>
+                  <th>D</th>
+                  <th>K</th>
+                  <th>A</th>
+                  <th>R</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Awareness</td>
+                <tr class="focus-row">
+                  <td class="r-role">管理職層</td>
                   <td class="cell-ok">○</td>
-                  <td>変革の必要性は理解している</td>
-                </tr>
-                <tr>
-                  <td>Desire</td>
                   <td class="cell-warn">△</td>
-                  <td>負荷増・納得感不足</td>
-                </tr>
-                <tr>
-                  <td>Knowledge</td>
                   <td class="cell-ok">○</td>
-                  <td>研修・説明は受けている</td>
-                </tr>
-                <tr>
-                  <td>Ability</td>
                   <td class="cell-warn">△</td>
-                  <td>実践に自信がない</td>
-                </tr>
-                <tr>
-                  <td>Reinforcement</td>
                   <td class="cell-bad">×</td>
-                  <td>評価・報酬と未接続</td>
                 </tr>
               </tbody>
             </table>
+            <div class="read-detail-list">
+              <div class="rd-item rd-ok"><span class="rd-letter">A</span><span class="rd-label">Awareness</span><span class="rd-text">変革の必要性は理解している</span></div>
+              <div class="rd-item rd-warn"><span class="rd-letter">D</span><span class="rd-label">Desire</span><span class="rd-text">負荷増・納得感不足</span></div>
+              <div class="rd-item rd-ok"><span class="rd-letter">K</span><span class="rd-label">Knowledge</span><span class="rd-text">研修・説明は受けている</span></div>
+              <div class="rd-item rd-warn"><span class="rd-letter">A</span><span class="rd-label">Ability</span><span class="rd-text">実践に自信がない</span></div>
+              <div class="rd-item rd-bad"><span class="rd-letter">R</span><span class="rd-label">Reinforcement</span><span class="rd-text">評価・報酬と未接続</span></div>
+            </div>
           </div>
           <div class="read-right">
             <div class="read-right-title">この読み取りから分かること</div>
@@ -1252,7 +1329,7 @@
               </ul>
             </div>
             <div class="read-cta">
-              <p>👉 ここで初めて <strong>「何を打つべきか」の議論が始まる</strong>。施策より先に詰まりの特定。</p>
+              <p>ここで初めて <strong>「何を打つべきか」の議論が始まる</strong>。施策より先に詰まりの特定。</p>
             </div>
           </div>
         </div>
@@ -1321,40 +1398,35 @@
           <div class="citation-list">
             <div class="citation-item">
               <span class="c-org">Prosci</span>
-              <div class="c-title">The Prosci ADKAR® Model</div>
-              <div class="c-url"><a href="https://www.prosci.com/methodology/adkar" target="_blank">https://www.prosci.com/methodology/adkar</a></div>
+              <div class="c-title"><a href="https://www.prosci.com/methodology/adkar" target="_blank">The Prosci ADKAR® Model</a></div>
               <ul class="c-bullets">
                 <li>ADKARを「個人の変化における5つの成果」と定義。組織変革は個人変化の集合体であるという前提を明示</li>
               </ul>
             </div>
             <div class="citation-item">
               <span class="c-org">Prosci Blog</span>
-              <div class="c-title">Individual Barriers to Change and What to Do About Them</div>
-              <div class="c-url"><a href="https://blog.prosci.com/individual-barriers-to-change-and-what-to-do-about-them" target="_blank">https://blog.prosci.com/individual-barriers-to-change-and-what-to-do-about-them</a></div>
+              <div class="c-title"><a href="https://blog.prosci.com/individual-barriers-to-change-and-what-to-do-about-them" target="_blank">Individual Barriers to Change and What to Do About Them</a></div>
               <ul class="c-bullets">
                 <li>バリアポイント（最初にスコア3以下になる要素）の概念と、ロール別診断の考え方を詳説</li>
               </ul>
             </div>
             <div class="citation-item">
               <span class="c-org">Change-Management-Coach</span>
-              <div class="c-title">ADKAR Change Management Model</div>
-              <div class="c-url"><a href="https://www.change-management-coach.com/adkar_change_management_model.html" target="_blank">https://www.change-management-coach.com/adkar_change_management_model.html</a></div>
+              <div class="c-title"><a href="https://www.change-management-coach.com/adkar_change_management_model.html" target="_blank">ADKAR Change Management Model</a></div>
               <ul class="c-bullets">
                 <li>各要素で個人が止まる理由の具体例と、Reinforcementが失敗する典型パターンを整理</li>
               </ul>
             </div>
             <div class="citation-item">
               <span class="c-org">and Change</span>
-              <div class="c-title">ADKAR MODEL EXPLAINED – How Does it Work?</div>
-              <div class="c-url"><a href="https://www.andchange.com/adkar-model-explained-part-1-how-does-it-work/" target="_blank">https://www.andchange.com/adkar-model-explained-part-1-how-does-it-work/</a></div>
+              <div class="c-title"><a href="https://www.andchange.com/adkar-model-explained-part-1-how-does-it-work/" target="_blank">ADKAR MODEL EXPLAINED – How Does it Work?</a></div>
               <ul class="c-bullets">
                 <li>個人ADKARプロファイルをグループ全体に拡張する考え方。ヒートマップ的な集団読み替えの解説</li>
               </ul>
             </div>
             <div class="citation-item">
               <span class="c-org">Toolshero</span>
-              <div class="c-title">ADKAR Model of Change by Jeff Hiatt</div>
-              <div class="c-url"><a href="https://www.toolshero.com/change-management/adkar-model-of-change/" target="_blank">https://www.toolshero.com/change-management/adkar-model-of-change/</a></div>
+              <div class="c-title"><a href="https://www.toolshero.com/change-management/adkar-model-of-change/" target="_blank">ADKAR Model of Change by Jeff Hiatt</a></div>
               <ul class="c-bullets">
                 <li>モデルの限界（戦略的変革・大規模DXへの適用限界）を含む客観的整理。組織共通言語としての活用文脈</li>
               </ul>
