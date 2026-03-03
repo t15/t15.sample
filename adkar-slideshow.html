@@ -847,25 +847,56 @@
     .action-row {
       background: var(--lightgray);
       border-radius: 5px;
-      padding: 0.45rem 0.75rem;
+      padding: 0.42rem 0.75rem;
       display: grid;
-      grid-template-columns: 5.5rem 1fr;
-      gap: 0 0.7rem;
+      grid-template-columns: 5rem 1fr;
+      gap: 0 0.6rem;
       align-items: start;
     }
 
     .action-row .a-tag {
       font-family: var(--mono);
-      font-size: 0.58rem;
+      font-size: 0.57rem;
       font-weight: 700;
-      padding-top: 0.1rem;
+      padding-top: 0.18rem;
       color: var(--blue);
+      line-height: 1.4;
     }
 
-    .action-row .a-text {
-      font-size: 0.65rem;
+    .action-row .a-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+    }
+
+    .action-row .a-desc {
+      font-size: 0.63rem;
       color: var(--navy);
-      line-height: 1.55;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .action-row .a-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+    }
+
+    .action-row .a-bullets li {
+      font-size: 0.6rem;
+      color: var(--muted);
+      line-height: 1.45;
+      padding-left: 0.8rem;
+      position: relative;
+    }
+
+    .action-row .a-bullets li::before {
+      content: '●';
+      font-size: 0.32rem;
+      position: absolute;
+      left: 0; top: 0.33em;
+      color: var(--muted);
     }
 
     /* ════════════════════════════
@@ -986,6 +1017,15 @@
     .read-heatmap .r-role {
       font-size: 0.65rem;
       font-weight: 700;
+    }
+
+    .read-table-arrow {
+      text-align: center;
+      font-size: 0.58rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0;
+      flex-shrink: 0;
     }
 
     .read-detail-list {
@@ -1349,6 +1389,7 @@
                 </tr>
               </tbody>
             </table>
+            <div class="read-table-arrow">▼ 各要素の読み取り</div>
             <div class="read-detail-list">
               <div class="rd-item rd-ok"><span class="rd-letter">A</span><span class="rd-label">Awareness</span><span class="rd-text">変革の必要性は理解している</span></div>
               <div class="rd-item rd-warn"><span class="rd-letter">D</span><span class="rd-label">Desire</span><span class="rd-text">負荷増・納得感不足</span></div>
@@ -1398,7 +1439,7 @@
             </div>
             <div class="usage-role">
               <div class="r-label">ADKARの役割</div>
-              <p>全体平均ではなくヒートマップで分布を見て、一番弱い要素にだけ手を打つ。「どこに設計不足があるか」を揃えるための共通言語として機能する。</p>
+              <p>全体平均ではなくヒートマップで分布を見て、一番弱い要素にだけ手を打つ。<strong>「どこに設計不足があるか」を揃えるための共通言語</strong>として機能する。</p>
             </div>
             <div class="usage-role usage-scope">
               <div class="r-label">スコープと限界</div>
@@ -1411,24 +1452,54 @@
           <div class="usage-right">
             <div class="usage-right-title">打ち手の方向づけ（弱い要素別）</div>
             <div class="action-row">
-              <span class="a-tag">Awarenessが弱い</span>
-              <span class="a-text">背景・Whyの再設計。変革の必要性をロール別の言語で伝え直す。</span>
+              <span class="a-tag">Awareness</span>
+              <div class="a-body">
+                <span class="a-desc">「なぜ変わるのか」をロール別に届ける</span>
+                <ul class="a-bullets">
+                  <li>スポンサー（経営層）からの一貫したメッセージ発信</li>
+                  <li>影響を受ける層ごとにWhyをパーソナライズ</li>
+                </ul>
+              </div>
             </div>
             <div class="action-row">
-              <span class="a-tag">Desireが弱い</span>
-              <span class="a-text">利害・負荷・不安の言語化。「やらない合理性」に向き合った設計が必要。</span>
+              <span class="a-tag">Desire</span>
+              <div class="a-body">
+                <span class="a-desc">変化への意欲を引き出す</span>
+                <ul class="a-bullets">
+                  <li>WIIFM（自分にとって何が変わるか）の明示</li>
+                  <li>早期段階からの当事者巻き込みによる自分ごと化</li>
+                </ul>
+              </div>
             </div>
             <div class="action-row">
-              <span class="a-tag">Knowledgeが弱い</span>
-              <span class="a-text">研修・手順・ロールモデルの整備。「何をどうすればよいか」が具体的に伝わる設計をする。</span>
+              <span class="a-tag">Knowledge</span>
+              <div class="a-body">
+                <span class="a-desc">「何をどうするか」を具体的に伝える</span>
+                <ul class="a-bullets">
+                  <li>ロール別トレーニングの設計・実施</li>
+                  <li>FAQの整備と継続的なアップデート</li>
+                </ul>
+              </div>
             </div>
             <div class="action-row">
-              <span class="a-tag">Abilityが弱い</span>
-              <span class="a-text">権限・時間・実践機会の確保。知っていてもできない構造的障壁を取り除く。</span>
+              <span class="a-tag">Ability</span>
+              <div class="a-body">
+                <span class="a-desc">知っていても動けない障壁を取り除く</span>
+                <ul class="a-bullets">
+                  <li>1on1・OJTによる実践機会の確保</li>
+                  <li>権限・時間・サポート体制の整備</li>
+                </ul>
+              </div>
             </div>
             <div class="action-row">
-              <span class="a-tag">Reinforcementが弱い</span>
-              <span class="a-text">評価・報酬・称賛との接続。継続を支える構造がなければ行動は定着しない。</span>
+              <span class="a-tag">Reinforcement</span>
+              <div class="a-body">
+                <span class="a-desc">継続を後押しする構造を整備する</span>
+                <ul class="a-bullets">
+                  <li>評価制度・報酬制度への変化行動の反映</li>
+                  <li>承認・称賛の仕組みによる定着促進</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
