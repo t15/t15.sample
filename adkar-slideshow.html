@@ -311,52 +311,72 @@
     .intro-box strong { color: var(--blue); font-weight: 700; }
 
     .adkar-cards {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.5rem;
+      display: flex;
+      align-items: stretch;
       flex: 1;
       min-height: 0;
+      gap: 0;
+    }
+
+    .adkar-arrow-wrap {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      position: relative;
+      min-width: 0;
     }
 
     .adkar-card {
+      flex: 1;
       background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.7rem 0.7rem 0.6rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      border-right: none;
+      padding: 0.75rem 1.3rem 0.65rem 1.2rem;
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 0.28rem;
       position: relative;
-      overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 50%, calc(100% - 13px) 100%, 0 100%, 13px 50%);
     }
 
-    .adkar-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: var(--navy);
+    .adkar-arrow-wrap:first-child .adkar-card {
+      clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 50%, calc(100% - 13px) 100%, 0 100%);
+      padding-left: 0.9rem;
+    }
+
+    .adkar-arrow-wrap:last-child .adkar-card {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 13px 50%);
+    }
+
+    .adkar-step {
+      font-family: var(--mono);
+      font-size: 0.48rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
     .adkar-letter {
       font-family: var(--mono);
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 700;
       line-height: 1;
       color: var(--navy);
     }
 
     .adkar-word {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--navy);
     }
 
     .adkar-def {
-      font-size: 0.6rem;
+      font-size: 0.57rem;
       color: var(--muted);
-      line-height: 1.55;
-      margin-top: 0.15rem;
+      line-height: 1.5;
+      margin-top: 0.1rem;
     }
 
     .intro-thought {
@@ -816,25 +836,28 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0;
       min-height: 0;
     }
 
     .citation-list {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.32rem;
       flex: 1;
       min-height: 0;
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.6rem;
     }
 
     .citation-item {
       background: var(--lightgray);
       border-radius: 6px;
-      padding: 0.45rem 0.9rem;
+      padding: 0.4rem 0.9rem;
       display: flex;
       flex-direction: column;
-      gap: 0.15rem;
+      gap: 0.12rem;
     }
 
     .citation-item .c-org {
@@ -946,7 +969,9 @@
     @media (max-width: 600px) {
       .slider-track-outer { aspect-ratio: unset; min-height: 520px; }
       .slide { padding: 3rem 1.2rem 2rem; }
-      .adkar-cards { grid-template-columns: repeat(3, 1fr); }
+      .adkar-cards { flex-wrap: wrap; }
+      .adkar-arrow-wrap { flex: 0 0 calc(50% - 0.5rem); }
+      .adkar-card { clip-path: none !important; border-radius: 6px; border: 1px solid var(--border); }
       .intro-top { grid-template-columns: 1fr; }
       .premise-cols { grid-template-columns: 1fr; }
       .read-body { flex-direction: column; }
@@ -980,7 +1005,7 @@
       <div class="slide bg-gray">
         <span class="slide-label">Overview</span>
         <div class="slide-header">
-          <p class="slide-lead">ADKARは、<strong>個人が変われる条件を5つに分解した</strong>チェンジマネジメントの観測モデルだ。</p>
+          <p class="slide-lead">ADKARは、個人が変容する条件を5つに分解したチェンジマネジメントの観測モデルである</p>
         </div>
         <div class="adkar-intro">
           <div class="intro-top">
@@ -998,30 +1023,45 @@
             </div>
           </div>
           <div class="adkar-cards">
-            <div class="adkar-card">
-              <span class="adkar-letter">A</span>
-              <div class="adkar-word">Awareness</div>
-              <div class="adkar-def">なぜ変化が必要かを理解している</div>
+            <div class="adkar-arrow-wrap">
+              <div class="adkar-card">
+                <span class="adkar-step">Step 1</span>
+                <span class="adkar-letter">A</span>
+                <div class="adkar-word">Awareness</div>
+                <div class="adkar-def">なぜ変化が必要かを理解している</div>
+              </div>
             </div>
-            <div class="adkar-card">
-              <span class="adkar-letter">D</span>
-              <div class="adkar-word">Desire</div>
-              <div class="adkar-def">変化に参加したいと思っている</div>
+            <div class="adkar-arrow-wrap">
+              <div class="adkar-card">
+                <span class="adkar-step">Step 2</span>
+                <span class="adkar-letter">D</span>
+                <div class="adkar-word">Desire</div>
+                <div class="adkar-def">変化に参加したいと思っている</div>
+              </div>
             </div>
-            <div class="adkar-card">
-              <span class="adkar-letter">K</span>
-              <div class="adkar-word">Knowledge</div>
-              <div class="adkar-def">どう変わるかを知っている</div>
+            <div class="adkar-arrow-wrap">
+              <div class="adkar-card">
+                <span class="adkar-step">Step 3</span>
+                <span class="adkar-letter">K</span>
+                <div class="adkar-word">Knowledge</div>
+                <div class="adkar-def">どう変わるかを知っている</div>
+              </div>
             </div>
-            <div class="adkar-card">
-              <span class="adkar-letter">A</span>
-              <div class="adkar-word">Ability</div>
-              <div class="adkar-def">実際にできる</div>
+            <div class="adkar-arrow-wrap">
+              <div class="adkar-card">
+                <span class="adkar-step">Step 4</span>
+                <span class="adkar-letter">A</span>
+                <div class="adkar-word">Ability</div>
+                <div class="adkar-def">実際にできる</div>
+              </div>
             </div>
-            <div class="adkar-card">
-              <span class="adkar-letter">R</span>
-              <div class="adkar-word">Reinforcement</div>
-              <div class="adkar-def">続ける理由・後押しがある</div>
+            <div class="adkar-arrow-wrap">
+              <div class="adkar-card">
+                <span class="adkar-step">Step 5</span>
+                <span class="adkar-letter">R</span>
+                <div class="adkar-word">Reinforcement</div>
+                <div class="adkar-def">続ける理由・後押しがある</div>
+              </div>
             </div>
           </div>
           <div class="intro-thought">
@@ -1037,7 +1077,7 @@
       <div class="slide">
         <span class="slide-label">Context</span>
         <div class="slide-header">
-          <p class="slide-lead">ADKARは個人モデルであり、<strong>組織全体を1つの段階で語ることはできない</strong>。</p>
+          <p class="slide-lead">前提として、ADKARは個人モデルのため、組織全体を1つの段階で語ることはできない</p>
         </div>
         <div class="premise-body">
           <div class="premise-lead">
@@ -1089,7 +1129,7 @@
       <div class="slide bg-gray">
         <span class="slide-label">Diagnosis</span>
         <div class="slide-header">
-          <p class="slide-lead">ADKAR診断は人の評価ではなく、<strong>詰まりの分布を可視化するためのもの</strong>だ。</p>
+          <p class="slide-lead">組織におけるADKARの活用では、詰まりの分布を可視化するために診断することがポイントになる</p>
         </div>
         <div class="heatmap-body">
           <div class="heatmap-desc">
@@ -1135,10 +1175,10 @@
               </tbody>
             </table>
             <div class="heatmap-legend">
-              <span><span class="cell-good">◎</span> 充足</span>
-              <span><span class="cell-ok">○</span> おおむね充足</span>
-              <span><span class="cell-warn">△</span> 要注意</span>
-              <span><span class="cell-bad">×</span> 詰まり</span>
+              <span>◎ 充足</span>
+              <span>○ おおむね充足</span>
+              <span>△ 要注意</span>
+              <span>× 詰まり</span>
             </div>
           </div>
           <div class="heatmap-insight">
@@ -1154,7 +1194,7 @@
       <div class="slide">
         <span class="slide-label">Deep Dive</span>
         <div class="slide-header">
-          <p class="slide-lead">管理職層が動かない理由は、<strong>理解不足ではなく構造的な詰まり</strong>にある。</p>
+          <p class="slide-lead">例えば、管理職層が動かない理由は、理解不足ではなく構造的な詰まりにあると読み取ることができる</p>
         </div>
         <div class="read-body">
           <div class="read-left">
@@ -1225,7 +1265,7 @@
       <div class="slide bg-gray">
         <span class="slide-label">Practice</span>
         <div class="slide-header">
-          <p class="slide-lead">施策より先に、<strong>どこが詰まっているかを診断で揃える</strong>。それがADKARの使い方だ。</p>
+          <p class="slide-lead">施策より先に、どこが詰まっているか、診断で揃えるのがADKARの使い方として有効である</p>
         </div>
         <div class="usage-body">
           <div class="usage-left">
@@ -1251,6 +1291,10 @@
             <div class="action-row">
               <span class="a-tag">Desireが弱い</span>
               <span class="a-text">利害・負荷・不安の言語化。「やらない合理性」に向き合った設計が必要。</span>
+            </div>
+            <div class="action-row">
+              <span class="a-tag">Knowledgeが弱い</span>
+              <span class="a-text">研修・手順・ロールモデルの整備。「何をどうすればよいか」が具体的に伝わる設計をする。</span>
             </div>
             <div class="action-row">
               <span class="a-tag">Abilityが弱い</span>
