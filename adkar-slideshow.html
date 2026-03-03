@@ -464,7 +464,7 @@
 
     .premise-insight {
       background: var(--navy-10);
-      border-left: 3px solid var(--amber);
+      border-left: 3px solid var(--navy);
       border-radius: 0 5px 5px 0;
       padding: 0.55rem 1rem;
       flex-shrink: 0;
@@ -472,7 +472,7 @@
     .premise-insight .why-label {
       font-family: var(--mono);
       font-size: 0.56rem;
-      color: var(--amber);
+      color: var(--navy);
       letter-spacing: 0.1em;
       text-transform: uppercase;
       margin-bottom: 0.25rem;
@@ -553,10 +553,10 @@
     .heatmap-table tr.focus-row td { background: rgba(28, 122, 172, 0.07); }
     .heatmap-table tr.focus-row td:first-child { background: rgba(28, 122, 172, 0.15); color: var(--blue); }
 
-    .cell-good  { color: var(--green); font-weight: 700; }
+    .cell-good  { color: var(--navy); font-weight: 700; }
     .cell-ok    { color: var(--navy); font-weight: 500; }
-    .cell-warn  { color: var(--amber); font-weight: 700; }
-    .cell-bad   { color: rgb(200, 50, 50); font-weight: 700; }
+    .cell-warn  { color: var(--muted); font-weight: 500; }
+    .cell-bad   { color: var(--navy); font-weight: 700; }
 
     .heatmap-legend {
       display: flex;
@@ -571,7 +571,7 @@
 
     .heatmap-insight {
       background: var(--navy-10);
-      border-left: 3px solid var(--amber);
+      border-left: 3px solid var(--navy);
       border-radius: 0 5px 5px 0;
       padding: 0.5rem 1rem;
       flex-shrink: 0;
@@ -675,8 +675,8 @@
     }
 
     .read-bottleneck {
-      background: rgba(200, 50, 50, 0.07);
-      border: 1px solid rgba(200, 50, 50, 0.25);
+      background: var(--navy-10);
+      border: 1px solid var(--border);
       border-radius: 5px;
       padding: 0.5rem 0.7rem;
       flex: 1;
@@ -685,7 +685,7 @@
       font-family: var(--mono);
       font-size: 0.54rem;
       letter-spacing: 0.1em;
-      color: rgb(200, 50, 50);
+      color: var(--navy);
       margin-bottom: 0.3rem;
       text-transform: uppercase;
     }
@@ -707,7 +707,7 @@
 
     .read-cta {
       background: var(--navy-10);
-      border-left: 3px solid var(--amber);
+      border-left: 3px solid var(--navy);
       border-radius: 0 5px 5px 0;
       padding: 0.48rem 0.85rem;
       flex-shrink: 0;
@@ -796,6 +796,44 @@
       line-height: 1.65;
     }
     .usage-role strong { color: var(--blue); font-weight: 700; }
+
+    .usage-scope {
+      border-left: 3px solid var(--navy);
+      background: var(--navy-10);
+      border-radius: 0 5px 5px 0;
+      padding: 0.55rem 0.9rem;
+      flex: 1;
+    }
+    .usage-scope .r-label {
+      font-family: var(--mono);
+      font-size: 0.56rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+    }
+    .usage-scope p {
+      font-size: 0.67rem;
+      color: var(--navy);
+      line-height: 1.65;
+    }
+    .usage-scope strong { color: var(--navy); font-weight: 700; }
+
+    .scope-list { list-style: none; display: flex; flex-direction: column; gap: 0.2rem; }
+    .scope-list li {
+      font-size: 0.67rem;
+      color: var(--navy);
+      line-height: 1.55;
+      padding-left: 0.9rem;
+      position: relative;
+    }
+    .scope-list li::before {
+      content: '●';
+      font-size: 0.36rem;
+      position: absolute;
+      left: 0; top: 0.32em;
+      color: var(--navy);
+    }
 
     .usage-right-title {
       font-size: 0.65rem;
@@ -968,9 +1006,9 @@
       font-size: 0.64rem;
     }
 
-    .rd-item.rd-ok   { border-left: 3px solid var(--navy); }
-    .rd-item.rd-warn { border-left: 3px solid var(--amber); }
-    .rd-item.rd-bad  { border-left: 3px solid rgb(200,50,50); }
+    .rd-item.rd-ok   { border-left: 3px solid var(--border); }
+    .rd-item.rd-warn { border-left: 3px solid var(--border); }
+    .rd-item.rd-bad  { border-left: 3px solid var(--border); }
 
     .rd-letter {
       font-family: var(--mono);
@@ -1145,7 +1183,7 @@
             <div class="adkar-arrow-wrap">
               <div class="adkar-card">
                 <span class="adkar-step">Step 5</span>
-                <span class="material-symbols-outlined">recycling</span>
+                <span class="material-symbols-outlined">autorenew</span>
                 <span class="adkar-letter">R</span>
                 <div class="adkar-word">Reinforcement</div>
                 <div class="adkar-def">続ける理由・後押しがある</div>
@@ -1359,9 +1397,15 @@
               </ul>
             </div>
             <div class="usage-role">
+              <div class="r-label">ADKARの役割</div>
+              <p>全体平均ではなくヒートマップで分布を見て、一番弱い要素にだけ手を打つ。「どこに設計不足があるか」を揃えるための共通言語として機能する。</p>
+            </div>
+            <div class="usage-role usage-scope">
               <div class="r-label">スコープと限界</div>
-              <p>● ADKARは<strong>人的側面に特化したフレーム</strong>であり、制度・仕組み・リソース配分といった構造的要素はスコープ外。変革の成功にはそれらが別途必須となる<br>
-                 ● また診断の状態は固定ではなく、<strong>段階は後退することもある</strong>。定期的な再診断と打ち手の見直しが前提となる</p>
+              <ul class="scope-list">
+                <li>ADKARは<strong>人的側面に特化したフレーム</strong>。制度・仕組み・リソース配分といった構造的要素はスコープ外であり、変革の成功には別途必須となる</li>
+                <li>診断の状態は後退することもあり、<strong>定期的な再診断と打ち手の見直し</strong>が前提となる</li>
+              </ul>
             </div>
           </div>
           <div class="usage-right">
