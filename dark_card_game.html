@@ -4,677 +4,713 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>モンスターカードバトル</title>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Antique+Soft&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique+Soft&family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#07080f; --panel:#0f1020; --panel2:#0c0d1c; --border:#1e2040;
-  --text:#dde0ff; --dim:#5560aa;
-  --gold:#ffd166; --green:#06d6a0; --red:#ef476f; --blue:#4cc9f0;
-
-  /* タイプカラー */
+  --bg:#060610; --panel:#0e0f22; --panel2:#0a0b1a; --border:#1c1e3a;
+  --text:#dde2ff; --dim:#4a5080; --dimmer:#2a2e55;
+  --gold:#ffd166; --green:#00f5a0; --red:#ff4466; --blue:#4cc9f0; --purple:#c77dff;
   --fire:#ff6b35; --water:#4cc9f0; --grass:#57cc99;
-  --elec:#ffd60a; --dark:#9b5de5; --rock:#b5835a;
+  --elec:#ffd60a; --dark:#9b5de5; --rock:#c4a35a;
   --wind:#80ffdb; --ice:#a8dadc;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
 body{
-  background:var(--bg); color:var(--text);
+  background:var(--bg);color:var(--text);
   font-family:'M PLUS Rounded 1c',sans-serif;
-  min-height:100vh; overflow-x:hidden;
+  min-height:100vh;overflow-x:hidden;
 }
+/* 背景グラデーション */
 body::before{
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -5%,rgba(155,93,229,0.12) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 60% at 5% 100%,rgba(6,214,160,0.05) 0%,transparent 50%),
-    radial-gradient(ellipse 40% 40% at 95% 80%,rgba(76,201,240,0.05) 0%,transparent 50%);
+    radial-gradient(ellipse 90% 50% at 50% -5%,rgba(155,93,229,.1) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 60% at 0% 80%,rgba(0,245,160,.04) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 100% 20%,rgba(76,201,240,.04) 0%,transparent 50%);
+}
+/* 六角形グリッドパターン */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16Z' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E");
 }
 
-/* ===== 星 ===== */
+/* ===== STARS ===== */
 .stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
 .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 3s infinite;}
-@keyframes twinkle{0%,100%{opacity:.08}50%{opacity:.6}}
+@keyframes twinkle{0%,100%{opacity:.06}50%{opacity:.5}}
 
-#app{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:10px 10px 100px;}
+#app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:10px 10px 100px;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;}
+.screen.active{display:block;}
 
 /* ===== HEADER ===== */
-header{text-align:center;padding:10px 0 4px;position:relative;}
+header{
+  text-align:center;padding:12px 0 6px;position:relative;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
 .title{
   font-family:'Zen Antique Soft',serif;
-  font-size:clamp(1.5rem,5vw,2.3rem);
-  background:linear-gradient(130deg,var(--gold) 0%,#fff 45%,var(--blue) 100%);
+  font-size:clamp(1.4rem,4.5vw,2.2rem);
+  background:linear-gradient(130deg,var(--gold) 0%,#fff 40%,var(--blue) 80%,var(--purple) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 0 18px rgba(155,93,229,.5));
-  letter-spacing:.1em;
+  filter:drop-shadow(0 0 20px rgba(155,93,229,.5));
+  letter-spacing:.08em;
 }
-.subtitle{font-size:.7rem;color:var(--dim);letter-spacing:.3em;margin-top:2px;}
-.btn-rules-header{
-  position:absolute;right:0;top:50%;transform:translateY(-50%);
-  background:rgba(255,209,102,.1);border:1.5px solid rgba(255,209,102,.4);
-  color:var(--gold);border-radius:20px;padding:6px 14px;
-  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.75rem;font-weight:700;
-  cursor:pointer;transition:all .15s;
+.header-btns{display:flex;gap:6px;position:absolute;right:0;top:50%;transform:translateY(-50%);}
+.hbtn{
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.68rem;font-weight:700;
+  padding:5px 11px;border-radius:20px;border:1.5px solid;cursor:pointer;
+  background:transparent;transition:all .15s;letter-spacing:.03em;
 }
-.btn-rules-header:hover{background:rgba(255,209,102,.2);box-shadow:0 0 12px rgba(255,209,102,.2);}
+.hbtn-gold{color:var(--gold);border-color:rgba(255,209,102,.4);}
+.hbtn-gold:hover{background:rgba(255,209,102,.12);box-shadow:0 0 10px rgba(255,209,102,.2);}
+.hbtn-blue{color:var(--blue);border-color:rgba(76,201,240,.4);}
+.hbtn-blue:hover{background:rgba(76,201,240,.1);}
 
 /* ===== STATUS BAR ===== */
 .status-bar{
-  display:grid;grid-template-columns:1fr auto 1fr;
-  gap:10px;align-items:center;
+  display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;
   background:var(--panel);border:1px solid var(--border);
-  border-radius:14px;padding:12px 16px;margin:8px 0;
+  border-radius:14px;padding:11px 14px;margin:7px 0;
+  position:relative;overflow:hidden;
 }
-.hp-row{display:flex;align-items:center;gap:6px;font-size:.75rem;}
-.hp-label{min-width:30px;font-weight:700;}
-.hp-bar{flex:1;height:11px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;min-width:50px;}
-.hp-fill{height:100%;border-radius:6px;transition:width .4s ease;}
-.hp-fill.p{background:linear-gradient(90deg,#06d6a0,#4dffd6);}
-.hp-fill.e{background:linear-gradient(90deg,#ef476f,#ff8fa3);}
-.hp-num{font-size:.72rem;font-weight:800;min-width:36px;text-align:right;}
-.lv-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  background:rgba(155,93,229,.2);border:1px solid rgba(155,93,229,.4);
-  border-radius:20px;padding:3px 10px;font-size:.7rem;font-weight:700;color:#c77dff;margin-top:4px;
+.status-bar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(155,93,229,.4),transparent);
 }
-.exp-wrap{margin-top:3px;}
-.exp-label{font-size:.58rem;color:var(--dim);margin-bottom:2px;}
-.exp-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.s-col{display:flex;flex-direction:column;gap:5px;}
+.s-col.right{align-items:flex-end;}
+.hp-row{display:flex;align-items:center;gap:5px;}
+.hp-lbl{font-size:.68rem;font-weight:800;min-width:28px;}
+.hp-track{flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;min-width:50px;}
+.hp-fill{height:100%;border-radius:5px;transition:width .4s ease;}
+.hp-fill.p{background:linear-gradient(90deg,#00c88a,#00f5a0);}
+.hp-fill.e{background:linear-gradient(90deg,#cc2244,#ff4466);}
+.hp-val{font-size:.68rem;font-weight:800;min-width:34px;}
+.lv-pip{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(199,125,255,.15);border:1px solid rgba(199,125,255,.35);
+  border-radius:20px;padding:2px 9px;font-size:.65rem;font-weight:700;color:var(--purple);
+}
+.exp-mini{margin-top:1px;}
+.exp-lbl-sm{font-size:.55rem;color:var(--dim);}
+.exp-track{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:2px;}
 .exp-fill{height:100%;background:linear-gradient(90deg,#9b5de5,#f15bb5);border-radius:2px;transition:width .4s;}
-.round-center{text-align:center;}
-.round-big{font-size:1.5rem;font-weight:800;color:var(--gold);display:block;line-height:1;}
-.round-lbl{font-size:.65rem;color:var(--dim);}
-.status-right{text-align:right;}
-.status-right .hp-row{flex-direction:row-reverse;}
-.status-right .hp-num{text-align:left;}
+.round-c{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.round-num{font-size:1.6rem;font-weight:900;color:var(--gold);line-height:1;}
+.round-lbl{font-size:.55rem;color:var(--dim);letter-spacing:.1em;}
 
-/* ===== タイプ相性表示 ===== */
+/* ===== TYPE HINT ===== */
 .type-hint{
-  text-align:center;font-size:.7rem;padding:5px 12px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
-  border-radius:8px;margin-bottom:6px;color:var(--dim);min-height:28px;
-  display:flex;align-items:center;justify-content:center;gap:6px;
+  text-align:center;font-size:.72rem;
+  padding:5px 12px;background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);border-radius:8px;
+  margin-bottom:6px;color:var(--dim);min-height:28px;
+  display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;
 }
-.type-hint b{color:var(--text);}
 
-/* ===== ENEMY SECTION ===== */
-.enemy-section{
-  background:var(--panel2);border:1px solid rgba(239,71,111,.22);
-  border-radius:14px;padding:12px;margin-bottom:7px;
+/* ===== ZONES ===== */
+.zone{
+  border-radius:14px;padding:11px 12px;margin-bottom:7px;
+  position:relative;overflow:hidden;
 }
-.section-lbl{font-size:.6rem;letter-spacing:.35em;color:var(--dim);text-transform:uppercase;margin-bottom:7px;}
+.zone-enemy{
+  background:var(--panel2);border:1px solid rgba(255,68,102,.18);
+}
+.zone-enemy::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,68,102,.35),transparent);}
+.zone-player{
+  background:var(--panel2);border:1px solid rgba(155,93,229,.2);
+}
+.zone-player::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(155,93,229,.35),transparent);}
+.zone-lbl{font-size:.58rem;letter-spacing:.35em;color:var(--dim);text-transform:uppercase;margin-bottom:7px;}
 .enemy-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.enemy-name-big{font-family:'Zen Antique Soft',serif;font-size:1rem;text-shadow:0 0 10px currentColor;}
-.enemy-type-tag{font-size:.65rem;padding:2px 9px;border-radius:20px;border:1px solid;font-weight:700;}
-.enemy-hand{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:60px;align-items:center;}
+.enemy-name{font-family:'Zen Antique Soft',serif;font-size:.95rem;text-shadow:0 0 12px currentColor;}
+.enemy-tag{font-size:.62rem;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:700;}
+.hand-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:55px;align-items:center;}
+.phand-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:130px;align-items:center;}
+.hand-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.hand-count{font-size:.62rem;color:var(--dim);}
 
 /* ===== BATTLEFIELD ===== */
 .battlefield{
-  background:rgba(155,93,229,.04);border:1px solid rgba(155,93,229,.14);
+  background:rgba(155,93,229,.03);border:1px solid rgba(155,93,229,.12);
   border-radius:14px;padding:14px;margin-bottom:7px;
-  min-height:140px;display:flex;align-items:center;justify-content:center;
-  gap:18px;flex-wrap:wrap;position:relative;
+  min-height:150px;display:flex;align-items:center;
+  justify-content:center;gap:20px;flex-wrap:wrap;position:relative;
 }
-.bf-label{position:absolute;top:8px;left:12px;font-size:.6rem;letter-spacing:.3em;color:var(--dim);}
-.vs-txt{font-family:'Zen Antique Soft',serif;font-size:1.6rem;color:rgba(255,255,255,.12);display:none;}
-.played-grp{display:flex;flex-direction:column;align-items:center;gap:5px;display:none;}
-.played-who{font-size:.6rem;letter-spacing:.2em;color:var(--dim);}
-.bf-empty{font-size:.75rem;color:var(--dim);}
-
-/* ===== PLAYER SECTION ===== */
-.player-section{
-  background:var(--panel2);border:1px solid rgba(155,93,229,.22);
-  border-radius:14px;padding:12px;margin-bottom:7px;
-}
-.player-hand{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:120px;align-items:center;}
-.hand-lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.hand-count{font-size:.65rem;color:var(--dim);}
-
-/* ===== MONSTER CARD ===== */
-.mcard{
-  width:80px;height:112px;border-radius:10px;cursor:pointer;
-  transition:transform .18s,box-shadow .18s;flex-shrink:0;position:relative;
-  border:2px solid var(--border);
-}
-.mcard:hover:not(.no-hover){transform:translateY(-16px) scale(1.07);}
-.mcard.selected{transform:translateY(-22px) scale(1.1) !important;}
-.mcard-inner{
-  width:100%;height:100%;border-radius:9px;
-  display:flex;flex-direction:column;overflow:hidden;
-  position:relative;
-}
-.mcard.selected{border-color:rgba(255,255,255,.6);box-shadow:0 0 20px rgba(255,255,255,.2);}
-
-/* カード上部（絵文字エリア） */
-.mcard-art{
-  flex:1;display:flex;align-items:center;justify-content:center;
-  font-size:2.2rem;position:relative;
-  background:linear-gradient(160deg,rgba(255,255,255,.07) 0%,transparent 60%);
-}
-.mcard-art::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,.4));}
-
-/* カード下部（情報エリア） */
-.mcard-info{
-  padding:4px 5px 5px;background:rgba(0,0,0,.55);
-  backdrop-filter:blur(4px);
-}
-.mcard-name{font-size:.52rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;margin-bottom:2px;}
-.mcard-row{display:flex;justify-content:space-between;align-items:center;}
-.mcard-type{font-size:.48rem;font-weight:700;padding:1px 5px;border-radius:8px;}
-.mcard-pow{font-size:.62rem;font-weight:800;color:var(--gold);}
-
-/* タイプ別カード背景 */
-.type-fire   .mcard-inner{background:linear-gradient(160deg,#2a0e00,#1a0800);}
-.type-water  .mcard-inner{background:linear-gradient(160deg,#001a2a,#000f1a);}
-.type-grass  .mcard-inner{background:linear-gradient(160deg,#002a10,#001a08);}
-.type-elec   .mcard-inner{background:linear-gradient(160deg,#2a2200,#1a1500);}
-.type-dark   .mcard-inner{background:linear-gradient(160deg,#1a0030,#0d0018);}
-.type-rock   .mcard-inner{background:linear-gradient(160deg,#1a1208,#0f0a04);}
-.type-wind   .mcard-inner{background:linear-gradient(160deg,#002a2a,#001818);}
-.type-ice    .mcard-inner{background:linear-gradient(160deg,#00182a,#000f1a);}
-
-.type-fire  {border-color:rgba(255,107,53,.5);}
-.type-water {border-color:rgba(76,201,240,.5);}
-.type-grass {border-color:rgba(87,204,153,.5);}
-.type-elec  {border-color:rgba(255,214,10,.5);}
-.type-dark  {border-color:rgba(155,93,229,.5);}
-.type-rock  {border-color:rgba(181,131,90,.5);}
-.type-wind  {border-color:rgba(128,255,219,.5);}
-.type-ice   {border-color:rgba(168,218,220,.5);}
-
-.type-fire.selected  {box-shadow:0 0 24px rgba(255,107,53,.6);}
-.type-water.selected {box-shadow:0 0 24px rgba(76,201,240,.6);}
-.type-grass.selected {box-shadow:0 0 24px rgba(87,204,153,.6);}
-.type-elec.selected  {box-shadow:0 0 24px rgba(255,214,10,.6);}
-.type-dark.selected  {box-shadow:0 0 24px rgba(155,93,229,.6);}
-.type-rock.selected  {box-shadow:0 0 24px rgba(181,131,90,.6);}
-.type-wind.selected  {box-shadow:0 0 24px rgba(128,255,219,.6);}
-.type-ice.selected   {box-shadow:0 0 24px rgba(168,218,220,.6);}
-
-/* バトルフィールドカード */
-.mcard.bf{cursor:default;}
-.mcard.bf.p-bf{box-shadow:0 0 20px rgba(6,214,160,.3);}
-.mcard.bf.e-bf{box-shadow:0 0 20px rgba(239,71,111,.3);}
-
-/* 裏面カード */
-.mcard.back{cursor:default;}
-.mcard.back .mcard-inner{
-  background:repeating-linear-gradient(45deg,#0d0d22,#0d0d22 5px,#111128 5px,#111128 10px);
-  align-items:center;justify-content:center;
-}
-.mcard.back .mcard-inner::before{content:'❓';font-size:1.8rem;color:rgba(255,255,255,.15);}
-
-/* 特殊バッジ */
-.special-glow .mcard-inner::after{
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(circle at 50% 30%,rgba(255,209,102,.15),transparent 60%);
-  pointer-events:none;
-}
+.bf-lbl{position:absolute;top:8px;left:12px;font-size:.58rem;letter-spacing:.3em;color:var(--dim);}
+.vs-txt{font-family:'Zen Antique Soft',serif;font-size:1.8rem;color:rgba(255,255,255,.1);display:none;user-select:none;}
+.played-g{display:none;flex-direction:column;align-items:center;gap:5px;}
+.played-who{font-size:.58rem;letter-spacing:.2em;color:var(--dim);}
+.bf-empty{font-size:.73rem;color:var(--dim);}
 
 /* ===== ITEMS ===== */
-.items-section{
-  background:var(--panel2);border:1px solid rgba(255,209,102,.18);
-  border-radius:14px;padding:11px 12px;margin-bottom:7px;
+.items-zone{
+  background:var(--panel2);border:1px solid rgba(255,209,102,.15);
+  border-radius:14px;padding:10px 12px;margin-bottom:7px;
 }
 .items-row{display:flex;gap:7px;flex-wrap:wrap;}
-.item-btn{
+.ibtn{
   display:flex;flex-direction:column;align-items:center;
-  background:rgba(255,209,102,.05);border:1.5px solid rgba(255,209,102,.2);
-  border-radius:10px;padding:6px 10px;cursor:pointer;
+  background:rgba(255,209,102,.04);border:1.5px solid rgba(255,209,102,.18);
+  border-radius:10px;padding:6px 9px;cursor:pointer;
   transition:all .15s;font-family:'M PLUS Rounded 1c',sans-serif;
-  color:var(--gold);min-width:62px;
+  color:var(--gold);min-width:60px;
 }
-.item-btn:hover:not(:disabled){background:rgba(255,209,102,.12);transform:translateY(-2px);box-shadow:0 0 12px rgba(255,209,102,.15);}
-.item-btn:disabled{opacity:.3;cursor:not-allowed;}
-.item-icon{font-size:1.3rem;}
-.item-name{font-size:.55rem;font-weight:700;margin-top:2px;}
-.item-cnt{font-size:.55rem;color:var(--dim);margin-top:1px;}
+.ibtn:hover:not(:disabled){background:rgba(255,209,102,.1);transform:translateY(-2px);box-shadow:0 0 14px rgba(255,209,102,.15);}
+.ibtn:disabled{opacity:.3;cursor:not-allowed;}
+.iico{font-size:1.25rem;}
+.iname{font-size:.54rem;font-weight:700;margin-top:2px;}
+.icnt{font-size:.52rem;color:var(--dim);}
 
 /* ===== CONTROLS ===== */
 .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:7px 0;}
 .btn{
-  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.82rem;font-weight:700;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.8rem;font-weight:700;
   padding:10px 22px;border-radius:25px;border:2px solid;cursor:pointer;
   transition:all .15s;background:transparent;letter-spacing:.04em;
 }
 .btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
-.btn-play{color:var(--green);border-color:var(--green);}
-.btn-play:hover:not(:disabled){background:rgba(6,214,160,.12);box-shadow:0 0 20px rgba(6,214,160,.3);transform:translateY(-2px);}
-.btn-pass{color:var(--dim);border-color:rgba(255,255,255,.1);font-size:.75rem;}
-.btn-pass:hover:not(:disabled){background:rgba(255,255,255,.04);}
-.btn-new{color:var(--red);border-color:rgba(239,71,111,.45);font-size:.75rem;}
-.btn-new:hover{background:rgba(239,71,111,.07);}
+.btn-g{color:var(--green);border-color:var(--green);}
+.btn-g:hover:not(:disabled){background:rgba(0,245,160,.1);box-shadow:0 0 20px rgba(0,245,160,.25);transform:translateY(-2px);}
+.btn-r{color:var(--red);border-color:rgba(255,68,102,.45);font-size:.75rem;}
+.btn-r:hover{background:rgba(255,68,102,.07);}
+.btn-dim{color:var(--dim);border-color:rgba(255,255,255,.1);font-size:.74rem;}
+.btn-dim:hover:not(:disabled){background:rgba(255,255,255,.04);}
+.btn-p{color:var(--purple);border-color:rgba(199,125,255,.4);}
+.btn-p:hover:not(:disabled){background:rgba(199,125,255,.1);box-shadow:0 0 16px rgba(199,125,255,.2);transform:translateY(-2px);}
 
 /* ===== LOG ===== */
 .log-box{
-  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.04);
-  border-radius:10px;padding:10px 14px;font-size:.78rem;min-height:38px;
-  line-height:1.55;color:var(--dim);
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.04);
+  border-radius:10px;padding:10px 14px;font-size:.77rem;
+  min-height:38px;line-height:1.6;color:var(--dim);
 }
 
-/* ===== RULES MODAL ===== */
+/* ===== SVG CARD ===== */
+.mcard{
+  width:86px;height:120px;cursor:pointer;flex-shrink:0;
+  transition:transform .18s,filter .18s;position:relative;
+  border-radius:10px;
+}
+.mcard:hover:not(.no-hover){transform:translateY(-18px) scale(1.08);}
+.mcard.selected{transform:translateY(-24px) scale(1.12)!important;filter:drop-shadow(0 0 12px var(--sel-glow,white));}
+.mcard.bf-card{cursor:default;width:86px;height:120px;}
+.mcard.back-card{cursor:default;}
+.mcard svg{width:100%;height:100%;border-radius:10px;overflow:hidden;}
+
+/* ===== LEVEL UP POPUP ===== */
+.lvup{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);z-index:600;
+  background:var(--panel);border:2px solid var(--gold);
+  border-radius:18px;padding:24px 36px;text-align:center;
+  box-shadow:0 0 70px rgba(255,209,102,.5);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.lvup.show{transform:translate(-50%,-50%) scale(1);}
+.lvup-ttl{font-size:1.5rem;font-weight:900;color:var(--gold);}
+.lvup-sub{font-size:.8rem;color:var(--dim);margin-top:4px;}
+.lvup-bonus{font-size:.85rem;color:var(--green);margin-top:8px;font-weight:700;}
+
+/* ===== GAME OVERLAY ===== */
+.g-overlay{
+  position:fixed;inset:0;z-index:400;background:rgba(4,4,14,.93);
+  backdrop-filter:blur(12px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+}
+.g-overlay.hidden{display:none;}
+.ov-title{font-family:'Zen Antique Soft',serif;font-size:clamp(2rem,6vw,3.2rem);text-align:center;}
+.ov-title.win{color:var(--gold);text-shadow:0 0 40px rgba(255,209,102,.5);}
+.ov-title.lose{color:var(--red);text-shadow:0 0 40px rgba(255,68,102,.5);}
+.ov-sub{font-size:.85rem;color:var(--dim);letter-spacing:.15em;}
+.ov-stats{font-size:.78rem;color:var(--text);line-height:2;text-align:center;margin:6px 0;}
+
+/* ===== MODAL BASE ===== */
 .modal-bg{
-  position:fixed;inset:0;z-index:400;
-  background:rgba(5,5,15,.9);backdrop-filter:blur(10px);
-  display:flex;align-items:center;justify-content:center;padding:16px;
+  position:fixed;inset:0;z-index:500;background:rgba(4,4,14,.9);
+  backdrop-filter:blur(10px);display:flex;align-items:center;
+  justify-content:center;padding:12px;
 }
 .modal-bg.hidden{display:none;}
 .modal{
   background:var(--panel);border:1.5px solid var(--border);
-  border-radius:18px;max-width:560px;width:100%;max-height:88vh;
-  overflow-y:auto;padding:24px;position:relative;
+  border-radius:18px;max-width:600px;width:100%;
+  max-height:90vh;overflow-y:auto;padding:22px;position:relative;
 }
-.modal-title{
-  font-family:'Zen Antique Soft',serif;font-size:1.4rem;
-  color:var(--gold);margin-bottom:16px;text-align:center;
-  text-shadow:0 0 16px rgba(255,209,102,.4);
+.modal-ttl{
+  font-family:'Zen Antique Soft',serif;font-size:1.3rem;
+  color:var(--gold);margin-bottom:14px;text-align:center;
+  text-shadow:0 0 14px rgba(255,209,102,.35);
 }
-.modal-close{
-  position:absolute;top:14px;right:14px;
-  background:rgba(255,255,255,.06);border:1px solid var(--border);
-  color:var(--text);border-radius:50%;width:30px;height:30px;
-  font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+.modal-x{
+  position:absolute;top:12px;right:12px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  color:var(--text);border-radius:50%;width:28px;height:28px;
+  font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .15s;
 }
-.modal-close:hover{background:rgba(239,71,111,.2);border-color:var(--red);}
-.rule-section{margin-bottom:18px;}
-.rule-section h3{font-size:.85rem;font-weight:800;color:var(--blue);margin-bottom:8px;letter-spacing:.05em;border-bottom:1px solid var(--border);padding-bottom:4px;}
-.rule-section p,.rule-section li{font-size:.78rem;color:var(--text);line-height:1.7;margin-bottom:3px;}
-.rule-section ul{padding-left:1.2em;}
+.modal-x:hover{background:rgba(255,68,102,.2);border-color:var(--red);}
 
-/* 相性表 */
-.type-table{width:100%;border-collapse:collapse;font-size:.68rem;margin-top:6px;}
-.type-table th,.type-table td{padding:5px 7px;text-align:center;border:1px solid var(--border);}
-.type-table th{background:rgba(255,255,255,.05);font-weight:700;}
-.eff-strong{color:var(--green);font-weight:800;}
-.eff-weak{color:var(--red);font-weight:800;}
-.eff-normal{color:var(--dim);}
-.type-chip{
-  display:inline-block;padding:2px 8px;border-radius:10px;
-  font-size:.62rem;font-weight:700;margin:2px;
+/* ===== DECK BUILDER ===== */
+.deck-builder{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.deck-builder{grid-template-columns:1fr;}}
+.db-panel{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:12px;}
+.db-panel-ttl{font-size:.7rem;font-weight:800;color:var(--blue);margin-bottom:8px;letter-spacing:.1em;}
+.db-card-list{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto;}
+.db-row{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);
+  border-radius:8px;cursor:pointer;transition:all .13s;
+}
+.db-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
+.db-row.in-deck{background:rgba(155,93,229,.08);border-color:rgba(155,93,229,.3);}
+.db-icon{font-size:1.3rem;width:28px;text-align:center;}
+.db-info{flex:1;min-width:0;}
+.db-name{font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.db-meta{font-size:.58rem;color:var(--dim);margin-top:1px;}
+.db-lv{font-size:.62rem;font-weight:700;color:var(--gold);}
+.db-pow{font-size:.65rem;font-weight:700;color:var(--green);}
+.db-add{
+  font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;
+  border:1px solid;cursor:pointer;background:transparent;
+  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .12s;
+  white-space:nowrap;
+}
+.db-add.add{color:var(--green);border-color:rgba(0,245,160,.4);}
+.db-add.add:hover{background:rgba(0,245,160,.12);}
+.db-add.remove{color:var(--red);border-color:rgba(255,68,102,.4);}
+.db-add.remove:hover{background:rgba(255,68,102,.1);}
+.db-count-info{font-size:.68rem;color:var(--dim);margin-bottom:6px;text-align:center;}
+.type-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.tf-btn{
+  font-size:.6rem;padding:2px 8px;border-radius:12px;border:1px solid;
+  cursor:pointer;background:transparent;font-family:'M PLUS Rounded 1c',sans-serif;
+  font-weight:700;transition:all .12s;
+}
+.tf-btn.active{opacity:1;}
+.tf-btn:not(.active){opacity:.35;}
+
+/* ===== CARD COLLECTION (Level Up) ===== */
+.collection-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));
+  gap:10px;max-height:400px;overflow-y:auto;padding:4px;
+}
+.col-card-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;
+}
+.col-lv-info{font-size:.65rem;text-align:center;}
+.col-exp-bar{width:86px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.col-exp-fill{height:100%;background:linear-gradient(90deg,var(--gold),#ff9f1c);border-radius:2px;transition:width .3s;}
+.col-upgrade-btn{
+  font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:12px;
+  border:1.5px solid rgba(255,209,102,.5);color:var(--gold);
+  background:rgba(255,209,102,.08);cursor:pointer;
+  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .13s;
+  white-space:nowrap;
+}
+.col-upgrade-btn:hover{background:rgba(255,209,102,.18);box-shadow:0 0 10px rgba(255,209,102,.2);}
+.col-upgrade-btn:disabled{opacity:.3;cursor:not-allowed;}
+.gold-display{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);
+  border-radius:20px;padding:4px 12px;font-size:.75rem;font-weight:700;color:var(--gold);
+  margin-bottom:10px;justify-content:center;
 }
 
-/* ===== LEVEL UP ===== */
-.lvup{
-  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
-  z-index:500;background:var(--panel);border:2px solid var(--gold);
-  border-radius:18px;padding:24px 36px;text-align:center;
-  box-shadow:0 0 60px rgba(255,209,102,.4);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-}
-.lvup.show{transform:translate(-50%,-50%) scale(1);}
-.lvup-title{font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:5px;}
-.lvup-sub{font-size:.8rem;color:var(--dim);}
-.lvup-bonus{font-size:.85rem;color:var(--green);margin-top:8px;font-weight:700;}
+/* ===== RULES MODAL ===== */
+.rule-sec{margin-bottom:16px;}
+.rule-sec h3{font-size:.82rem;font-weight:800;color:var(--blue);margin-bottom:7px;letter-spacing:.05em;border-bottom:1px solid var(--border);padding-bottom:3px;}
+.rule-sec p,.rule-sec li{font-size:.76rem;color:var(--text);line-height:1.75;margin-bottom:2px;}
+.rule-sec ul{padding-left:1.2em;}
+.type-tbl{width:100%;border-collapse:collapse;font-size:.66rem;margin-top:5px;}
+.type-tbl th,.type-tbl td{padding:5px 6px;text-align:center;border:1px solid var(--border);}
+.type-tbl th{background:rgba(255,255,255,.04);font-weight:700;}
+.eff-s{color:var(--green);font-weight:800;}
+.eff-w{color:var(--red);font-weight:800;}
 
-/* ===== OVERLAY ===== */
-.overlay{
-  position:fixed;inset:0;z-index:300;
-  background:rgba(5,5,15,.93);backdrop-filter:blur(10px);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-}
-.overlay.hidden{display:none;}
-.ov-title{font-family:'Zen Antique Soft',serif;font-size:clamp(1.8rem,6vw,3rem);text-align:center;line-height:1.1;}
-.ov-title.win{color:var(--gold);text-shadow:0 0 30px rgba(255,209,102,.5);}
-.ov-title.lose{color:var(--red);text-shadow:0 0 30px rgba(239,71,111,.5);}
-.ov-sub{font-size:.85rem;color:var(--dim);letter-spacing:.15em;}
-.ov-stats{font-size:.78rem;color:var(--text);line-height:1.9;text-align:center;margin:6px 0;}
-
-/* ===== ANIMATIONS ===== */
-@keyframes dealIn{from{transform:translateY(-18px) scale(.85);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-@keyframes floatUp{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-50px)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+/* ===== FLOAT ===== */
+@keyframes floatUp{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-55px)}}
+@keyframes dealIn{from{transform:translateY(-16px) scale(.88);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
 .deal{animation:dealIn .22s ease forwards;}
+
+/* スクロールバー */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03);}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
 </style>
 </head>
 <body>
-
 <div class="stars" id="stars"></div>
 
 <div id="app">
   <!-- ヘッダー -->
   <header>
-    <div class="title">👹 モンスターカードバトル 👹</div>
-    <div class="subtitle">モンスターをあつめて たたかえ！</div>
-    <button class="btn-rules-header" onclick="showRules()">📖 あそびかた</button>
+    <div class="title">👹 モンスターカードバトル</div>
+    <div class="header-btns">
+      <button class="hbtn hbtn-gold" onclick="openCollection()">⭐ カード強化</button>
+      <button class="hbtn hbtn-blue" onclick="openDeckBuilder()">🃏 デッキ編集</button>
+      <button class="hbtn hbtn-gold" onclick="openRules()">📖 ルール</button>
+    </div>
   </header>
 
   <!-- ステータスバー -->
   <div class="status-bar">
-    <div>
+    <div class="s-col">
       <div class="hp-row">
-        <span class="hp-label" style="color:var(--green)">自分</span>
-        <div class="hp-bar"><div class="hp-fill p" id="p-hp-bar" style="width:100%"></div></div>
-        <span class="hp-num" id="p-hp-num">20/20</span>
+        <span class="hp-lbl" style="color:var(--green)">自分</span>
+        <div class="hp-track"><div class="hp-fill p" id="p-hp-bar" style="width:100%"></div></div>
+        <span class="hp-val" id="p-hp-val" style="color:var(--green)">20/20</span>
       </div>
-      <div class="lv-badge">⭐ Lv.<span id="p-lv">1</span></div>
-      <div class="exp-wrap">
-        <div class="exp-label">けいけんち <span id="p-exp">0</span>/<span id="p-exp-max">10</span></div>
-        <div class="exp-bar"><div class="exp-fill" id="p-exp-bar" style="width:0%"></div></div>
+      <div class="lv-pip">⭐ Lv.<span id="p-lv">1</span></div>
+      <div class="exp-mini">
+        <div class="exp-lbl-sm">けいけんち <span id="p-exp">0</span>/<span id="p-exp-max">10</span></div>
+        <div class="exp-track"><div class="exp-fill" id="p-exp-bar" style="width:0%"></div></div>
       </div>
     </div>
-    <div class="round-center">
-      <span class="round-big" id="round-num">1</span>
+    <div class="round-c">
+      <span class="round-num" id="round-num">1</span>
       <div class="round-lbl">ラウンド</div>
     </div>
-    <div class="status-right">
+    <div class="s-col right">
       <div class="hp-row">
-        <span class="hp-label" style="color:var(--red)">てき</span>
-        <div class="hp-bar"><div class="hp-fill e" id="e-hp-bar" style="width:100%"></div></div>
-        <span class="hp-num" id="e-hp-num">20/20</span>
+        <span class="hp-lbl" style="color:var(--red)">てき</span>
+        <div class="hp-track"><div class="hp-fill e" id="e-hp-bar" style="width:100%"></div></div>
+        <span class="hp-val" id="e-hp-val" style="color:var(--red)">20/20</span>
       </div>
-      <div class="lv-badge" style="border-color:rgba(239,71,111,.4);color:var(--red);">👹 Lv.<span id="e-lv">1</span></div>
-      <div class="exp-wrap">
-        <div class="exp-label" style="color:var(--dim)">てきのつよさ</div>
-        <div class="exp-bar"><div class="exp-fill" id="e-pow-bar" style="background:linear-gradient(90deg,#ef476f,#ff8fa3)"></div></div>
+      <div class="lv-pip" style="border-color:rgba(255,68,102,.35);color:var(--red);">👹 Lv.<span id="e-lv">1</span></div>
+      <div class="exp-mini">
+        <div class="exp-lbl-sm" style="color:var(--dim)">てきのちから</div>
+        <div class="exp-track"><div id="e-str-bar" style="height:100%;background:linear-gradient(90deg,#cc2244,#ff4466);border-radius:2px;transition:width .4s;"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- タイプ相性ヒント -->
-  <div class="type-hint" id="type-hint">カードをえらぶと、タイプ相性がわかるよ！</div>
+  <!-- タイプヒント -->
+  <div class="type-hint" id="type-hint">カードをえらぶとタイプ相性がわかるよ！</div>
 
   <!-- てき -->
-  <div class="enemy-section">
-    <div class="section-lbl">▲ てきの手ふだ</div>
+  <div class="zone zone-enemy">
+    <div class="zone-lbl">▲ てきの手ふだ</div>
     <div class="enemy-header">
-      <div class="enemy-name-big" id="enemy-name">あんこくりゅう</div>
-      <div class="enemy-type-tag" id="enemy-tag">👹 やみのまじん</div>
+      <div class="enemy-name" id="enemy-name" style="color:var(--red)">あんこくりゅう</div>
+      <div class="enemy-tag" id="enemy-tag" style="color:var(--red);border-color:rgba(255,68,102,.35)">👹 やみのまじん</div>
     </div>
-    <div class="enemy-hand" id="enemy-hand"></div>
+    <div class="hand-row" id="enemy-hand"></div>
   </div>
 
   <!-- バトルフィールド -->
   <div class="battlefield" id="battlefield">
-    <div class="bf-label">⚔️ バトルフィールド</div>
-    <div class="played-grp" id="p-grp">
-      <div class="played-who">あなた</div>
-      <div id="p-slot"></div>
-    </div>
+    <div class="bf-lbl">⚔️ バトルフィールド</div>
+    <div class="played-g" id="p-grp"><div class="played-who">あなた</div><div id="p-slot"></div></div>
     <div class="vs-txt" id="vs-txt">VS</div>
-    <div class="played-grp" id="e-grp">
-      <div class="played-who">てき</div>
-      <div id="e-slot"></div>
-    </div>
+    <div class="played-g" id="e-grp"><div class="played-who">てき</div><div id="e-slot"></div></div>
     <div class="bf-empty" id="bf-empty">カードをえらんで「だす！」をおそう</div>
   </div>
 
   <!-- アイテム -->
-  <div class="items-section">
-    <div class="section-lbl">🎒 アイテムバッグ</div>
+  <div class="items-zone">
+    <div class="zone-lbl">🎒 アイテムバッグ</div>
     <div class="items-row" id="items-row"></div>
   </div>
 
-  <!-- 手ふだ -->
-  <div class="player-section">
-    <div class="hand-lbl">
-      <div class="section-lbl" style="margin:0">▼ あなたの手ふだ</div>
+  <!-- プレイヤー手ふだ -->
+  <div class="zone zone-player">
+    <div class="hand-meta">
+      <div class="zone-lbl" style="margin:0">▼ あなたの手ふだ</div>
       <div class="hand-count" id="hand-count"></div>
     </div>
-    <div class="player-hand" id="player-hand"></div>
+    <div class="phand-row" id="player-hand"></div>
   </div>
 
   <!-- コントロール -->
   <div class="controls">
-    <button class="btn btn-play" id="btn-play" onclick="playCard()" disabled>⚔️ だす！</button>
-    <button class="btn btn-pass" id="btn-pass" onclick="passTurn()" disabled>🏳️ パス</button>
-    <button class="btn btn-new"  onclick="newGame()">🔄 あたらしいゲーム</button>
+    <button class="btn btn-g" id="btn-play" onclick="playCard()" disabled>⚔️ だす！</button>
+    <button class="btn btn-dim" id="btn-pass" onclick="passTurn()" disabled>🏳️ パス</button>
+    <button class="btn btn-r" onclick="newGame()">🔄 あたらしいゲーム</button>
   </div>
 
   <!-- ログ -->
-  <div class="log-box" id="log-box">「あたらしいゲーム」をおしてはじめよう！</div>
+  <div class="log-box" id="log-box">「あたらしいゲーム」をおしてはじめよう！デッキもへんこうできるよ。</div>
 </div>
 
 <!-- レベルアップ -->
 <div class="lvup" id="lvup">
-  <div class="lvup-title">⭐ レベルアップ！</div>
-  <div class="lvup-sub">Lv.<span id="lv-num">2</span> になった！</div>
+  <div class="lvup-ttl">⭐ レベルアップ！</div>
+  <div class="lvup-sub">プレイヤーLv.<span id="lv-num">2</span> になった！</div>
   <div class="lvup-bonus" id="lv-bonus">さいだいHPが +5 あがった！</div>
 </div>
 
-<!-- ゲームオーバーオーバーレイ -->
-<div class="overlay hidden" id="overlay">
+<!-- ゲームオーバー -->
+<div class="g-overlay hidden" id="g-overlay">
   <div class="ov-title" id="ov-title">しょうり！</div>
   <div class="ov-sub" id="ov-sub"></div>
   <div class="ov-stats" id="ov-stats"></div>
-  <button class="btn btn-play" onclick="newGame()" style="font-size:.95rem;padding:12px 32px;margin-top:10px;">🎮 もう一度！</button>
+  <button class="btn btn-g" onclick="newGame()" style="font-size:.95rem;padding:12px 32px;margin-top:10px;">🎮 もう一度！</button>
 </div>
 
-<!-- ルールモーダル -->
-<div class="modal-bg hidden" id="rules-modal">
+<!-- ===== デッキ編集モーダル ===== -->
+<div class="modal-bg hidden" id="deck-modal">
   <div class="modal">
-    <button class="modal-close" onclick="hideRules()">✕</button>
-    <div class="modal-title">📖 あそびかた＆ルール</div>
+    <button class="modal-x" onclick="closeDeck()">✕</button>
+    <div class="modal-ttl">🃏 デッキ編集</div>
+    <div class="db-count-info" id="db-count">デッキ：<b id="deck-cnt">0</b> / 12 まい</div>
 
-    <div class="rule-section">
-      <h3>🎮 ゲームの目的</h3>
-      <p>てきのHPをゼロにしたら <b>しょうり</b>！<br>自分のHPがゼロになったら <b>まけ</b>。まもって、こうげきして、てきをたおそう！</p>
+    <div class="type-filter" id="type-filter"></div>
+
+    <div class="deck-builder">
+      <div class="db-panel">
+        <div class="db-panel-ttl">📦 コレクション（えらんでついか）</div>
+        <div class="db-card-list" id="db-collection"></div>
+      </div>
+      <div class="db-panel">
+        <div class="db-panel-ttl">🃏 いまのデッキ</div>
+        <div class="db-card-list" id="db-deck-list"></div>
+      </div>
     </div>
 
-    <div class="rule-section">
+    <div style="text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;">
+      <button class="btn btn-p" onclick="saveDeck()">✅ このデッキで決定！</button>
+      <button class="btn btn-dim" onclick="closeDeck()">もどる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== カード強化モーダル ===== -->
+<div class="modal-bg hidden" id="col-modal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeCollection()">✕</button>
+    <div class="modal-ttl">⭐ カード強化</div>
+    <div class="gold-display">💰 ゴールド：<span id="col-gold">0</span> G</div>
+    <p style="font-size:.72rem;color:var(--dim);text-align:center;margin-bottom:10px;">
+      バトルで勝つとゴールドがもらえる。<br>
+      ゴールドをつかってカードをレベルアップしよう！<br>
+      レベルアップするとこうげきりょくとHPがあがるよ。
+    </p>
+    <div class="collection-grid" id="col-grid"></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-dim" onclick="closeCollection()">もどる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ルールモーダル ===== -->
+<div class="modal-bg hidden" id="rules-modal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeRules()">✕</button>
+    <div class="modal-ttl">📖 あそびかた＆ルール</div>
+    <div class="rule-sec">
+      <h3>🎮 ゲームの目的</h3>
+      <p>てきのHPをゼロにしたら <b>しょうり</b>！自分のHPがゼロになったら <b>まけ</b>。</p>
+    </div>
+    <div class="rule-sec">
       <h3>🃏 1ラウンドの流れ</h3>
       <ul>
         <li>手ふだからモンスターを１まいえらぶ</li>
         <li>「だす！」ボタンをおす → てきもカードをだす</li>
-        <li>タイプ相性 × こうげきりょくで勝負！</li>
+        <li>タイプ相性＋こうげきりょくで勝負！</li>
         <li>かったほうがてきにダメージをあたえる</li>
-        <li>ラウンドがおわると手ふだをほじゅうする</li>
+        <li>ラウンドがおわると手ふだをほじゅう</li>
       </ul>
     </div>
-
-    <div class="rule-section">
-      <h3>🔥 タイプ相性（とくいなタイプ ≫ にがてなタイプ）</h3>
-      <table class="type-table">
-        <tr>
-          <th>このタイプが…</th>
-          <th>つよい（×1.8）</th>
-          <th>よわい（×0.5）</th>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(255,107,53,.2);color:var(--fire)">🔥ほのお</span></td>
-          <td class="eff-strong">🌿くさ　🧊こおり</td>
-          <td class="eff-weak">💧みず　🪨いわ</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(76,201,240,.2);color:var(--water)">💧みず</span></td>
-          <td class="eff-strong">🔥ほのお　🪨いわ</td>
-          <td class="eff-weak">🌿くさ　⚡かみなり</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(87,204,153,.2);color:var(--grass)">🌿くさ</span></td>
-          <td class="eff-strong">💧みず　🪨いわ</td>
-          <td class="eff-weak">🔥ほのお　🌀かぜ</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(255,214,10,.2);color:var(--elec)">⚡かみなり</span></td>
-          <td class="eff-strong">💧みず　🌀かぜ</td>
-          <td class="eff-weak">🪨いわ　🌿くさ</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(155,93,229,.2);color:var(--dark)">🌑やみ</span></td>
-          <td class="eff-strong">⭐なし（全タイプ等倍）</td>
-          <td class="eff-weak">⭐なし（全タイプ等倍）</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(181,131,90,.2);color:var(--rock)">🪨いわ</span></td>
-          <td class="eff-strong">🔥ほのお　⚡かみなり</td>
-          <td class="eff-weak">💧みず　🌿くさ</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(128,255,219,.2);color:var(--wind)">🌀かぜ</span></td>
-          <td class="eff-strong">🌿くさ　🔥ほのお</td>
-          <td class="eff-weak">⚡かみなり　🧊こおり</td>
-        </tr>
-        <tr>
-          <td><span class="type-chip" style="background:rgba(168,218,220,.2);color:var(--ice)">🧊こおり</span></td>
-          <td class="eff-strong">🌿くさ　🌀かぜ</td>
-          <td class="eff-weak">🔥ほのお　🪨いわ</td>
-        </tr>
+    <div class="rule-sec">
+      <h3>🔥 タイプ相性</h3>
+      <table class="type-tbl">
+        <tr><th>タイプ</th><th>とくい（×1.8）</th><th>にがて（×0.5）</th></tr>
+        <tr><td>🔥ほのお</td><td class="eff-s">🌿くさ　🧊こおり</td><td class="eff-w">💧みず　🪨いわ</td></tr>
+        <tr><td>💧みず</td><td class="eff-s">🔥ほのお　🪨いわ</td><td class="eff-w">🌿くさ　⚡かみなり</td></tr>
+        <tr><td>🌿くさ</td><td class="eff-s">💧みず　🪨いわ</td><td class="eff-w">🔥ほのお　🌀かぜ</td></tr>
+        <tr><td>⚡かみなり</td><td class="eff-s">💧みず　🌀かぜ</td><td class="eff-w">🪨いわ　🌿くさ</td></tr>
+        <tr><td>🌑やみ</td><td class="eff-s">なし（全タイプ等倍）</td><td class="eff-w">なし</td></tr>
+        <tr><td>🪨いわ</td><td class="eff-s">🔥ほのお　⚡かみなり</td><td class="eff-w">💧みず　🌿くさ</td></tr>
+        <tr><td>🌀かぜ</td><td class="eff-s">🌿くさ　🔥ほのお</td><td class="eff-w">⚡かみなり　🧊こおり</td></tr>
+        <tr><td>🧊こおり</td><td class="eff-s">🌿くさ　🌀かぜ</td><td class="eff-w">🔥ほのお　🪨いわ</td></tr>
       </table>
     </div>
-
-    <div class="rule-section">
-      <h3>💥 ダメージのけいさん</h3>
+    <div class="rule-sec">
+      <h3>💥 ダメージ計算</h3>
       <ul>
-        <li>こうげきりょくが <b>おなじ</b> → 引き分け（ダメージなし）</li>
-        <li>こうげきりょくが <b>たかい</b> → 差に応じたダメージ</li>
-        <li>タイプとくい → ダメージが <b class="eff-strong">1.8倍！</b></li>
-        <li>タイプにがて → ダメージが <b class="eff-weak">0.5倍…</b></li>
-        <li>パスすると、てきのこうげきをそのままうける</li>
+        <li>こうげきりょくが高いほうが勝ち</li>
+        <li>タイプとくい → <b class="eff-s">ダメージ×1.8！</b></li>
+        <li>タイプにがて → <b class="eff-w">ダメージ×0.5…</b></li>
       </ul>
     </div>
-
-    <div class="rule-section">
-      <h3>⭐ レベルアップ</h3>
+    <div class="rule-sec">
+      <h3>⭐ カード強化システム</h3>
       <ul>
-        <li>てきにダメージをあたえると <b>けいけんち</b> がたまる</li>
-        <li>けいけんちがいっぱいになると <b>レベルアップ！</b></li>
-        <li>レベルが上がると <b>さいだいHP+5</b>、アイテムをもらえることも</li>
+        <li>バトルで勝つと💰ゴールドがもらえる</li>
+        <li>「カード強化」でゴールドをつかってカードをLvアップ！</li>
+        <li>Lv2：こうげき+2　Lv3：こうげき+4　Lv4：こうげき+6＋スキル強化</li>
       </ul>
     </div>
-
-    <div class="rule-section">
+    <div class="rule-sec">
+      <h3>🃏 デッキ編集</h3>
+      <ul>
+        <li>「デッキ編集」から好きなカードを12まいえらべる</li>
+        <li>コレクションの全モンスターからえらべるよ</li>
+        <li>タイプのバランスを考えよう！</li>
+      </ul>
+    </div>
+    <div class="rule-sec">
       <h3>🎒 アイテム</h3>
       <ul>
-        <li>🧪 <b>ポーション</b>：HP を 5 かいふく（2こ）</li>
-        <li>🛡️ <b>バリア</b>：つぎのダメージを 0 にする（1こ）</li>
-        <li>⚔️ <b>つるぎ</b>：つぎのこうげきに +4 する（1こ）</li>
-        <li>⭐ <b>スター</b>：てきの手ふだを見る（1こ）</li>
+        <li>🧪 ポーション：HP+5回復（2こ）</li>
+        <li>🛡️ バリア：つぎのダメージ0（1こ）</li>
+        <li>⚔️ つるぎ：つぎのこうげき+4（1こ）</li>
+        <li>⭐ スター：てきの手ふだを見る（1こ）</li>
       </ul>
     </div>
-
-    <div style="text-align:center;margin-top:8px;">
-      <button class="btn btn-play" onclick="hideRules()" style="font-size:.85rem;padding:10px 28px;">✅ わかった！</button>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="btn btn-g" onclick="closeRules()" style="font-size:.82rem;padding:9px 26px;">✅ わかった！</button>
     </div>
   </div>
 </div>
 
 <script>
-// ===== タイプ定義 =====
+// ============================================================
+//  定数・データ
+// ============================================================
 const TYPES = {
-  fire:  { name:'ほのお', icon:'🔥', color:'var(--fire)',  bg:'rgba(255,107,53,.18)' },
-  water: { name:'みず',   icon:'💧', color:'var(--water)', bg:'rgba(76,201,240,.18)' },
-  grass: { name:'くさ',   icon:'🌿', color:'var(--grass)', bg:'rgba(87,204,153,.18)' },
-  elec:  { name:'かみなり',icon:'⚡', color:'var(--elec)',  bg:'rgba(255,214,10,.18)' },
-  dark:  { name:'やみ',   icon:'🌑', color:'var(--dark)',  bg:'rgba(155,93,229,.18)' },
-  rock:  { name:'いわ',   icon:'🪨', color:'var(--rock)',  bg:'rgba(181,131,90,.18)' },
-  wind:  { name:'かぜ',   icon:'🌀', color:'var(--wind)',  bg:'rgba(128,255,219,.18)' },
-  ice:   { name:'こおり', icon:'🧊', color:'var(--ice)',   bg:'rgba(168,218,220,.18)' },
+  fire:  {name:'ほのお',icon:'🔥',col:'#ff6b35',bg:'rgba(255,107,53,.15)',grad:['#3a1000','#1a0800']},
+  water: {name:'みず',  icon:'💧',col:'#4cc9f0',bg:'rgba(76,201,240,.15)',grad:['#001a2a','#000d18']},
+  grass: {name:'くさ',  icon:'🌿',col:'#57cc99',bg:'rgba(87,204,153,.15)',grad:['#002a12','#001508']},
+  elec:  {name:'かみなり',icon:'⚡',col:'#ffd60a',bg:'rgba(255,214,10,.15)',grad:['#2a2000','#181200']},
+  dark:  {name:'やみ',  icon:'🌑',col:'#9b5de5',bg:'rgba(155,93,229,.15)',grad:['#18003a','#0c001e']},
+  rock:  {name:'いわ',  icon:'🪨',col:'#c4a35a',bg:'rgba(196,163,90,.15)',grad:['#1a1000','#0f0a00']},
+  wind:  {name:'かぜ',  icon:'🌀',col:'#80ffdb',bg:'rgba(128,255,219,.15)',grad:['#002a24','#001614']},
+  ice:   {name:'こおり',icon:'🧊',col:'#a8dadc',bg:'rgba(168,218,220,.15)',grad:['#001a20','#000f14']},
 };
-
-// 相性表：ADVANTAGE[攻撃タイプ] = [有利タイプたち]
-const ADVANTAGE = {
-  fire:  ['grass','ice'],
-  water: ['fire','rock'],
-  grass: ['water','rock'],
-  elec:  ['water','wind'],
-  dark:  [],
-  rock:  ['fire','elec'],
-  wind:  ['grass','fire'],
-  ice:   ['grass','wind'],
+const ADV = {
+  fire:['grass','ice'],water:['fire','rock'],grass:['water','rock'],
+  elec:['water','wind'],dark:[],rock:['fire','elec'],wind:['grass','fire'],ice:['grass','wind']
 };
-const DISADVANTAGE = {
-  fire:  ['water','rock'],
-  water: ['grass','elec'],
-  grass: ['fire','wind'],
-  elec:  ['rock','grass'],
-  dark:  [],
-  rock:  ['water','grass'],
-  wind:  ['elec','ice'],
-  ice:   ['fire','rock'],
+const DIS = {
+  fire:['water','rock'],water:['grass','elec'],grass:['fire','wind'],
+  elec:['rock','grass'],dark:[],rock:['water','grass'],wind:['elec','ice'],ice:['fire','rock']
 };
-
-function getMultiplier(atkType, defType) {
-  if (ADVANTAGE[atkType]?.includes(defType))    return 1.8;
-  if (DISADVANTAGE[atkType]?.includes(defType)) return 0.5;
+function mult(atk,def){
+  if(ADV[atk]?.includes(def)) return 1.8;
+  if(DIS[atk]?.includes(def)) return 0.5;
   return 1.0;
 }
 
-// ===== モンスターデータ =====
-const MONSTERS = [
-  // ほのお
-  { id:'flare',  name:'フレアキツネ', type:'fire',  power:7,  icon:'🦊', special:null },
-  { id:'pyro',   name:'ヒードラゴン', type:'fire',  power:9,  icon:'🐉', special:'double' },
-  { id:'ember',  name:'モエルトリ',   type:'fire',  power:6,  icon:'🐦', special:'burn' },
-  // みず
-  { id:'aqua',   name:'アクアクジラ', type:'water', power:8,  icon:'🐋', special:null },
-  { id:'tide',   name:'タイダルカメ', type:'water', power:6,  icon:'🐢', special:'heal' },
-  { id:'storm',  name:'ストームサメ', type:'water', power:10, icon:'🦈', special:null },
-  // くさ
-  { id:'leaf',   name:'モリノセイレイ',type:'grass', power:7,  icon:'🌱', special:'heal' },
-  { id:'vine',   name:'ツタオオカミ', type:'grass', power:8,  icon:'🐺', special:null },
-  // かみなり
-  { id:'bolt',   name:'イナズマライオン',type:'elec', power:9, icon:'🦁', special:'stun' },
-  { id:'spark',  name:'デンキウサギ', type:'elec',  power:6,  icon:'🐰', special:null },
-  { id:'zap',    name:'サンダーワシ', type:'elec',  power:8,  icon:'🦅', special:null },
-  // やみ
-  { id:'shade',  name:'シャドウネコ', type:'dark',  power:7,  icon:'🐱', special:'dodge' },
-  { id:'void',   name:'ヴォイドドラゴン',type:'dark',power:11, icon:'🐲', special:'double' },
-  // いわ
-  { id:'golem',  name:'ガンセキゴーレム',type:'rock', power:9, icon:'🗿', special:null },
-  { id:'crag',   name:'クラッグベア', type:'rock',  power:7,  icon:'🐻', special:'shield' },
-  // かぜ
-  { id:'gale',   name:'ガレイルカ',   type:'wind',  power:7,  icon:'🐬', special:null },
-  { id:'breeze', name:'ブリーズフクロウ',type:'wind',power:8,  icon:'🦉', special:'dodge' },
-  // こおり
-  { id:'frost',  name:'フロストシロクマ',type:'ice', power:8,  icon:'🐻‍❄️', special:null },
-  { id:'bliz',   name:'ブリザードフェニックス',type:'ice',power:10,icon:'🦜',special:'heal'},
+// モンスターマスターデータ（コレクション）
+const MASTER = [
+  {id:'foxflare', name:'フレアギツネ',    type:'fire',  basePow:7,  icon:'🦊', special:'burn',   desc:'炎の尻尾をもつキツネ。ほのおのブレスで敵を焼く。'},
+  {id:'pyrodragon',name:'ヒードラゴン',   type:'fire',  basePow:9,  icon:'🐉', special:'double', desc:'天空を舞う炎の竜。その咆哮は大地を割る。'},
+  {id:'embiebird', name:'モエルトリ',     type:'fire',  basePow:6,  icon:'🐦‍🔥',special:'burn',   desc:'羽ばたくたびに火花が散る神秘の鳥。'},
+  {id:'aquawhale', name:'アクアクジラ',   type:'water', basePow:8,  icon:'🐋', special:null,     desc:'深海に住む巨大クジラ。潮吹きで敵を一掃する。'},
+  {id:'tidalturtle',name:'タイダルカメ',  type:'water', basePow:6,  icon:'🐢', special:'heal',   desc:'古の海を泳ぐ賢いカメ。癒しの水を出す。'},
+  {id:'stormshark', name:'ストームサメ',  type:'water', basePow:10, icon:'🦈', special:null,     desc:'嵐を呼ぶ最強の海の王者。'},
+  {id:'leafspirit', name:'モリノセイレイ', type:'grass', basePow:7,  icon:'🌱', special:'heal',   desc:'森の精霊。仲間を緑の光で癒す。'},
+  {id:'vinewolf',   name:'ツタオオカミ',  type:'grass', basePow:8,  icon:'🐺', special:null,     desc:'蔦をまとった森の番人。その遠吠えが森を震わす。'},
+  {id:'boltlion',   name:'イナズマライオン',type:'elec', basePow:9, icon:'🦁', special:'stun',   desc:'稲妻をたてがみに宿す百獣の王。'},
+  {id:'sparkbun',   name:'デンキウサギ',  type:'elec',  basePow:6,  icon:'🐰', special:null,     desc:'ふわふわの毛に電気をためるウサギ。'},
+  {id:'zapbird',    name:'サンダーワシ',  type:'elec',  basePow:8,  icon:'🦅', special:null,     desc:'空を切り裂く雷の翼を持つ大鷲。'},
+  {id:'shadowcat',  name:'シャドウネコ',  type:'dark',  basePow:7,  icon:'🐱', special:'dodge',  desc:'闇に溶ける幻のネコ。その姿を掴むことはできない。'},
+  {id:'voiddragon', name:'ヴォイドドラゴン',type:'dark', basePow:11, icon:'🐲', special:'double', desc:'虚空から現れる最恐の竜。全てを飲み込む闇を放つ。'},
+  {id:'stonegolem', name:'ガンセキゴーレム',type:'rock', basePow:9,  icon:'🗿', special:null,     desc:'大地の力を宿す巨大な岩の戦士。'},
+  {id:'cragbear',   name:'クラッグベア',  type:'rock',  basePow:7,  icon:'🐻', special:'shield', desc:'岩のような毛皮をもつ最強のクマ。'},
+  {id:'galedolphin',name:'ガレイルカ',    type:'wind',  basePow:7,  icon:'🐬', special:null,     desc:'嵐の海を跳ぶ風速のイルカ。'},
+  {id:'breezeowl',  name:'ブリーズフクロウ',type:'wind', basePow:8, icon:'🦉', special:'dodge',  desc:'夜風に乗る知恵者のフクロウ。攻撃を音もなくかわす。'},
+  {id:'frostbear',  name:'フロストシロクマ',type:'ice',  basePow:8,  icon:'🐻‍❄️',special:null,   desc:'吹雪を呼ぶ氷原の王者シロクマ。'},
+  {id:'blizzphnx',  name:'ブリザードフェニックス',type:'ice',basePow:10,icon:'🦚',special:'heal',desc:'氷の羽根をもつ不死鳥。倒されても蘇る。'},
 ];
 
-// 特殊効果の説明
-const SPECIAL_DESC = {
-  double: '×2ダメ！', heal: 'HP回復', dodge: 'かいひ',
-  stun: '1回休み', burn: '+2こうげき', shield: 'ダメージ半分'
-};
+// 特殊スキル
+const SPE = {double:'💥×2',heal:'💚回復',burn:'🔥+2',dodge:'💨かいひ',stun:'⚡スタン',shield:'🛡️半減',null:''};
 
-// ===== てき定義 =====
+// 敵定義
 const ENEMIES = [
-  { name:'あんこくりゅう', tag:'👹 やみのまじん', hp:20, lv:1, types:['dark','fire'] },
-  { name:'もりのおに',     tag:'🌲 もりのまもりびと', hp:25, lv:2, types:['grass','rock'] },
-  { name:'うみのりゅう',   tag:'🌊 りゅうおう',   hp:28, lv:3, types:['water','wind'] },
-  { name:'いかずちおに',   tag:'⚡ らいじんのつかい',hp:26,lv:3, types:['elec','wind'] },
-  { name:'まおうへいか',   tag:'👑 まかいのおう',  hp:32, lv:4, types:['dark','fire','elec'] },
+  {name:'あんこくりゅう', tag:'👹 やみのまじん',  hp:20,lv:1,types:['dark','fire']},
+  {name:'もりのおに',      tag:'🌲 もりのまもりびと',hp:25,lv:2,types:['grass','rock']},
+  {name:'うみのりゅう',    tag:'🌊 りゅうおう',   hp:28,lv:3,types:['water','wind']},
+  {name:'いかずちおに',    tag:'⚡ らいじんのつかい',hp:26,lv:3,types:['elec','wind']},
+  {name:'まおうへいか',    tag:'👑 まかいのおう',  hp:32,lv:4,types:['dark','fire','elec']},
 ];
 
-// アイテム
-const ITEM_DEFS = [
-  { id:'potion', icon:'🧪', name:'ポーション', cnt:2, effect:'heal5' },
-  { id:'shield', icon:'🛡️', name:'バリア',    cnt:1, effect:'shield' },
-  { id:'sword',  icon:'⚔️', name:'つるぎ',   cnt:1, effect:'sword4' },
-  { id:'star',   icon:'⭐', name:'スター',    cnt:1, effect:'reveal' },
-];
-
-// ===== ゲーム状態 =====
-let G = {};
-let sel = null;
-let lvupTmr = null;
-
-function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];} return b; }
-function rnd(a){ return a[0|Math.random()*a.length]; }
-
-function buildDeck(){
-  // 各モンスターを2枚ずつ入れてシャッフル
-  return shuffle([...MONSTERS,...MONSTERS].map(m=>({...m})));
+// ============================================================
+//  セーブデータ（ローカルステート）
+// ============================================================
+let SAVE = loadSave();
+function defaultSave(){
+  return {
+    gold: 0,
+    // カードごとのLv・Exp
+    cardLevels: Object.fromEntries(MASTER.map(m=>[m.id,{lv:1,exp:0}])),
+    // デッキ（IDの配列、重複あり、max12）
+    deck: ['foxflare','pyrodragon','aquawhale','stormshark','boltlion','voiddragon',
+           'stonegolem','breezeowl','tidalturtle','leafspirit','frostbear','blizzphnx'],
+  };
 }
-function expMax(lv){ return lv*10; }
+function loadSave(){
+  try{ return JSON.parse(localStorage.getItem('mcb_save'))||defaultSave(); }catch(e){ return defaultSave(); }
+}
+function writeSave(){ try{localStorage.setItem('mcb_save',JSON.stringify(SAVE));}catch(e){} }
+
+// カードの実際のパワー（レベル補正）
+function cardPow(id){
+  const m=MASTER.find(x=>x.id===id);
+  if(!m) return 5;
+  const lv=SAVE.cardLevels[id]?.lv||1;
+  return m.basePow + (lv-1)*2;
+}
+function cardLv(id){ return SAVE.cardLevels[id]?.lv||1; }
+function cardExp(id){ return SAVE.cardLevels[id]?.exp||0; }
+function cardExpMax(id){ return cardLv(id)*15; }
+
+// デッキからゲーム用カードリストを生成
+function buildGameDeck(){
+  return SAVE.deck.map(id=>{
+    const m=MASTER.find(x=>x.id===id)||MASTER[0];
+    return {...m, power:cardPow(id), lv:cardLv(id)};
+  });
+}
+
+// ============================================================
+//  ゲーム状態
+// ============================================================
+let G={};
+let sel=null;
+let lvupTmr=null;
+
+const ITEM_DEFS=[
+  {id:'potion',icon:'🧪',name:'ポーション',cnt:2,eff:'heal5'},
+  {id:'shield',icon:'🛡️',name:'バリア',   cnt:1,eff:'shield'},
+  {id:'sword', icon:'⚔️',name:'つるぎ',   cnt:1,eff:'sword4'},
+  {id:'star',  icon:'⭐',name:'スター',   cnt:1,eff:'reveal'},
+];
+
+function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function rnd(a){return a[0|Math.random()*a.length];}
+function expMax(lv){return lv*10;}
 
 function newGame(){
-  const enemy = rnd(ENEMIES);
-  G = {
-    deck: buildDeck(),
+  const enemy=rnd(ENEMIES);
+  const gameDeck=sh(buildGameDeck());
+  // てきのデッキはランダム（てきのタイプに合ったものを多めに）
+  const eDeck=sh([...MASTER,...MASTER].map(m=>({...m,power:m.basePow+enemy.lv,lv:1})));
+  G={
+    deck:gameDeck, enemyDeck:eDeck,
     playerHand:[], enemyHand:[],
-    playerHP:20, playerMaxHP:20,
-    playerLv:1, playerExp:0,
-    enemyHP:enemy.hp, enemyMaxHP:enemy.hp,
-    enemyLv:enemy.lv,
-    enemyName:enemy.name, enemyTag:enemy.tag, enemyTypes:enemy.types,
-    round:1, phase:'select',
-    playerPlayed:null, enemyPlayed:null,
-    items: ITEM_DEFS.map(d=>({...d})),
-    shieldActive:false, swordBonus:0, enemyRevealed:false,
-    stats:{ wins:0, dmgDealt:0, healed:0 },
+    playerHP:20,playerMaxHP:20,
+    playerLv:1,playerExp:0,
+    enemyHP:enemy.hp,enemyMaxHP:enemy.hp,enemyLv:enemy.lv,
+    enemyName:enemy.name,enemyTag:enemy.tag,enemyTypes:enemy.types,
+    round:1,phase:'select',
+    playerPlayed:null,enemyPlayed:null,
+    items:ITEM_DEFS.map(d=>({...d})),
+    shieldActive:false,swordBonus:0,enemyRevealed:false,
+    stats:{wins:0,dmgDealt:0,healed:0},
   };
   sel=null;
-  hideOverlay();
+  closeOverlay();
   dealN(5);
   render();
   log(`🎮 <b>${enemy.name}</b> があらわれた！モンスターをえらんでたたかおう！`);
@@ -683,90 +719,84 @@ function newGame(){
 function dealN(n){
   for(let i=0;i<n;i++){
     if(G.deck.length) G.playerHand.push(G.deck.pop());
-    // てきは自分のタイプを優先したモンスターリストから
-    if(G.deck.length) G.enemyHand.push(G.deck.pop());
+    if(G.enemyDeck.length) G.enemyHand.push(G.enemyDeck.pop());
   }
 }
 
-// ===== アイテム =====
+// ============================================================
+//  アイテム
+// ============================================================
 function useItem(id){
   if(G.phase!=='select') return;
-  const item = G.items.find(i=>i.id===id);
-  if(!item||item.cnt<=0) return;
-  item.cnt--;
-  if(item.effect==='heal5'){
+  const it=G.items.find(i=>i.id===id);
+  if(!it||it.cnt<=0) return;
+  it.cnt--;
+  if(it.eff==='heal5'){
     const h=Math.min(5,G.playerMaxHP-G.playerHP);
-    G.playerHP+=h; G.stats.healed+=h;
+    G.playerHP+=h;G.stats.healed+=h;
     float('+'+h+'HP','var(--green)');
     log(`🧪 ポーションでHP <b style="color:var(--green)">+${h}</b> かいふく！`);
-  } else if(item.effect==='shield'){
+  }else if(it.eff==='shield'){
     G.shieldActive=true;
     log(`🛡️ バリアをはった！つぎのダメージを <b>0</b> にするよ！`);
-  } else if(item.effect==='sword4'){
+  }else if(it.eff==='sword4'){
     G.swordBonus+=4;
     log(`⚔️ つるぎをつかった！つぎのこうげきが <b style="color:var(--gold)">+4</b> つよくなる！`);
-  } else if(item.effect==='reveal'){
+  }else if(it.eff==='reveal'){
     G.enemyRevealed=true;
     log(`⭐ スターをつかった！てきの手ふだが見えるようになったよ！`);
   }
   render();
 }
 
-// ===== カード選択 =====
+// ============================================================
+//  カード選択
+// ============================================================
 function selectCard(card){
   if(G.phase!=='select') return;
-  sel = (sel===card)?null:card;
-  // 相性ヒント更新
-  updateTypeHint();
+  sel=(sel===card)?null:card;
+  updateHint();
   render();
 }
 
-function updateTypeHint(){
-  const hint = document.getElementById('type-hint');
-  if(!sel){ hint.textContent='カードをえらぶと、タイプ相性がわかるよ！'; return; }
-  const t = TYPES[sel.type];
-  const adv = ADVANTAGE[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
-  const dis = DISADVANTAGE[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
-
-  let advTxt = adv.length ? `<b style="color:var(--green)">とくい：${adv.join('・')}</b>` : '';
-  let disTxt = dis.length ? `<b style="color:var(--red)">にがて：${dis.join('・')}</b>` : '';
-  let parts = [advTxt,disTxt].filter(Boolean).join('　／　');
-
-  // てきのタイプとの相性もヒント
-  const enemyTypeHints = G.enemyTypes.map(et=>{
-    const mult = getMultiplier(sel.type, et);
-    if(mult>1) return `<span style="color:var(--green)">てき(${TYPES[et].icon})に <b>×${mult}</b>！</span>`;
-    if(mult<1) return `<span style="color:var(--red)">てき(${TYPES[et].icon})に <b>×${mult}</b>…</span>`;
+function updateHint(){
+  const el=document.getElementById('type-hint');
+  if(!sel){el.textContent='カードをえらぶとタイプ相性がわかるよ！';return;}
+  const t=TYPES[sel.type];
+  const adv=ADV[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
+  const dis=DIS[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
+  let parts=[];
+  if(adv.length) parts.push(`<b style="color:var(--green)">とくい：${adv.join('・')}</b>`);
+  if(dis.length) parts.push(`<b style="color:var(--red)">にがて：${dis.join('・')}</b>`);
+  const eHints=G.enemyTypes.map(et=>{
+    const m2=mult(sel.type,et);
+    if(m2>1) return `<span style="color:var(--green)">てき(${TYPES[et].icon})に×${m2}！</span>`;
+    if(m2<1) return `<span style="color:var(--red)">てき(${TYPES[et].icon})に×${m2}…</span>`;
     return null;
   }).filter(Boolean);
-
-  hint.innerHTML = `${t.icon}<b>${t.name}</b>　${parts}${enemyTypeHints.length?' 　'+enemyTypeHints.join(' '):''}`;
+  el.innerHTML=`${t.icon}<b>${t.name}</b>　${parts.join(' / ')}${eHints.length?' 　'+eHints.join(' '):''}`;
 }
 
-// ===== カードを出す =====
+// ============================================================
+//  バトル
+// ============================================================
 function playCard(){
   if(!sel||G.phase!=='select') return;
   const idx=G.playerHand.indexOf(sel);
   if(idx===-1) return;
-  G.playerPlayed=sel; G.playerHand.splice(idx,1);
-
-  // てきのカード選択（レベルが高いと有利なカードを選びやすい）
+  G.playerPlayed=sel;G.playerHand.splice(idx,1);
+  // 敵カード選択
   let ei;
-  if(G.enemyLv>=3 && Math.random()<0.55){
-    // プレイヤーのタイプに有利なカードを優先
-    const pType = G.playerPlayed.type;
-    const goodIdxs = G.enemyHand.map((c,i)=>({c,i}))
-      .filter(({c})=>getMultiplier(c.type,pType)>1 || c.power>=8)
-      .map(({i})=>i);
-    ei = goodIdxs.length ? rnd(goodIdxs) : 0|Math.random()*G.enemyHand.length;
-  } else {
-    ei = 0|Math.random()*G.enemyHand.length;
+  if(G.enemyLv>=3&&Math.random()<.55){
+    const pType=G.playerPlayed.type;
+    const goods=G.enemyHand.map((c,i)=>({c,i})).filter(({c})=>mult(c.type,pType)>1||c.power>=8).map(({i})=>i);
+    ei=goods.length?rnd(goods):0|Math.random()*G.enemyHand.length;
+  }else{
+    ei=0|Math.random()*G.enemyHand.length;
   }
-  G.enemyPlayed=G.enemyHand[ei]; G.enemyHand.splice(ei,1);
-  G.enemyRevealed=false; sel=null;
-  G.phase='resolve';
-  render();
-  setTimeout(resolveRound,750);
+  G.enemyPlayed=G.enemyHand[ei];G.enemyHand.splice(ei,1);
+  G.enemyRevealed=false;sel=null;G.phase='resolve';
+  render();setTimeout(resolveRound,750);
 }
 
 function passTurn(){
@@ -774,68 +804,60 @@ function passTurn(){
   G.playerPlayed=null;
   G.enemyHand.sort((a,b)=>b.power-a.power);
   G.enemyPlayed=G.enemyHand.shift();
-  sel=null; G.phase='resolve';
-  render();
-  setTimeout(resolveRound,750);
+  sel=null;G.phase='resolve';
+  render();setTimeout(resolveRound,750);
 }
 
-// ===== ラウンド解決 =====
 function resolveRound(){
-  const pp=G.playerPlayed, ep=G.enemyPlayed;
+  const pp=G.playerPlayed,ep=G.enemyPlayed;
   let msg='';
-
-  if(!pp && ep){
-    let dmg = Math.ceil(ep.power/3);
+  if(!pp&&ep){
+    let dmg=Math.ceil(ep.power/3);
     if(G.shieldActive){dmg=0;G.shieldActive=false;msg+='🛡️バリアでダメージ0！　';}
     G.playerHP=Math.max(0,G.playerHP-dmg);
-    msg+=`🏳️ パス… ${ep.icon}${ep.name}(${ep.power}) の攻撃で <b style="color:var(--red)">-${dmg}HP</b>`;
-  } else if(pp && ep){
-    // タイプ相性（てきタイプのうち一番不利なものを使う）
-    let pMult = Math.max(...G.enemyTypes.map(et=>getMultiplier(pp.type,et)));
-    let eMult = Math.max(...G.enemyTypes.map(et=>getMultiplier(ep.type,pp.type)));
-    // 特殊効果
-    let pv = pp.power + G.swordBonus;
-    let ev = ep.power;
+    msg+=`🏳️ パス… ${ep.icon}${ep.name} の攻撃で <b style="color:var(--red)">-${dmg}HP</b>`;
+  }else if(pp&&ep){
+    let pMult=Math.max(...G.enemyTypes.map(et=>mult(pp.type,et)));
+    let eMult=Math.max(...G.enemyTypes.map(et=>mult(ep.type,pp.type)));
+    let pv=pp.power+G.swordBonus,ev=ep.power;
     G.swordBonus=0;
-    let pNote='', eNote='';
-
+    let pNote='',eNote='';
     // プレイヤー特殊
-    if(pp.special==='double')  { pNote='💥×2ダメ！'; }
-    if(pp.special==='heal')    { const h=Math.min(3,G.playerMaxHP-G.playerHP); G.playerHP+=h; G.stats.healed+=h; pNote=`💚HP+${h}回復`; float('+'+h+'HP','var(--green)'); }
-    if(pp.special==='burn')    { pv+=2; pNote='🔥+2こうげき'; }
-    if(pp.special==='dodge' && ev>pv){ msg=`💨 ${pp.icon}のかいひ！てきの攻撃をよけた！`; finishRound(msg); return; }
-    if(pp.special==='shield')  { G.shieldActive=true; pNote='🛡️バリア発動'; }
-    if(pp.special==='stun')    { /* スタンは次ラウンドに敵スキップ（簡略化：ダメージ-2）*/ ev=Math.max(1,ev-2); pNote='⚡スタン！'; }
-
-    // てき特殊
-    if(ep.special==='dodge' && pv>ev){ msg=`💨 てきの${ep.icon}がかいひ！ダメージなし…`; finishRound(msg); return; }
-    if(ep.special==='double') { eMult*=1.5; eNote='💥てきが×2！'; }
-    if(ep.special==='burn')   { ev+=2; eNote='🔥てき+2こうげき'; }
+    if(pp.special==='double')  pNote='💥×2ダメ！';
+    if(pp.special==='heal'){const h=Math.min(3,G.playerMaxHP-G.playerHP);G.playerHP+=h;G.stats.healed+=h;pNote=`💚HP+${h}`;float('+'+h+'HP','var(--green)');}
+    if(pp.special==='burn'){pv+=2;pNote='🔥+2こうげき';}
+    if(pp.special==='dodge'&&ev>pv){msg=`💨 ${pp.icon}のかいひ！てきの攻撃をよけた！`;finishRound(msg);return;}
+    if(pp.special==='shield'){G.shieldActive=true;pNote='🛡️バリア発動';}
+    if(pp.special==='stun'){ev=Math.max(1,ev-2);pNote='⚡スタン！';}
+    // 敵特殊
+    if(ep.special==='dodge'&&pv>ev){msg=`💨 てきの${ep.icon}がかいひ！`;finishRound(msg);return;}
+    if(ep.special==='double'){eMult*=1.5;eNote='💥てき×2！';}
+    if(ep.special==='burn'){ev+=2;eNote='🔥てき+2';}
 
     if(pv>ev){
       let dmg=Math.ceil((pv-ev)/2)+1;
       dmg=Math.round(dmg*pMult);
       if(pp.special==='double') dmg*=2;
       G.enemyHP=Math.max(0,G.enemyHP-dmg);
-      G.stats.dmgDealt+=dmg; G.stats.wins++;
-      gainExp(dmg); float('-'+dmg,'var(--red)');
-      let multTxt = pMult>1?`<span style="color:var(--green)">（タイプとくい×${pMult}！）</span>`:pMult<1?`<span style="color:var(--red)">（タイプにがて×${pMult}）</span>`:'';
-      msg=`🎉 <b style="color:var(--green)">かった！</b> ${pp.icon}(${pv}) > ${ep.icon}(${ev}) → てきに <b style="color:var(--red)">-${dmg}HP</b> ${multTxt}`;
-    } else if(ev>pv){
+      G.stats.dmgDealt+=dmg;G.stats.wins++;
+      gainExp(dmg);gainGold(Math.ceil(dmg/2));
+      float('-'+dmg,'var(--red)');
+      const mt=pMult>1?`<span style="color:var(--green)">（とくい×${pMult}！）</span>`:pMult<1?`<span style="color:var(--red)">（にがて×${pMult}）</span>`:'';
+      msg=`🎉 <b style="color:var(--green)">かった！</b> ${pp.icon}(${pv}) > ${ep.icon}(${ev}) → てきに <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
+    }else if(ev>pv){
       let dmg=Math.ceil((ev-pv)/2)+1;
       dmg=Math.round(dmg*eMult);
       if(ep.special==='double') dmg=Math.round(dmg*1.5);
       if(G.shieldActive){dmg=0;G.shieldActive=false;msg+='🛡️バリアでダメージ0！　';}
       G.playerHP=Math.max(0,G.playerHP-dmg);
-      let multTxt = eMult>1?`<span style="color:var(--red)">（てきにとくいタイプ！）</span>`:'';
-      msg+=`😢 <b style="color:var(--red)">まけた…</b> ${ep.icon}(${ev}) > ${pp.icon}(${pv}) → 自分に <b style="color:var(--red)">-${dmg}HP</b> ${multTxt}`;
-    } else {
+      const mt=eMult>1?`<span style="color:var(--red)">（てきにとくいタイプ！）</span>`:'';
+      msg+=`😢 <b style="color:var(--red)">まけた…</b> ${ep.icon}(${ev}) > ${pp.icon}(${pv}) → 自分に <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
+    }else{
       msg=`🤝 <b>ひきわけ！</b> ダメージなし。`;
     }
     if(pNote) msg+=`　${pNote}`;
     if(eNote) msg+=`　${eNote}`;
   }
-
   finishRound(msg);
 }
 
@@ -843,9 +865,8 @@ function finishRound(msg){
   log(msg);
   G.playerHP=Math.max(0,Math.min(G.playerHP,G.playerMaxHP));
   G.enemyHP=Math.max(0,G.enemyHP);
-
   if(G.playerHP<=0||G.enemyHP<=0){
-    G.phase='gameover'; render();
+    G.phase='gameover';render();
     setTimeout(()=>{
       if(G.playerHP<=0&&G.enemyHP<=0) showOverlay('draw');
       else if(G.enemyHP<=0) showOverlay('win');
@@ -853,38 +874,30 @@ function finishRound(msg){
     },400);
     return;
   }
-
-  G.round++; G.phase='select';
-  G.playerPlayed=null; G.enemyPlayed=null;
-
-  // 手ふだ補充
+  G.round++;G.phase='select';G.playerPlayed=null;G.enemyPlayed=null;
   const pN=Math.max(0,4-G.playerHand.length);
   const eN=Math.max(0,4-G.enemyHand.length);
   for(let i=0;i<Math.max(pN,eN);i++){
     if(i<pN&&G.deck.length) G.playerHand.push(G.deck.pop());
-    if(i<eN&&G.deck.length) G.enemyHand.push(G.deck.pop());
+    if(i<eN&&G.enemyDeck.length) G.enemyHand.push(G.enemyDeck.pop());
   }
-  if(G.deck.length<4){ G.deck=buildDeck(); dealN(2); }
-
-  updateTypeHint();
-  render();
+  if(G.deck.length<3){G.deck=sh(buildGameDeck());dealN(2);}
+  updateHint();render();
 }
 
 function gainExp(amt){
   G.playerExp+=amt;
   const mx=expMax(G.playerLv);
   if(G.playerExp>=mx){
-    G.playerExp-=mx; G.playerLv++;
-    G.playerMaxHP+=5; G.playerHP=Math.min(G.playerHP+5,G.playerMaxHP);
+    G.playerExp-=mx;G.playerLv++;
+    G.playerMaxHP+=5;G.playerHP=Math.min(G.playerHP+5,G.playerMaxHP);
     showLvUp(G.playerLv);
-    if(G.playerLv%2===0){
-      const it=G.items[0|Math.random()*G.items.length];
-      it.cnt++;
-      log(`⭐ <b style="color:var(--gold)">Lv.${G.playerLv}にアップ！</b>「${it.icon}${it.name}」をもらった！`);
-    }
+    if(G.playerLv%2===0){const it=G.items[0|Math.random()*G.items.length];it.cnt++;}
   }
 }
-
+function gainGold(amt){
+  SAVE.gold+=amt;writeSave();
+}
 function showLvUp(lv){
   const p=document.getElementById('lvup');
   document.getElementById('lv-num').textContent=lv;
@@ -893,84 +906,68 @@ function showLvUp(lv){
   if(lvupTmr) clearTimeout(lvupTmr);
   lvupTmr=setTimeout(()=>p.classList.remove('show'),2200);
 }
-
 function float(txt,color){
   const el=document.createElement('div');
-  el.style.cssText=`position:fixed;left:50%;top:42%;font-size:1.7rem;font-weight:800;color:${color};pointer-events:none;z-index:600;animation:floatUp .9s ease forwards;`;
-  el.textContent=txt;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1000);
+  el.style.cssText=`position:fixed;left:50%;top:40%;font-size:1.8rem;font-weight:900;color:${color};pointer-events:none;z-index:700;animation:floatUp .9s ease forwards;white-space:nowrap;`;
+  el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
 }
 
-// ===== レンダリング =====
+// ============================================================
+//  レンダリング
+// ============================================================
 function render(){
-  // HP / EXP
-  set('p-hp-bar','style.width',(G.playerHP/G.playerMaxHP*100).toFixed(1)+'%');
-  set('e-hp-bar','style.width',(G.enemyHP/G.enemyMaxHP*100).toFixed(1)+'%');
-  set('p-hp-num','textContent',G.playerHP+'/'+G.playerMaxHP);
-  set('e-hp-num','textContent',G.enemyHP+'/'+G.enemyMaxHP);
-  set('p-lv','textContent',G.playerLv);
-  set('e-lv','textContent',G.enemyLv);
-  set('round-num','textContent',G.round);
-  set('p-exp','textContent',G.playerExp);
-  set('p-exp-max','textContent',expMax(G.playerLv));
-  set('p-exp-bar','style.width',(G.playerExp/expMax(G.playerLv)*100).toFixed(1)+'%');
-  set('e-pow-bar','style.width',(G.enemyHP/G.enemyMaxHP*100).toFixed(1)+'%');
-  set('enemy-name','textContent',G.enemyName);
-  set('enemy-tag','textContent',G.enemyTag);
-
-  set('hand-count','textContent',`手ふだ${G.playerHand.length}まい　デッキ${G.deck.length}まい`);
+  s('p-hp-bar','style.width',(G.playerHP/G.playerMaxHP*100).toFixed(1)+'%');
+  s('e-hp-bar','style.width',(G.enemyHP/G.enemyMaxHP*100).toFixed(1)+'%');
+  s('p-hp-val','textContent',G.playerHP+'/'+G.playerMaxHP);
+  s('e-hp-val','textContent',G.enemyHP+'/'+G.enemyMaxHP);
+  s('p-lv','textContent',G.playerLv);s('e-lv','textContent',G.enemyLv);
+  s('round-num','textContent',G.round);
+  s('p-exp','textContent',G.playerExp);s('p-exp-max','textContent',expMax(G.playerLv));
+  s('p-exp-bar','style.width',(G.playerExp/expMax(G.playerLv)*100).toFixed(1)+'%');
+  s('e-str-bar','style.width',(G.enemyHP/G.enemyMaxHP*100).toFixed(1)+'%');
+  s('enemy-name','textContent',G.enemyName);s('enemy-tag','textContent',G.enemyTag);
+  s('hand-count','textContent',`手ふだ${G.playerHand.length}まい　デッキ残${G.deck.length}まい`);
 
   // てき手ふだ
-  const eh=document.getElementById('enemy-hand');
-  eh.innerHTML='';
+  const eh=document.getElementById('enemy-hand');eh.innerHTML='';
   G.enemyHand.forEach((m,i)=>{
-    const el = G.enemyRevealed ? makeCard(m,false) : makeBack();
-    el.style.animationDelay=i*.05+'s'; el.classList.add('deal');
-    eh.appendChild(el);
+    const el=G.enemyRevealed?makeCard(m,'enemy',false):makeBackCard();
+    el.style.animationDelay=i*.05+'s';el.classList.add('deal');eh.appendChild(el);
   });
 
   // プレイヤー手ふだ
-  const ph=document.getElementById('player-hand');
-  ph.innerHTML='';
+  const ph=document.getElementById('player-hand');ph.innerHTML='';
   G.playerHand.forEach((m,i)=>{
-    const el=makeCard(m,true);
-    el.style.animationDelay=i*.05+'s'; el.classList.add('deal');
+    const el=makeCard(m,'player',true);
+    el.style.animationDelay=i*.05+'s';el.classList.add('deal');
     if(m===sel) el.classList.add('selected');
-    el.onclick=()=>selectCard(m);
-    ph.appendChild(el);
+    el.onclick=()=>selectCard(m);ph.appendChild(el);
   });
 
   // バトルフィールド
+  const bfe=document.getElementById('bf-empty');
   const vs=document.getElementById('vs-txt');
-  const pGrp=document.getElementById('p-grp');
-  const eGrp=document.getElementById('e-grp');
-  const pSlot=document.getElementById('p-slot');
-  const eSlot=document.getElementById('e-slot');
-  const bfEmpty=document.getElementById('bf-empty');
-  pSlot.innerHTML=''; eSlot.innerHTML='';
-
+  const pg=document.getElementById('p-grp'),eg=document.getElementById('e-grp');
+  const ps=document.getElementById('p-slot'),es=document.getElementById('e-slot');
+  ps.innerHTML='';es.innerHTML='';
   if(G.playerPlayed||G.enemyPlayed){
-    bfEmpty.style.display='none'; vs.style.display='block';
-    pGrp.style.display=G.playerPlayed?'flex':'none';
-    eGrp.style.display=G.enemyPlayed?'flex':'none';
-    if(G.playerPlayed){const c=makeCard(G.playerPlayed,false);c.classList.add('bf','p-bf');pSlot.appendChild(c);}
-    if(G.enemyPlayed) {const c=makeCard(G.enemyPlayed,false); c.classList.add('bf','e-bf'); eSlot.appendChild(c);}
-  } else {
-    bfEmpty.style.display=''; vs.style.display='none';
-    pGrp.style.display='none'; eGrp.style.display='none';
+    bfe.style.display='none';vs.style.display='block';
+    pg.style.display=G.playerPlayed?'flex':'none';
+    eg.style.display=G.enemyPlayed?'flex':'none';
+    if(G.playerPlayed){const c=makeCard(G.playerPlayed,'bf',false);c.classList.add('bf-card');ps.appendChild(c);}
+    if(G.enemyPlayed) {const c=makeCard(G.enemyPlayed,'bf',false); c.classList.add('bf-card');es.appendChild(c);}
+  }else{
+    bfe.style.display='';vs.style.display='none';
+    pg.style.display='none';eg.style.display='none';
   }
 
   // アイテム
-  const ir=document.getElementById('items-row');
-  ir.innerHTML='';
-  G.items.forEach(item=>{
-    const b=document.createElement('button');
-    b.className='item-btn';
-    b.disabled=item.cnt<=0||G.phase!=='select';
-    b.innerHTML=`<span class="item-icon">${item.icon}</span><span class="item-name">${item.name}</span><span class="item-cnt">あと${item.cnt}こ</span>`;
-    b.onclick=()=>useItem(item.id);
-    ir.appendChild(b);
+  const ir=document.getElementById('items-row');ir.innerHTML='';
+  G.items.forEach(it=>{
+    const b=document.createElement('button');b.className='ibtn';
+    b.disabled=it.cnt<=0||G.phase!=='select';
+    b.innerHTML=`<span class="iico">${it.icon}</span><span class="iname">${it.name}</span><span class="icnt">あと${it.cnt}こ</span>`;
+    b.onclick=()=>useItem(it.id);ir.appendChild(b);
   });
 
   // ボタン
@@ -979,69 +976,329 @@ function render(){
   document.getElementById('btn-pass').disabled=!canAct;
 }
 
-function set(id,prop,val){
-  const el=document.getElementById(id); if(!el) return;
-  if(prop.includes('.')) { const [a,b]=prop.split('.'); el[a][b]=val; }
-  else el[prop]=val;
+function s(id,prop,val){
+  const el=document.getElementById(id);if(!el)return;
+  if(prop.includes('.')){const[a,b]=prop.split('.');el[a][b]=val;}else el[prop]=val;
 }
 
-// ===== カード生成 =====
-function makeCard(m, interactive){
+// ============================================================
+//  SVGカード描画
+// ============================================================
+function makeCard(m, role, interactive){
   const t=TYPES[m.type];
-  const div=document.createElement('div');
-  div.className=`mcard type-${m.type}${interactive?'':' no-hover'}${m.special?' special-glow':''}`;
-  const powDisplay = m.power + (m.special?` <span style="font-size:.42rem;color:var(--gold)">★${SPECIAL_DESC[m.special]||''}</span>`:'');
-  div.innerHTML=`<div class="mcard-inner">
-    <div class="mcard-art">${m.icon}</div>
-    <div class="mcard-info">
-      <div class="mcard-name">${m.name}</div>
-      <div class="mcard-row">
-        <span class="mcard-type" style="background:${t.bg};color:${t.color}">${t.icon}${t.name}</span>
-        <span class="mcard-pow">⚡${m.power}</span>
+  const W=86,H=120;
+  const lv=m.lv||1;
+  const pow=m.power||m.basePow;
+
+  // タイプ別の背景グラデーション色
+  const [c1,c2]=t.grad;
+
+  // 選択時のグロー色
+  const wrap=document.createElement('div');
+  wrap.className=`mcard type-${m.type}${interactive?' ':'  no-hover '}`;
+  wrap.style.setProperty('--sel-glow',t.col);
+
+  // SVGを構築
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('xmlns',svgNS);
+
+  // clipPath
+  svg.innerHTML=`
+    <defs>
+      <clipPath id="card-clip-${m.id}-${role}">
+        <rect width="${W}" height="${H}" rx="9"/>
+      </clipPath>
+      <linearGradient id="bg-g-${m.id}-${role}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c1}"/>
+        <stop offset="100%" stop-color="${c2}"/>
+      </linearGradient>
+      <radialGradient id="art-g-${m.id}-${role}" cx="50%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="${t.col}" stop-opacity=".18"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+      <filter id="glow-${m.id}-${role}">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- 背景 -->
+    <rect width="${W}" height="${H}" rx="9" fill="url(#bg-g-${m.id}-${role})" clip-path="url(#card-clip-${m.id}-${role})"/>
+
+    <!-- アートエリア背景グロー -->
+    <rect width="${W}" height="72" fill="url(#art-g-${m.id}-${role})" clip-path="url(#card-clip-${m.id}-${role})"/>
+
+    <!-- 上部ボーダーライン（タイプカラー） -->
+    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="${t.col}" opacity=".6"/>
+
+    <!-- 下部パネル -->
+    <rect x="0" y="72" width="${W}" height="${H-72}" fill="rgba(0,0,0,.65)" clip-path="url(#card-clip-${m.id}-${role})"/>
+
+    <!-- パネルの上ライン -->
+    <line x1="4" y1="72" x2="${W-4}" y2="72" stroke="${t.col}" stroke-width=".8" stroke-opacity=".4"/>
+
+    <!-- タイプアイコン（左上） -->
+    <text x="5" y="14" font-size="10" font-family="sans-serif" opacity=".9">${t.icon}</text>
+
+    <!-- パワー（右上） -->
+    <text x="${W-5}" y="13" font-size="9.5" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="${t.col}" text-anchor="end" filter="url(#glow-${m.id}-${role})">${pow}</text>
+
+    <!-- レベルバッジ（右上小） -->
+    <rect x="${W-18}" y="15" width="16" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
+    <text x="${W-10}" y="22.5" font-size="6.5" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="${t.col}" text-anchor="middle">Lv${lv}</text>
+
+    <!-- モンスター絵文字（中央大） -->
+    <text x="${W/2}" y="60" font-size="32" text-anchor="middle" dominant-baseline="middle">${m.icon}</text>
+
+    <!-- カード名 -->
+    <text x="${W/2}" y="81.5" font-size="6.8" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="#ffffff" text-anchor="middle">${m.name.length>7?m.name.slice(0,7)+'…':m.name}</text>
+
+    <!-- タイプ名 -->
+    <rect x="${W/2-14}" y="85" width="28" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
+    <text x="${W/2}" y="92" font-size="6" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="700" fill="${t.col}" text-anchor="middle">${t.icon}${t.name}</text>
+
+    <!-- 特殊スキル（あれば） -->
+    ${m.special?`
+    <rect x="3" y="${H-13}" width="${W-6}" height="10" rx="3" fill="${t.col}" fill-opacity=".15"/>
+    <text x="${W/2}" y="${H-5.5}" font-size="6" font-family="sans-serif" text-anchor="middle" fill="${t.col}" font-weight="700">${SPE[m.special]||''}</text>
+    `:''}
+
+    <!-- 四隅デコ -->
+    <circle cx="4" cy="4" r="2" fill="${t.col}" opacity=".3"/>
+    <circle cx="${W-4}" cy="${H-4}" r="2" fill="${t.col}" opacity=".3"/>
+  `;
+
+  wrap.appendChild(svg);
+  return wrap;
+}
+
+function makeBackCard(){
+  const W=86,H=120;
+  const wrap=document.createElement('div');
+  wrap.className='mcard back-card no-hover';
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=`
+    <defs>
+      <pattern id="hex" x="0" y="0" width="14" height="16" patternUnits="userSpaceOnUse">
+        <polygon points="7,1 13,4 13,12 7,15 1,12 1,4" fill="none" stroke="rgba(255,255,255,.07)" stroke-width=".8"/>
+      </pattern>
+      <clipPath id="back-clip"><rect width="${W}" height="${H}" rx="9"/></clipPath>
+    </defs>
+    <rect width="${W}" height="${H}" rx="9" fill="#0a0b1e"/>
+    <rect width="${W}" height="${H}" fill="url(#hex)" clip-path="url(#back-clip)"/>
+    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="rgba(155,93,229,.5)"/>
+    <rect x="0" y="${H-2}" width="${W}" height="2" rx="1" fill="rgba(155,93,229,.5)"/>
+    <text x="${W/2}" y="${H/2+8}" font-size="28" text-anchor="middle">❓</text>
+    <text x="${W/2}" y="${H-7}" font-size="7" font-family="sans-serif" fill="rgba(155,93,229,.5)" text-anchor="middle">MONSTER</text>
+  `;
+  wrap.appendChild(svg);
+  return wrap;
+}
+
+// ============================================================
+//  デッキ編集
+// ============================================================
+let deckFilter='all';
+let tempDeck=[];
+
+function openDeckBuilder(){
+  tempDeck=[...SAVE.deck];
+  renderDeckBuilder();
+  document.getElementById('deck-modal').classList.remove('hidden');
+}
+function closeDeck(){document.getElementById('deck-modal').classList.add('hidden');}
+
+function renderDeckBuilder(){
+  // タイプフィルター
+  const tf=document.getElementById('type-filter');
+  tf.innerHTML='';
+  const filters=[{k:'all',label:'すべて',col:'#aaa'},...Object.entries(TYPES).map(([k,v])=>({k,label:v.icon+v.name,col:v.col}))];
+  filters.forEach(f=>{
+    const b=document.createElement('button');
+    b.className=`tf-btn${deckFilter===f.k?' active':''}`;
+    b.textContent=f.label;
+    b.style.color=f.col;b.style.borderColor=f.col;
+    b.onclick=()=>{deckFilter=f.k;renderDeckBuilder();};
+    tf.appendChild(b);
+  });
+
+  // コレクション
+  const col=document.getElementById('db-collection');col.innerHTML='';
+  const filtered=deckFilter==='all'?MASTER:MASTER.filter(m=>m.type===deckFilter);
+  filtered.forEach(m=>{
+    const inDeck=tempDeck.filter(id=>id===m.id).length;
+    const lv=cardLv(m.id);
+    const pow=cardPow(m.id);
+    const row=document.createElement('div');
+    row.className=`db-row${inDeck>0?' in-deck':''}`;
+    row.innerHTML=`
+      <div class="db-icon">${m.icon}</div>
+      <div class="db-info">
+        <div class="db-name">${m.name}</div>
+        <div class="db-meta">
+          <span style="color:${TYPES[m.type].col}">${TYPES[m.type].icon}${TYPES[m.type].name}</span>
+          <span class="db-pow"> ⚡${pow}</span>
+          <span class="db-lv"> Lv.${lv}</span>
+          ${m.special?`<span style="color:var(--gold);font-size:.55rem"> ${SPE[m.special]||''}</span>`:''}
+        </div>
       </div>
-    </div>
-  </div>`;
-  return div;
+      <button class="db-add add" onclick="addToDeck('${m.id}')">＋</button>
+    `;
+    col.appendChild(row);
+  });
+
+  // デッキリスト
+  const dl=document.getElementById('db-deck-list');dl.innerHTML='';
+  document.getElementById('deck-cnt').textContent=tempDeck.length;
+
+  if(tempDeck.length===0){
+    dl.innerHTML='<div style="font-size:.72rem;color:var(--dim);text-align:center;padding:12px">まだカードがありません</div>';
+  }
+  // ID集計
+  const counts={};tempDeck.forEach(id=>{counts[id]=(counts[id]||0)+1;});
+  Object.entries(counts).forEach(([id,cnt])=>{
+    const m=MASTER.find(x=>x.id===id);if(!m) return;
+    const pow=cardPow(id);const lv=cardLv(id);
+    const row=document.createElement('div');
+    row.className='db-row in-deck';
+    row.innerHTML=`
+      <div class="db-icon">${m.icon}</div>
+      <div class="db-info">
+        <div class="db-name">${m.name} ×${cnt}</div>
+        <div class="db-meta">
+          <span style="color:${TYPES[m.type].col}">${TYPES[m.type].icon}</span>
+          <span class="db-pow"> ⚡${pow}</span>
+          <span class="db-lv"> Lv.${lv}</span>
+        </div>
+      </div>
+      <button class="db-add remove" onclick="removeFromDeck('${id}')">－</button>
+    `;
+    dl.appendChild(row);
+  });
 }
 
-function makeBack(){
-  const div=document.createElement('div');
-  div.className='mcard back no-hover';
-  div.innerHTML='<div class="mcard-inner"></div>';
-  return div;
+function addToDeck(id){
+  if(tempDeck.length>=12){alert('デッキは12まいまでだよ！');return;}
+  tempDeck.push(id);renderDeckBuilder();
+}
+function removeFromDeck(id){
+  const i=tempDeck.lastIndexOf(id);
+  if(i!==-1){tempDeck.splice(i,1);renderDeckBuilder();}
+}
+function saveDeck(){
+  if(tempDeck.length<4){alert('デッキは4まい以上いれてね！');return;}
+  SAVE.deck=[...tempDeck];writeSave();closeDeck();
+  log(`✅ デッキを保存したよ！（${SAVE.deck.length}まい）`);
 }
 
-function log(html){ document.getElementById('log-box').innerHTML=html; }
+// ============================================================
+//  カード強化
+// ============================================================
+function openCollection(){
+  renderCollection();
+  document.getElementById('col-modal').classList.remove('hidden');
+}
+function closeCollection(){document.getElementById('col-modal').classList.add('hidden');}
 
-// ===== オーバーレイ =====
+function renderCollection(){
+  document.getElementById('col-gold').textContent=SAVE.gold;
+  const grid=document.getElementById('col-grid');grid.innerHTML='';
+  MASTER.forEach(m=>{
+    const lv=cardLv(m.id);
+    const exp=cardExp(m.id);
+    const maxLv=4;
+    const expMx=cardExpMax(m.id);
+    const pow=cardPow(m.id);
+    const upgCost=lv*20;
+    const canUpg=lv<maxLv&&SAVE.gold>=upgCost;
+    const pct=lv>=maxLv?100:(exp/expMx*100).toFixed(0);
+
+    const wrap=document.createElement('div');
+    wrap.className='col-card-wrap';
+
+    // ミニカード
+    const cardEl=makeCard({...m,power:pow,lv},'col',false);
+    cardEl.style.width='86px';cardEl.style.height='120px';
+    cardEl.classList.add('no-hover');
+    wrap.appendChild(cardEl);
+
+    // Lvバー
+    const info=document.createElement('div');
+    info.className='col-lv-info';
+    info.innerHTML=`<span style="color:var(--gold);font-weight:800">Lv.${lv}</span> <span style="color:var(--dim);font-size:.6rem">⚡${pow}</span>`;
+    wrap.appendChild(info);
+
+    const expBar=document.createElement('div');expBar.className='col-exp-bar';
+    const expFill=document.createElement('div');expFill.className='col-exp-fill';
+    expFill.style.width=pct+'%';expBar.appendChild(expFill);wrap.appendChild(expBar);
+
+    const upgBtn=document.createElement('button');
+    upgBtn.className='col-upgrade-btn';
+    if(lv>=maxLv){
+      upgBtn.textContent='MAX！';upgBtn.disabled=true;
+    }else{
+      upgBtn.innerHTML=`Lvアップ<br><span style="font-size:.55rem">💰${upgCost}G</span>`;
+      upgBtn.disabled=!canUpg;
+      upgBtn.onclick=()=>upgradeCard(m.id);
+    }
+    wrap.appendChild(upgBtn);
+    grid.appendChild(wrap);
+  });
+}
+
+function upgradeCard(id){
+  const lv=cardLv(id);
+  const cost=lv*20;
+  if(SAVE.gold<cost){alert(`ゴールドが足りないよ！\n必要：${cost}G　持っている：${SAVE.gold}G`);return;}
+  if(lv>=4){alert('もうMAXレベルだよ！');return;}
+  SAVE.gold-=cost;
+  SAVE.cardLevels[id].lv++;
+  SAVE.cardLevels[id].exp=0;
+  writeSave();
+  float('Lv UP!','var(--gold)');
+  renderCollection();
+  log(`⭐ <b style="color:var(--gold)">${MASTER.find(m=>m.id===id)?.name}</b> が Lv.${cardLv(id)} になった！ こうげき+2！`);
+}
+
+// ============================================================
+//  オーバーレイ・モーダル
+// ============================================================
 function showOverlay(r){
-  const ov=document.getElementById('overlay');
+  const ov=document.getElementById('g-overlay');
   const t=document.getElementById('ov-title');
-  const s=document.getElementById('ov-sub');
+  const sb=document.getElementById('ov-sub');
   const st=document.getElementById('ov-stats');
   ov.classList.remove('hidden');
-  if(r==='win'){t.textContent='🏆 しょうり！';t.className='ov-title win';s.textContent=G.enemyName+'をたおした！すごい！';}
-  else if(r==='lose'){t.textContent='💀 やられた…';t.className='ov-title lose';s.textContent='またちょうせんしよう！';}
-  else{t.textContent='🤝 ひきわけ！';t.className='ov-title';s.textContent='どちらも全力をつくした！';}
-  st.innerHTML=`たたかったラウンド：<b>${G.round}</b>　／　てきへのダメージ：<b>${G.stats.dmgDealt}</b>　／　かいふく：<b>${G.stats.healed}HP</b>　／　レベル：<b>Lv.${G.playerLv}</b>`;
+  if(r==='win'){t.textContent='🏆 しょうり！';t.className='ov-title win';sb.textContent=G.enemyName+'をたおした！すごい！';}
+  else if(r==='lose'){t.textContent='💀 やられた…';t.className='ov-title lose';sb.textContent='またちょうせんしよう！';}
+  else{t.textContent='🤝 ひきわけ！';t.className='ov-title';sb.textContent='どちらも全力をつくした！';}
+  st.innerHTML=`ラウンド：<b>${G.round}</b>　ダメージ：<b>${G.stats.dmgDealt}</b>　かいふく：<b>${G.stats.healed}HP</b>　Lv：<b>${G.playerLv}</b>`;
 }
-function hideOverlay(){ document.getElementById('overlay').classList.add('hidden'); }
+function closeOverlay(){document.getElementById('g-overlay').classList.add('hidden');}
+function openRules(){document.getElementById('rules-modal').classList.remove('hidden');}
+function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
+function log(h){document.getElementById('log-box').innerHTML=h;}
 
-// ===== ルール =====
-function showRules(){ document.getElementById('rules-modal').classList.remove('hidden'); }
-function hideRules(){ document.getElementById('rules-modal').classList.add('hidden'); }
-
-// ===== 星 =====
+// ============================================================
+//  星
+// ============================================================
 (()=>{
   const c=document.getElementById('stars');
-  for(let i=0;i<70;i++){
-    const s=document.createElement('div'); s.className='star';
-    const sz=Math.random()*2+.5;
-    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*3}s;`;
-    c.appendChild(s);
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');el.className='star';
+    const sz=Math.random()*2+.4;
+    el.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*3}s;`;
+    c.appendChild(el);
   }
 })();
 
+// ============================================================
+//  初期化
+// ============================================================
 newGame();
 </script>
 </body>
