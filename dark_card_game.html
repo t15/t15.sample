@@ -3,949 +3,914 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VOID CARDS — 深淵のカード</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<title>まほうカードバトル</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --void: #030309;
-    --abyss: #08080f;
-    --deep: #0d0d1a;
-    --card-bg: #111120;
-    --card-border: #2a2a4a;
-    --accent: #7b4fff;
-    --accent-glow: #9d6fff;
-    --blood: #c0392b;
-    --gold: #c9a84c;
-    --silver: #8a9bb0;
-    --text: #d0d4e8;
-    --dim: #5a5e7a;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--void);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(123,79,255,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 60% at 0% 100%, rgba(192,57,43,0.05) 0%, transparent 60%),
-      radial-gradient(ellipse 30% 30% at 100% 50%, rgba(123,79,255,0.04) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Noise texture */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    opacity: 0.4;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  #app {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-
-  /* HEADER */
-  header {
-    text-align: center;
-    padding: 24px 0 16px;
-    width: 100%;
-  }
-
-  .game-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    background: linear-gradient(135deg, var(--gold) 0%, #fff 50%, var(--accent-glow) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
-    filter: drop-shadow(0 0 20px rgba(123,79,255,0.4));
-  }
-
-  .game-subtitle {
-    font-size: 0.75rem;
-    letter-spacing: 0.4em;
-    color: var(--dim);
-    margin-top: 4px;
-    text-transform: uppercase;
-  }
-
-  /* STATUS BAR */
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 720px;
-    padding: 12px 20px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 4px;
-    margin: 12px 0;
-    backdrop-filter: blur(10px);
-  }
-
-  .stat-block {
-    text-align: center;
-  }
-
-  .stat-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--dim);
-    text-transform: uppercase;
-  }
-
-  .stat-value {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1;
-    margin-top: 2px;
-  }
-
-  .stat-value.hp { color: var(--blood); }
-  .stat-value.mana { color: var(--accent-glow); }
-  .stat-value.gold { color: var(--gold); }
-
-  /* HP BAR */
-  .hp-bar-wrap {
-    width: 100%;
-    max-width: 720px;
-    margin-bottom: 8px;
-  }
-
-  .hp-bar-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-
-  .hp-bar-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--dim); }
-
-  .hp-bar {
-    height: 4px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .hp-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--blood), #e74c3c);
-    border-radius: 2px;
-    transition: width 0.5s ease;
-    position: relative;
-  }
-
-  .hp-fill::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  /* ENEMY AREA */
-  .arena {
-    width: 100%;
-    max-width: 720px;
-    margin: 8px 0;
-  }
-
-  .enemy-zone {
-    background: rgba(8,8,15,0.8);
-    border: 1px solid rgba(192,57,43,0.2);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 10px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .enemy-zone::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(192,57,43,0.5), transparent);
-  }
-
-  .zone-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.4em;
-    color: var(--dim);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .enemy-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .enemy-name {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 0.9rem;
-    color: var(--blood);
-    text-shadow: 0 0 12px rgba(192,57,43,0.5);
-  }
-
-  .enemy-hp-text {
-    font-size: 0.85rem;
-    color: var(--blood);
-    font-weight: 600;
-  }
-
-  .enemy-hand {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    min-height: 80px;
-    align-items: center;
-  }
-
-  /* BATTLEFIELD */
-  .battlefield {
-    background: rgba(8,8,15,0.6);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 10px;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    position: relative;
-  }
-
-  .battlefield-label {
-    position: absolute;
-    top: 8px;
-    left: 12px;
-    font-size: 0.6rem;
-    letter-spacing: 0.4em;
-    color: var(--dim);
-    text-transform: uppercase;
-  }
-
-  /* PLAYER ZONE */
-  .player-zone {
-    background: rgba(8,8,15,0.8);
-    border: 1px solid rgba(123,79,255,0.2);
-    border-radius: 8px;
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .player-zone::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(123,79,255,0.5), transparent);
-  }
-
-  .player-hand {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    min-height: 100px;
-    align-items: center;
-  }
-
-  /* CARDS */
-  .card {
-    width: 62px;
-    height: 90px;
-    border-radius: 6px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .card:hover:not(.enemy-card):not(.battlefield-card) {
-    transform: translateY(-12px) scale(1.05);
-    box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px rgba(123,79,255,0.3);
-  }
-
-  .card.selected {
-    transform: translateY(-16px) scale(1.08);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 30px rgba(123,79,255,0.6);
-  }
-
-  .card-inner {
-    width: 100%;
-    height: 100%;
-    border-radius: 6px;
-    border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 4px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-inner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .card.selected .card-inner {
-    border-color: var(--accent);
-    background: linear-gradient(145deg, #15152a, #0d0d1a);
-  }
-
-  .card.enemy-card .card-inner {
-    border-color: rgba(192,57,43,0.3);
-    background: linear-gradient(145deg, #1a0808, #0d0808);
-  }
-
-  .card.back .card-inner {
-    background: repeating-linear-gradient(
-      45deg,
-      #0d0d1a,
-      #0d0d1a 4px,
-      #111124 4px,
-      #111124 8px
-    );
-    border-color: var(--card-border);
-  }
-
-  .card-corner {
-    font-size: 0.55rem;
-    font-weight: 600;
-    line-height: 1;
-    text-align: center;
-    color: var(--text);
-  }
-
-  .card-corner.bottom {
-    transform: rotate(180deg);
-  }
-
-  .card-suit {
-    font-size: 1.4rem;
-    line-height: 1;
-  }
-
-  .card-power {
-    position: absolute;
-    bottom: 3px;
-    right: 4px;
-    font-size: 0.6rem;
-    color: var(--accent-glow);
-    font-weight: 600;
-  }
-
-  .card.suit-♠ .card-suit,
-  .card.suit-♣ .card-suit { color: #8a9ec0; }
-
-  .card.suit-♥ .card-inner,
-  .card.suit-♦ .card-inner { background: linear-gradient(145deg, #1a0d0d, #110808); }
-
-  .card.suit-♥ .card-corner,
-  .card.suit-♦ .card-corner,
-  .card.suit-♥ .card-suit,
-  .card.suit-♦ .card-suit { color: #c0392b; }
-
-  /* Battlefield cards */
-  .battlefield-card {
-    cursor: default;
-  }
-
-  .battlefield-card.player-played .card-inner {
-    border-color: rgba(123,79,255,0.5);
-    box-shadow: 0 0 15px rgba(123,79,255,0.2);
-  }
-
-  .battlefield-card.enemy-played .card-inner {
-    border-color: rgba(192,57,43,0.5);
-    box-shadow: 0 0 15px rgba(192,57,43,0.2);
-  }
-
-  /* VS indicator */
-  .vs-indicator {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 0.9rem;
-    color: var(--dim);
-    text-shadow: 0 0 10px rgba(123,79,255,0.3);
-  }
-
-  /* CONTROLS */
-  .controls {
-    display: flex;
-    gap: 10px;
-    margin: 12px 0;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 10px 24px;
-    border-radius: 3px;
-    border: 1px solid;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: transparent;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .btn:hover::before { opacity: 0.08; }
-  .btn:active::before { opacity: 0.15; }
-
-  .btn-primary {
-    color: var(--accent-glow);
-    border-color: var(--accent);
-    text-shadow: 0 0 10px rgba(123,79,255,0.5);
-    box-shadow: 0 0 15px rgba(123,79,255,0.1);
-  }
-
-  .btn-primary:hover {
-    box-shadow: 0 0 25px rgba(123,79,255,0.3), inset 0 0 15px rgba(123,79,255,0.05);
-  }
-
-  .btn-danger {
-    color: var(--blood);
-    border-color: rgba(192,57,43,0.6);
-  }
-
-  .btn-danger:hover {
-    box-shadow: 0 0 20px rgba(192,57,43,0.2);
-  }
-
-  .btn-ghost {
-    color: var(--dim);
-    border-color: rgba(255,255,255,0.08);
-    font-size: 0.7rem;
-  }
-
-  .btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  /* MESSAGE LOG */
-  .message-log {
-    width: 100%;
-    max-width: 720px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 4px;
-    padding: 10px 14px;
-    min-height: 40px;
-    font-size: 0.78rem;
-    color: var(--dim);
-    letter-spacing: 0.05em;
-    line-height: 1.5;
-    margin-bottom: 8px;
-  }
-
-  .message-log .msg-new {
-    color: var(--text);
-  }
-
-  .message-log .msg-win { color: var(--gold); }
-  .message-log .msg-lose { color: var(--blood); }
-  .message-log .msg-info { color: var(--accent-glow); }
-
-  /* OVERLAY */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(3,3,9,0.92);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(8px);
-  }
-
-  .overlay.hidden { display: none; }
-
-  .overlay-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
-    margin-bottom: 12px;
-  }
-
-  .overlay-title.win { color: var(--gold); text-shadow: 0 0 30px rgba(201,168,76,0.5); }
-  .overlay-title.lose { color: var(--blood); text-shadow: 0 0 30px rgba(192,57,43,0.5); }
-
-  .overlay-sub {
-    font-size: 0.85rem;
-    letter-spacing: 0.2em;
-    color: var(--dim);
-    margin-bottom: 32px;
-  }
-
-  /* ANIMATIONS */
-  @keyframes dealIn {
-    from { transform: translateY(-30px) scale(0.8); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 10px rgba(123,79,255,0.2); }
-    50% { box-shadow: 0 0 25px rgba(123,79,255,0.5); }
-  }
-
-  .card-deal { animation: dealIn 0.3s ease forwards; }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    60% { transform: translateX(6px); }
-    80% { transform: translateX(-3px); }
-  }
-
-  .shake { animation: shake 0.4s ease; }
-
-  /* DECK counter */
-  .deck-info {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: var(--dim);
-    text-align: center;
-    margin-top: 6px;
-  }
-
-  /* Round indicator */
-  .round-badge {
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 3px 12px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
+:root {
+  --bg: #0a0a18;
+  --panel: #11112a;
+  --panel2: #0d0d20;
+  --border: #2a2a55;
+  --accent: #6c63ff;
+  --accent2: #ff6b9d;
+  --gold: #ffd166;
+  --green: #06d6a0;
+  --red: #ef476f;
+  --text: #e0e0ff;
+  --dim: #6666aa;
+  --card-w: 68px;
+  --card-h: 96px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% -10%, rgba(108,99,255,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 100% 100%, rgba(255,107,157,0.07) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+/* ===== STARS BG ===== */
+.stars { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%;
+  background:#fff; animation: twinkle 3s infinite;
+}
+@keyframes twinkle { 0%,100%{opacity:0.1} 50%{opacity:0.7} }
+
+#app { position:relative; z-index:1; max-width:740px; margin:0 auto; padding:12px 10px 80px; }
+
+/* ===== HEADER ===== */
+header { text-align:center; padding:10px 0 6px; }
+.title {
+  font-family:'Zen Antique', serif;
+  font-size:clamp(1.6rem,5vw,2.4rem);
+  background: linear-gradient(135deg, var(--gold) 0%, #fff 45%, var(--accent) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter: drop-shadow(0 0 16px rgba(108,99,255,0.5));
+  letter-spacing:0.1em;
+}
+.subtitle { font-size:0.72rem; color:var(--dim); letter-spacing:0.3em; margin-top:2px; }
+
+/* ===== PLAYER STATUS ===== */
+.player-status {
+  background: var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 16px;
+  margin:10px 0 8px;
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap:12px;
+  align-items:center;
+}
+.status-left { display:flex; flex-direction:column; gap:6px; }
+.status-right { display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+.status-center { text-align:center; }
+
+.hp-row { display:flex; align-items:center; gap:6px; font-size:0.75rem; }
+.hp-label { color:var(--dim); min-width:28px; }
+.hp-bar {
+  flex:1; height:10px; background:rgba(255,255,255,0.06);
+  border-radius:5px; overflow:hidden; min-width:60px;
+}
+.hp-fill {
+  height:100%; border-radius:5px;
+  transition: width 0.4s ease;
+}
+.hp-fill.player { background: linear-gradient(90deg, #06d6a0, #3dffc0); }
+.hp-fill.enemy  { background: linear-gradient(90deg, #ef476f, #ff8fa3); }
+.hp-num { font-size:0.75rem; font-weight:700; min-width:32px; text-align:right; }
+
+.lv-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(108,99,255,0.1));
+  border:1px solid rgba(108,99,255,0.5);
+  border-radius:20px; padding:3px 10px;
+  font-size:0.72rem; font-weight:700; color:var(--accent);
+}
+.exp-bar-wrap { margin-top:4px; }
+.exp-label { font-size:0.6rem; color:var(--dim); margin-bottom:2px; }
+.exp-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.exp-fill { height:100%; background: linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; transition:width 0.4s ease; }
+
+.round-info { font-size:0.7rem; color:var(--dim); text-align:center; }
+.round-num { font-size:1.4rem; font-weight:800; color:var(--gold); display:block; line-height:1; }
+
+/* ===== ENEMY CARD ===== */
+.enemy-section {
+  background:var(--panel2);
+  border:1px solid rgba(239,71,111,0.25);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:8px;
+  position:relative;
+}
+.section-title {
+  font-size:0.62rem; letter-spacing:0.35em; color:var(--dim);
+  text-transform:uppercase; margin-bottom:8px;
+}
+.enemy-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.enemy-name {
+  font-family:'Zen Antique',serif; font-size:1rem;
+  color:var(--red); text-shadow:0 0 12px rgba(239,71,111,0.4);
+}
+.enemy-tag {
+  font-size:0.65rem; padding:2px 8px;
+  border:1px solid rgba(239,71,111,0.4);
+  border-radius:20px; color:var(--red);
+}
+.enemy-hand { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; min-height:50px; align-items:center; }
+
+/* ===== BATTLEFIELD ===== */
+.battlefield {
+  background:rgba(108,99,255,0.04);
+  border:1px solid rgba(108,99,255,0.15);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:8px;
+  min-height:130px;
+  display:flex; align-items:center; justify-content:center;
+  gap:16px; flex-wrap:wrap;
+  position:relative;
+}
+.battlefield-hint {
+  font-size:0.7rem; color:var(--dim); position:absolute; top:8px; left:12px;
+}
+.vs-text {
+  font-family:'Zen Antique',serif; font-size:1.5rem;
+  color:rgba(255,255,255,0.15);
+  display:none;
+}
+.played-group { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.played-who { font-size:0.6rem; letter-spacing:0.2em; color:var(--dim); }
+
+/* ===== PLAYER HAND ===== */
+.player-section {
+  background:var(--panel2);
+  border:1px solid rgba(108,99,255,0.25);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:8px;
+}
+.player-hand { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; min-height:110px; align-items:center; }
+
+/* ===== CARDS ===== */
+.card {
+  width:var(--card-w); height:var(--card-h);
+  border-radius:8px;
+  cursor:pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  flex-shrink:0; position:relative;
+}
+.card:hover:not(.no-hover) { transform:translateY(-14px) scale(1.06); }
+.card.selected { transform:translateY(-20px) scale(1.1) !important; }
+.card-inner {
+  width:100%; height:100%;
+  border-radius:8px; border:2px solid var(--border);
+  background:var(--panel);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:space-between;
+  padding:5px 4px;
+  position:relative; overflow:hidden;
+}
+.card-inner::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.07) 0%,transparent 55%);
+}
+.card.selected .card-inner { border-color:var(--accent); box-shadow:0 0 0 2px rgba(108,99,255,0.4); }
+
+/* suit colors */
+.suit-hearts .card-inner, .suit-diamonds .card-inner { background:linear-gradient(160deg,#1a0a10,#110808); }
+.suit-hearts .cn, .suit-diamonds .cn,
+.suit-hearts .cs, .suit-diamonds .cs { color:#ff6b9d; }
+.suit-spades .cn, .suit-clubs .cn,
+.suit-spades .cs, .suit-clubs .cs { color:#a0aacc; }
+
+.cn { font-size:0.6rem; font-weight:800; line-height:1.1; text-align:center; }
+.cn.bot { transform:rotate(180deg); }
+.cs { font-size:1.5rem; line-height:1; }
+
+/* special card glow */
+.card.special .card-inner {
+  border-color: var(--gold);
+  background: linear-gradient(160deg,#1a1400,#120e00);
+  box-shadow: 0 0 16px rgba(255,209,102,0.2);
+}
+.card.special .cn, .card.special .cs { color: var(--gold); }
+.special-badge {
+  position:absolute; bottom:3px; left:0; right:0;
+  text-align:center; font-size:0.5rem; color:var(--gold);
+  font-weight:700; letter-spacing:0.05em;
+}
+
+/* back card */
+.card.back .card-inner {
+  background: repeating-linear-gradient(45deg,#0d0d20,#0d0d20 5px,#111130 5px,#111130 10px);
+  border-color:var(--border);
+}
+
+/* battlefield card */
+.card.bf { cursor:default; }
+.card.bf.player-bf .card-inner { border-color:rgba(108,99,255,0.6); box-shadow:0 0 16px rgba(108,99,255,0.2); }
+.card.bf.enemy-bf .card-inner  { border-color:rgba(239,71,111,0.6); box-shadow:0 0 16px rgba(239,71,111,0.2); }
+
+/* result flash */
+.result-badge {
+  position:absolute; top:-10px; right:-10px; z-index:10;
+  font-size:0.65rem; font-weight:800; padding:3px 7px;
+  border-radius:20px; letter-spacing:0.05em;
+}
+.result-badge.win { background:var(--green); color:#000; }
+.result-badge.lose { background:var(--red); color:#fff; }
+.result-badge.draw { background:var(--dim); color:#fff; }
+
+/* ===== ITEMS ===== */
+.items-section {
+  background:var(--panel2);
+  border:1px solid rgba(255,209,102,0.2);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:8px;
+}
+.items-row { display:flex; gap:8px; flex-wrap:wrap; }
+.item-btn {
+  display:flex; flex-direction:column; align-items:center;
+  background:rgba(255,209,102,0.06);
+  border:1px solid rgba(255,209,102,0.25);
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer; transition:all 0.15s;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  color:var(--gold); min-width:64px;
+}
+.item-btn:hover:not(:disabled) {
+  background:rgba(255,209,102,0.12);
+  box-shadow:0 0 12px rgba(255,209,102,0.15);
+  transform:translateY(-2px);
+}
+.item-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.item-icon { font-size:1.4rem; }
+.item-name { font-size:0.6rem; font-weight:700; margin-top:2px; }
+.item-count {
+  font-size:0.6rem; color:var(--dim); margin-top:1px;
+}
+.item-btn:disabled .item-icon { filter:grayscale(1); }
+
+/* ===== CONTROLS ===== */
+.controls { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:8px 0; }
+.btn {
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:0.82rem; font-weight:700;
+  padding:10px 22px; border-radius:25px; border:2px solid;
+  cursor:pointer; transition:all 0.15s; background:transparent;
+  letter-spacing:0.05em;
+}
+.btn-play { color:var(--accent); border-color:var(--accent); }
+.btn-play:hover:not(:disabled) { background:rgba(108,99,255,0.15); box-shadow:0 0 20px rgba(108,99,255,0.3); transform:translateY(-2px); }
+.btn-pass { color:var(--dim); border-color:rgba(255,255,255,0.1); font-size:0.75rem; }
+.btn-pass:hover:not(:disabled) { background:rgba(255,255,255,0.04); }
+.btn-new  { color:var(--red); border-color:rgba(239,71,111,0.5); font-size:0.75rem; }
+.btn-new:hover { background:rgba(239,71,111,0.08); }
+.btn:disabled { opacity:0.3; cursor:not-allowed; transform:none !important; }
+
+/* ===== LOG ===== */
+.log-box {
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.04);
+  border-radius:8px; padding:10px 14px;
+  font-size:0.8rem; min-height:36px; line-height:1.5;
+  color:var(--dim);
+}
+
+/* ===== OVERLAY ===== */
+.overlay {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(5,5,18,0.93);
+  backdrop-filter:blur(10px);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:10px;
+}
+.overlay.hidden { display:none; }
+.ov-title {
+  font-family:'Zen Antique',serif;
+  font-size:clamp(1.8rem,6vw,3rem);
+  line-height:1.1; text-align:center;
+}
+.ov-title.win  { color:var(--gold); text-shadow:0 0 30px rgba(255,209,102,0.5); }
+.ov-title.lose { color:var(--red);  text-shadow:0 0 30px rgba(239,71,111,0.5); }
+.ov-sub { font-size:0.85rem; color:var(--dim); letter-spacing:0.15em; }
+.ov-stats {
+  margin:8px 0; text-align:center; font-size:0.8rem;
+  color:var(--text); line-height:1.8;
+}
+
+/* ===== LEVEL UP POPUP ===== */
+.lvup-popup {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  z-index:300; background:var(--panel);
+  border:2px solid var(--gold);
+  border-radius:16px; padding:24px 32px;
+  text-align:center;
+  box-shadow:0 0 60px rgba(255,209,102,0.4);
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lvup-popup.show { transform:translate(-50%,-50%) scale(1); }
+.lvup-title { font-size:1.4rem; font-weight:800; color:var(--gold); margin-bottom:6px; }
+.lvup-sub { font-size:0.8rem; color:var(--dim); }
+.lvup-bonus { font-size:0.85rem; color:var(--green); margin-top:8px; font-weight:700; }
+
+/* ===== ANIMATIONS ===== */
+@keyframes dealIn {
+  from { transform:translateY(-20px) scale(0.85); opacity:0; }
+  to   { transform:translateY(0) scale(1); opacity:1; }
+}
+@keyframes dmgShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+@keyframes floatUp {
+  from { opacity:1; transform:translateY(0); }
+  to   { opacity:0; transform:translateY(-40px); }
+}
+.deal-anim { animation: dealIn 0.25s ease forwards; }
+.shake-anim { animation: dmgShake 0.35s ease; }
 </style>
 </head>
 <body>
+
+<!-- 星の背景 -->
+<div class="stars" id="stars"></div>
+
 <div id="app">
   <header>
-    <div class="game-title">VOID CARDS</div>
-    <div class="game-subtitle">深淵のカード対決</div>
+    <div class="title">✨ まほうカードバトル ✨</div>
+    <div class="subtitle">カードでたたかう まほうのぼうけん</div>
   </header>
 
-  <div class="status-bar">
-    <div class="stat-block">
-      <div class="stat-label">PLAYER HP</div>
-      <div class="stat-value hp" id="player-hp">20</div>
-    </div>
-    <div class="round-badge" id="round-label">ROUND 1</div>
-    <div class="stat-block">
-      <div class="stat-label">ENEMY HP</div>
-      <div class="stat-value hp" id="enemy-hp">20</div>
-    </div>
-  </div>
-
-  <div class="arena">
-
-    <!-- Enemy Zone -->
-    <div class="enemy-zone">
-      <div class="zone-label">■ ENEMY</div>
-      <div class="enemy-info">
-        <div class="enemy-name" id="enemy-name">SHADOW DEMON</div>
-        <div class="enemy-hp-text" id="enemy-hp-bar-label">HP: 20 / 20</div>
+  <!-- プレイヤーステータス -->
+  <div class="player-status">
+    <div class="status-left">
+      <div class="hp-row">
+        <span class="hp-label" style="color:var(--green)">自分</span>
+        <div class="hp-bar"><div class="hp-fill player" id="p-hp-bar" style="width:100%"></div></div>
+        <span class="hp-num" id="p-hp-num" style="color:var(--green)">20/20</span>
       </div>
-      <div class="enemy-hand" id="enemy-hand"></div>
-      <div class="deck-info" id="enemy-deck-info">Hand: 0 cards</div>
+      <div class="lv-badge">⭐ Lv.<span id="p-lv">1</span></div>
+      <div class="exp-bar-wrap">
+        <div class="exp-label">けいけんち：<span id="p-exp">0</span> / <span id="p-exp-max">10</span></div>
+        <div class="exp-bar"><div class="exp-fill" id="p-exp-bar" style="width:0%"></div></div>
+      </div>
     </div>
 
-    <!-- Battlefield -->
-    <div class="battlefield">
-      <div class="battlefield-label">BATTLEFIELD</div>
-      <div id="player-played-slot" style="display:flex;gap:8px;align-items:center;"></div>
-      <div class="vs-indicator" id="vs-text" style="display:none;">VS</div>
-      <div id="enemy-played-slot" style="display:flex;gap:8px;align-items:center;"></div>
+    <div class="status-center">
+      <span class="round-num" id="round-num">1</span>
+      <div class="round-info">ラウンド</div>
     </div>
 
-    <!-- Player Zone -->
-    <div class="player-zone">
-      <div class="zone-label">■ YOU</div>
-      <div class="player-hand" id="player-hand"></div>
-      <div class="deck-info" id="player-deck-info">Hand: 0 cards</div>
+    <div class="status-right">
+      <div class="hp-row" style="flex-direction:row-reverse">
+        <span class="hp-label" style="color:var(--red);text-align:right">てき</span>
+        <div class="hp-bar"><div class="hp-fill enemy" id="e-hp-bar" style="width:100%"></div></div>
+        <span class="hp-num" id="e-hp-num" style="color:var(--red)">20/20</span>
+      </div>
+      <div style="text-align:right">
+        <span class="lv-badge" style="border-color:rgba(239,71,111,0.5);color:var(--red)">👹 Lv.<span id="e-lv">1</span></span>
+      </div>
+      <div class="exp-bar-wrap" style="text-align:right">
+        <div class="exp-label" style="color:var(--dim)">てきのまりょく</div>
+        <div class="exp-bar"><div class="exp-fill" id="e-power-bar" style="width:100%;background:linear-gradient(90deg,#ef476f,#ff8fa3)"></div></div>
+      </div>
     </div>
   </div>
 
-  <!-- Controls -->
+  <!-- てきゾーン -->
+  <div class="enemy-section">
+    <div class="section-title">▲ てきの手ふだ</div>
+    <div class="enemy-header">
+      <div class="enemy-name" id="enemy-name">あんこくまじん</div>
+      <div class="enemy-tag" id="enemy-tag">🌑 やみのまどうし</div>
+    </div>
+    <div class="enemy-hand" id="enemy-hand"></div>
+  </div>
+
+  <!-- バトルフィールド -->
+  <div class="battlefield" id="battlefield">
+    <div class="battlefield-hint">⚔️ バトルフィールド</div>
+    <div class="played-group" id="p-played-group" style="display:none">
+      <div class="played-who">あなた</div>
+      <div id="p-played-slot"></div>
+    </div>
+    <div class="vs-text" id="vs-text">VS</div>
+    <div class="played-group" id="e-played-group" style="display:none">
+      <div class="played-who">てき</div>
+      <div id="e-played-slot"></div>
+    </div>
+    <div id="bf-hint-text" style="font-size:0.75rem;color:var(--dim)">カードをえらんで「カードをだす！」をおそう</div>
+  </div>
+
+  <!-- アイテム -->
+  <div class="items-section">
+    <div class="section-title">🎒 アイテムバッグ（バトル中につかえるよ！）</div>
+    <div class="items-row" id="items-row"></div>
+  </div>
+
+  <!-- 手ふだ -->
+  <div class="player-section">
+    <div class="section-title">▼ あなたの手ふだ　<span id="hand-info" style="color:var(--dim);font-size:0.65rem"></span></div>
+    <div class="player-hand" id="player-hand"></div>
+  </div>
+
+  <!-- コントロール -->
   <div class="controls">
-    <button class="btn btn-primary" id="btn-play" onclick="playCard()" disabled>PLAY CARD</button>
-    <button class="btn btn-ghost" id="btn-pass" onclick="passTurn()" disabled>PASS</button>
-    <button class="btn btn-danger" onclick="newGame()">NEW GAME</button>
+    <button class="btn btn-play" id="btn-play" onclick="playCard()" disabled>⚔️ カードをだす！</button>
+    <button class="btn btn-pass" id="btn-pass" onclick="passTurn()" disabled>🏳️ パスする</button>
+    <button class="btn btn-new" onclick="newGame()">🔄 あたらしいゲーム</button>
   </div>
 
-  <!-- Message Log -->
-  <div class="message-log" id="message-log">ゲームを開始してください。</div>
+  <!-- ログ -->
+  <div class="log-box" id="log-box">ゲームをはじめよう！「あたらしいゲーム」をおしてね。</div>
 </div>
 
-<!-- Overlay -->
+<!-- レベルアップポップアップ -->
+<div class="lvup-popup" id="lvup-popup">
+  <div class="lvup-title">⭐ レベルアップ！</div>
+  <div class="lvup-sub">Lv.<span id="lv-num">2</span> になった！</div>
+  <div class="lvup-bonus" id="lv-bonus">さいだいHPが +5 あがった！</div>
+</div>
+
+<!-- オーバーレイ -->
 <div class="overlay hidden" id="overlay">
-  <div class="overlay-title" id="overlay-title">VICTORY</div>
-  <div class="overlay-sub" id="overlay-sub">暗闇を制した</div>
-  <button class="btn btn-primary" onclick="newGame()" style="margin-top:16px;">PLAY AGAIN</button>
+  <div class="ov-title" id="ov-title">しょうり！</div>
+  <div class="ov-sub" id="ov-sub">てきをたおしたぞ！</div>
+  <div class="ov-stats" id="ov-stats"></div>
+  <button class="btn btn-play" onclick="newGame()" style="margin-top:12px;font-size:1rem;padding:12px 32px;">🎮 もう一度あそぶ</button>
 </div>
 
 <script>
-// ============ GAME ENGINE ============
-const SUITS = ['♠','♥','♦','♣'];
+// ========== 定数 ==========
+const SUITS = ['spades','hearts','diamonds','clubs'];
+const SUIT_SYM = { spades:'♠', hearts:'♥', diamonds:'♦', clubs:'♣' };
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const RANK_VALUE = { A:14, '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10, J:11, Q:12, K:13 };
+const RANK_VAL = { A:14,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13 };
 
-let state = {};
+// 特殊カード（役）
+const SPECIAL_CARDS = {
+  'A': { name:'エース', desc:'+2ダメージ', effect:'atk_bonus', val:2 },
+  'J': { name:'ジャック', desc:'かいひ', effect:'dodge', val:0 },
+  'Q': { name:'クイーン', desc:'HP+3回復', effect:'heal', val:3 },
+  'K': { name:'キング', desc:'×2ダメージ', effect:'double', val:0 },
+};
+
+const ENEMIES = [
+  { name:'あんこくまじん', tag:'🌑 やみのまどうし', hp:18, lv:1, color:'#ef476f' },
+  { name:'もりのおに',     tag:'🌲 もりのまもりびと', hp:22, lv:2, color:'#06d6a0' },
+  { name:'うみのりゅう',  tag:'🌊 りゅうのおうじ',  hp:26, lv:3, color:'#4cc9f0' },
+  { name:'まおうへいか',  tag:'👑 まかいのおう',     hp:30, lv:4, color:'#ffd166' },
+];
+
+// アイテム定義
+const ITEM_DEFS = [
+  { id:'potion',  icon:'🧪', name:'ポーション', desc:'HP+5かいふく',   count:2, effect:'heal5'   },
+  { id:'shield',  icon:'🛡️', name:'バリア',     desc:'1かいダメージ0', count:1, effect:'shield'  },
+  { id:'sword',   icon:'⚔️', name:'つるぎ',     desc:'つぎの攻撃+3',  count:1, effect:'sword3'  },
+  { id:'star',    icon:'⭐', name:'スター',     desc:'テキのカード見る',count:1, effect:'reveal'  },
+];
+
+// ========== ゲーム状態 ==========
+let G = {};
 let selectedCard = null;
+let lvupTimer = null;
 
 function createDeck() {
   const deck = [];
-  for (const suit of SUITS)
-    for (const rank of RANKS)
-      deck.push({ suit, rank, value: RANK_VALUE[rank] });
+  for (const s of SUITS) for (const r of RANKS)
+    deck.push({ suit:s, rank:r, val:RANK_VAL[r], special: SPECIAL_CARDS[r] || null });
   return shuffle(deck);
 }
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+function shuffle(a) {
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
 }
 
-const ENEMIES = [
-  { name: 'SHADOW DEMON', hp: 20 },
-  { name: 'VOID KNIGHT', hp: 24 },
-  { name: 'DARK ORACLE', hp: 22 },
-  { name: 'NIGHTMARE KING', hp: 28 },
-];
+function expNeeded(lv) { return lv * 10; }
 
 function newGame() {
-  const enemy = ENEMIES[Math.floor(Math.random() * ENEMIES.length)];
-  const deck = createDeck();
-  state = {
-    deck,
-    playerHand: [],
-    enemyHand: [],
-    playerHP: 20,
-    enemyHP: enemy.hp,
-    enemyMaxHP: enemy.hp,
-    enemyName: enemy.name,
+  const enemy = ENEMIES[Math.floor(Math.random()*ENEMIES.length)];
+  G = {
+    deck: createDeck(),
+    playerHand: [], enemyHand: [],
+    playerHP: 20, playerMaxHP: 20,
+    playerLv: 1, playerExp: 0,
+    enemyHP: enemy.hp, enemyMaxHP: enemy.hp,
+    enemyLv: enemy.lv,
+    enemyName: enemy.name, enemyTag: enemy.tag, enemyColor: enemy.color,
     round: 1,
-    phase: 'deal', // deal | select | resolve | gameover
-    playerPlayed: null,
-    enemyPlayed: null,
+    phase: 'select',
+    playerPlayed: null, enemyPlayed: null,
+    items: ITEM_DEFS.map(d=>({...d})),
+    shieldActive: false,
+    swordBonus: 0,
+    enemyRevealed: false,
+    stats: { wins:0, dmgDealt:0, healed:0 },
   };
   selectedCard = null;
   hideOverlay();
-  dealHands();
+  dealHands(5);
   render();
-  log(`<span class="msg-info">⚔ ${enemy.name} が現れた！カードを選んで戦え。</span>`);
+  log('🎮 <b>ゲームスタート！</b>　カードをえらんで「カードをだす！」をおそう！');
 }
 
-function dealHands() {
-  // Deal 5 cards each
-  for (let i = 0; i < 5; i++) {
-    if (state.deck.length) state.playerHand.push(state.deck.pop());
-    if (state.deck.length) state.enemyHand.push(state.deck.pop());
+function dealHands(n) {
+  for(let i=0;i<n;i++){
+    if(G.deck.length) G.playerHand.push(G.deck.pop());
+    if(G.deck.length) G.enemyHand.push(G.deck.pop());
   }
-  state.phase = 'select';
-  state.playerPlayed = null;
-  state.enemyPlayed = null;
 }
 
-function playCard() {
-  if (!selectedCard || state.phase !== 'select') return;
-  const idx = state.playerHand.indexOf(selectedCard);
-  if (idx === -1) return;
+// ========== アイテム使用 ==========
+function useItem(id) {
+  if(G.phase !== 'select') return;
+  const item = G.items.find(i=>i.id===id);
+  if(!item || item.count<=0) return;
+  item.count--;
 
-  state.playerPlayed = selectedCard;
-  state.playerHand.splice(idx, 1);
-
-  // Enemy picks random card
-  const ei = Math.floor(Math.random() * state.enemyHand.length);
-  state.enemyPlayed = state.enemyHand[ei];
-  state.enemyHand.splice(ei, 1);
-
-  state.phase = 'resolve';
-  selectedCard = null;
-  render();
-
-  setTimeout(resolveRound, 800);
-}
-
-function passTurn() {
-  if (state.phase !== 'select') return;
-  // Enemy attacks with strongest card
-  state.enemyHand.sort((a, b) => b.value - a.value);
-  state.enemyPlayed = state.enemyHand.shift();
-  state.playerPlayed = null;
-  state.phase = 'resolve';
-  render();
-  setTimeout(resolveRound, 800);
-}
-
-function resolveRound() {
-  const pp = state.playerPlayed;
-  const ep = state.enemyPlayed;
-
-  if (!pp && ep) {
-    // Player passed - take damage
-    const dmg = Math.ceil(ep.value / 3);
-    state.playerHP -= dmg;
-    log(`<span class="msg-lose">パス：${ep.rank}${ep.suit} (${ep.value}) の攻撃を受けた！ -${dmg} HP</span>`);
-  } else if (pp && ep) {
-    if (pp.value > ep.value) {
-      const dmg = Math.ceil((pp.value - ep.value) / 2) + 1;
-      state.enemyHP -= dmg;
-      log(`<span class="msg-win">勝利！${pp.rank}${pp.suit}(${pp.value}) > ${ep.rank}${ep.suit}(${ep.value}) → 敵に -${dmg} HP</span>`);
-    } else if (ep.value > pp.value) {
-      const dmg = Math.ceil((ep.value - pp.value) / 2) + 1;
-      state.playerHP -= dmg;
-      log(`<span class="msg-lose">敗北…${ep.rank}${ep.suit}(${ep.value}) > ${pp.rank}${pp.suit}(${pp.value}) → 自分に -${dmg} HP</span>`);
-    } else {
-      log(`<span class="msg-info">引き分け！両者ノーダメージ。</span>`);
-    }
+  if(item.effect==='heal5') {
+    const h = Math.min(5, G.playerMaxHP - G.playerHP);
+    G.playerHP += h;
+    G.stats.healed += h;
+    log(`🧪 <span style="color:var(--green)">ポーションをつかった！HP が <b>+${h}</b> かいふくしたよ！</span>`);
+    spawnFloat('+'+h+' HP', 'var(--green)');
+  } else if(item.effect==='shield') {
+    G.shieldActive = true;
+    log(`🛡️ <span style="color:#4cc9f0">バリアをはった！つぎの攻撃を <b>0</b> にするよ！</span>`);
+  } else if(item.effect==='sword3') {
+    G.swordBonus += 3;
+    log(`⚔️ <span style="color:var(--gold)">つるぎをつかった！つぎの攻撃が <b>+3</b> つよくなるよ！</span>`);
+  } else if(item.effect==='reveal') {
+    G.enemyRevealed = true;
+    log(`⭐ <span style="color:var(--gold)">スターをつかった！てきの手ふだがみえるようになったよ！</span>`);
   }
-
-  state.playerHP = Math.max(0, state.playerHP);
-  state.enemyHP = Math.max(0, state.enemyHP);
-
-  // Check game over
-  if (state.playerHP <= 0 && state.enemyHP <= 0) {
-    state.phase = 'gameover';
-    render();
-    showOverlay('draw');
-    return;
-  }
-  if (state.playerHP <= 0) {
-    state.phase = 'gameover';
-    render();
-    showOverlay('lose');
-    return;
-  }
-  if (state.enemyHP <= 0) {
-    state.phase = 'gameover';
-    render();
-    showOverlay('win');
-    return;
-  }
-
-  // Next round
-  state.round++;
-  state.phase = 'deal';
-
-  // Replenish hands
-  const pNeed = 5 - state.playerHand.length;
-  const eNeed = 5 - state.enemyHand.length;
-  for (let i = 0; i < Math.max(pNeed, eNeed); i++) {
-    if (i < pNeed && state.deck.length) state.playerHand.push(state.deck.pop());
-    if (i < eNeed && state.deck.length) state.enemyHand.push(state.deck.pop());
-  }
-
-  // If deck empty, reshuffle
-  if (state.deck.length === 0 && (state.playerHand.length < 2 || state.enemyHand.length < 2)) {
-    state.deck = createDeck();
-    log(`<span class="msg-info">デッキを再シャッフルした。</span>`);
-    for (let i = 0; i < 3; i++) {
-      if (state.playerHand.length < 5 && state.deck.length) state.playerHand.push(state.deck.pop());
-      if (state.enemyHand.length < 5 && state.deck.length) state.enemyHand.push(state.deck.pop());
-    }
-  }
-
-  state.phase = 'select';
   render();
 }
 
-// ============ RENDER ============
-function render() {
-  // Stats
-  document.getElementById('player-hp').textContent = state.playerHP;
-  document.getElementById('enemy-hp').textContent = state.enemyHP;
-  document.getElementById('round-label').textContent = `ROUND ${state.round}`;
-  document.getElementById('enemy-name').textContent = state.enemyName;
-  document.getElementById('enemy-hp-bar-label').textContent = `HP: ${state.enemyHP} / ${state.enemyMaxHP}`;
-
-  // Deck info
-  document.getElementById('player-deck-info').textContent = `Hand: ${state.playerHand.length} cards  |  Deck: ${state.deck.length}`;
-  document.getElementById('enemy-deck-info').textContent = `Hand: ${state.enemyHand.length} cards`;
-
-  // Player hand
-  const ph = document.getElementById('player-hand');
-  ph.innerHTML = '';
-  state.playerHand.forEach((card, i) => {
-    const el = makeCardEl(card, false);
-    el.style.animationDelay = `${i * 0.04}s`;
-    el.classList.add('card-deal');
-    el.onclick = () => selectCard(card, el);
-    if (card === selectedCard) el.classList.add('selected');
-    ph.appendChild(el);
-  });
-
-  // Enemy hand (face-down)
-  const eh = document.getElementById('enemy-hand');
-  eh.innerHTML = '';
-  state.enemyHand.forEach((_, i) => {
-    const el = makeBackCardEl();
-    el.style.animationDelay = `${i * 0.04}s`;
-    el.classList.add('card-deal');
-    eh.appendChild(el);
-  });
-
-  // Battlefield
-  const pSlot = document.getElementById('player-played-slot');
-  const eSlot = document.getElementById('enemy-played-slot');
-  const vs = document.getElementById('vs-text');
-  pSlot.innerHTML = '';
-  eSlot.innerHTML = '';
-
-  if (state.playerPlayed || state.enemyPlayed) {
-    vs.style.display = 'block';
-    if (state.playerPlayed) {
-      const el = makeCardEl(state.playerPlayed, false);
-      el.classList.add('battlefield-card', 'player-played');
-      pSlot.appendChild(el);
-    }
-    if (state.enemyPlayed) {
-      const el = makeCardEl(state.enemyPlayed, false);
-      el.classList.add('battlefield-card', 'enemy-played');
-      eSlot.appendChild(el);
-    }
-  } else {
-    vs.style.display = 'none';
-  }
-
-  // Buttons
-  const canAct = state.phase === 'select' && state.playerHand.length > 0;
-  document.getElementById('btn-play').disabled = !canAct || !selectedCard;
-  document.getElementById('btn-pass').disabled = !canAct;
-}
-
-function makeCardEl(card, back) {
-  const div = document.createElement('div');
-  div.className = `card suit-${card.suit}`;
-  if (back) div.classList.add('back');
-
-  const inner = document.createElement('div');
-  inner.className = 'card-inner';
-
-  if (!back) {
-    inner.innerHTML = `
-      <div class="card-corner">${card.rank}<br>${card.suit}</div>
-      <div class="card-suit">${card.suit}</div>
-      <div class="card-corner bottom">${card.rank}<br>${card.suit}</div>
-    `;
-  }
-  div.appendChild(inner);
-  return div;
-}
-
-function makeBackCardEl() {
-  const div = document.createElement('div');
-  div.className = 'card back';
-  const inner = document.createElement('div');
-  inner.className = 'card-inner';
-  div.appendChild(inner);
-  return div;
-}
-
-function selectCard(card, el) {
-  if (state.phase !== 'select') return;
+// ========== カード選択 ==========
+function selectCard(card) {
+  if(G.phase !== 'select') return;
   selectedCard = (selectedCard === card) ? null : card;
   render();
 }
 
-// ============ LOG ============
-function log(html) {
-  const el = document.getElementById('message-log');
-  el.innerHTML = `<span class="msg-new">${html}</span>`;
+// ========== カードを出す ==========
+function playCard() {
+  if(!selectedCard || G.phase !== 'select') return;
+  const idx = G.playerHand.indexOf(selectedCard);
+  if(idx===-1) return;
+
+  G.playerPlayed = selectedCard;
+  G.playerHand.splice(idx,1);
+
+  // 敵はランダムにカード選択（レベルが高いと強いカードを選びやすい）
+  let ei;
+  if(G.enemyLv >= 3 && Math.random() < 0.5) {
+    // 強いカードを選ぶ
+    let best = 0;
+    G.enemyHand.forEach((c,i)=>{ if(c.val > G.enemyHand[best].val) best=i; });
+    ei = best;
+  } else {
+    ei = Math.floor(Math.random()*G.enemyHand.length);
+  }
+  G.enemyPlayed = G.enemyHand[ei];
+  G.enemyHand.splice(ei,1);
+  G.enemyRevealed = false;
+
+  G.phase = 'resolve';
+  selectedCard = null;
+  render();
+  setTimeout(resolveRound, 700);
 }
 
-// ============ OVERLAY ============
-function showOverlay(result) {
-  const overlay = document.getElementById('overlay');
-  const title = document.getElementById('overlay-title');
-  const sub = document.getElementById('overlay-sub');
-  overlay.classList.remove('hidden');
+function passTurn() {
+  if(G.phase !== 'select') return;
+  G.playerPlayed = null;
+  // 敵は一番強いカードで攻撃
+  G.enemyHand.sort((a,b)=>b.val-a.val);
+  G.enemyPlayed = G.enemyHand.shift();
+  G.phase = 'resolve';
+  selectedCard = null;
+  render();
+  setTimeout(resolveRound, 700);
+}
 
-  if (result === 'win') {
-    title.textContent = 'VICTORY';
-    title.className = 'overlay-title win';
-    sub.textContent = '深淵の闇を制した者よ';
-  } else if (result === 'lose') {
-    title.textContent = 'DEFEATED';
-    title.className = 'overlay-title lose';
-    sub.textContent = '闇に飲み込まれた…';
-  } else {
-    title.textContent = 'DRAW';
-    title.className = 'overlay-title';
-    sub.textContent = '互いに滅びた';
+// ========== 解決 ==========
+function resolveRound() {
+  const pp = G.playerPlayed;
+  const ep = G.enemyPlayed;
+  let msg = '';
+
+  if(!pp && ep) {
+    // パス → 敵攻撃
+    let dmg = Math.ceil(ep.val / 3);
+    if(G.shieldActive) { dmg=0; G.shieldActive=false; msg+=`🛡️バリアでダメージを0にした！　`; }
+    G.playerHP = Math.max(0, G.playerHP - dmg);
+    msg += `🏳️ パスした… ${ep.rank}${SUIT_SYM[ep.suit]}(${ep.val}) の攻撃で <b style="color:var(--red)">-${dmg}HP</b>！`;
+  } else if(pp && ep) {
+    let pv = pp.val + G.swordBonus;
+    let ev = ep.val;
+    let pvDisplay = pp.val + (G.swordBonus>0?`+${G.swordBonus}`:'');
+    G.swordBonus = 0;
+
+    // 特殊効果（プレイヤー）
+    let ppNote = '';
+    if(pp.special) {
+      if(pp.special.effect==='atk_bonus') { pv += pp.special.val; pvDisplay += `+${pp.special.val}`; ppNote=`⚡A のちから！`; }
+      if(pp.special.effect==='heal')      { const h=Math.min(pp.special.val,G.playerMaxHP-G.playerHP); G.playerHP+=h; G.stats.healed+=h; ppNote=`💚Q のいやし！ HP +${h}`; spawnFloat('+'+h+' HP','var(--green)'); }
+      if(pp.special.effect==='double')    { ppNote=`💥K のちから！ダメージ2ばい！`; }
+      if(pp.special.effect==='dodge')     { ppNote=`💨J のかいひ！`; }
+    }
+
+    // 特殊効果（敵）
+    if(ep.special && ep.special.effect==='atk_bonus') ev += ep.special.val;
+    if(ep.special && ep.special.effect==='dodge' && pv > ev) {
+      // 敵Jで回避
+      msg = `💨 てきのJ がかいひした！ダメージなし！`;
+      msg += ppNote ? `　${ppNote}` : '';
+      endRound(msg);
+      return;
+    }
+    if(pp.special && pp.special.effect==='dodge' && ev > pv) {
+      // 自分Jで回避
+      let shMsg = G.shieldActive ? `🛡️バリアで守られた！　` : '';
+      G.shieldActive = false;
+      msg = `💨 J のかいひ！てきの攻撃をよけた！${shMsg}`;
+      msg += ppNote ? `　${ppNote}` : '';
+      endRound(msg);
+      return;
+    }
+
+    if(pv > ev) {
+      let dmg = Math.ceil((pv-ev)/2)+1;
+      if(pp.special && pp.special.effect==='double') dmg *= 2;
+      G.enemyHP = Math.max(0, G.enemyHP - dmg);
+      G.stats.dmgDealt += dmg;
+      G.stats.wins++;
+      gainExp(dmg);
+      spawnFloat('-'+dmg, 'var(--red)');
+      msg = `🎉 <b style="color:var(--green)">かった！</b> ${pp.rank}${SUIT_SYM[pp.suit]}(${pvDisplay}) &gt; ${ep.rank}${SUIT_SYM[ep.suit]}(${ev}) → てきに <b style="color:var(--red)">-${dmg}HP</b>！`;
+    } else if(ev > pv) {
+      let dmg = Math.ceil((ev-pv)/2)+1;
+      if(ep.special && ep.special.effect==='double') dmg *= 2;
+      if(G.shieldActive) { dmg=0; G.shieldActive=false; msg+=`🛡️バリアでダメージを0にした！　`; }
+      G.playerHP = Math.max(0, G.playerHP - dmg);
+      msg += `😢 <b style="color:var(--red)">まけた…</b> ${ep.rank}${SUIT_SYM[ep.suit]}(${ev}) &gt; ${pp.rank}${SUIT_SYM[pp.suit]}(${pvDisplay}) → 自分に <b style="color:var(--red)">-${dmg}HP</b>！`;
+    } else {
+      msg = `🤝 <b>ひきわけ！</b> どちらもダメージなし。`;
+    }
+    if(ppNote) msg += `　${ppNote}`;
+  }
+
+  endRound(msg);
+}
+
+function endRound(msg) {
+  log(msg);
+  G.playerHP = Math.max(0, Math.min(G.playerHP, G.playerMaxHP));
+  G.enemyHP  = Math.max(0, G.enemyHP);
+
+  if(G.playerHP<=0 || G.enemyHP<=0) {
+    G.phase='gameover'; render();
+    setTimeout(()=>{
+      if(G.playerHP<=0 && G.enemyHP<=0) showOverlay('draw');
+      else if(G.enemyHP<=0) showOverlay('win');
+      else showOverlay('lose');
+    }, 400);
+    return;
+  }
+
+  G.round++;
+  G.phase='select';
+  G.playerPlayed=null; G.enemyPlayed=null;
+
+  // 補充
+  const pNeed = Math.max(0, 4 - G.playerHand.length);
+  const eNeed = Math.max(0, 4 - G.enemyHand.length);
+  for(let i=0;i<Math.max(pNeed,eNeed);i++){
+    if(i<pNeed && G.deck.length) G.playerHand.push(G.deck.pop());
+    if(i<eNeed && G.deck.length) G.enemyHand.push(G.deck.pop());
+  }
+  if(G.deck.length < 4) {
+    G.deck = createDeck();
+    log(msg + '　🔄 デッキをシャッフルしたよ！');
+    dealHands(2);
+  }
+
+  render();
+}
+
+function gainExp(amount) {
+  G.playerExp += amount;
+  const needed = expNeeded(G.playerLv);
+  if(G.playerExp >= needed) {
+    G.playerExp -= needed;
+    G.playerLv++;
+    const bonus = 5;
+    G.playerMaxHP += bonus;
+    G.playerHP = Math.min(G.playerHP + bonus, G.playerMaxHP);
+    // レベルアップ演出
+    showLvUp(G.playerLv, bonus);
+    // アイテム補充（偶数レベルで）
+    if(G.playerLv % 2 === 0) {
+      const refillItem = G.items[Math.floor(Math.random()*G.items.length)];
+      refillItem.count++;
+      log(`⭐ <b style="color:var(--gold)">レベル${G.playerLv}にアップ！</b> 「${refillItem.icon}${refillItem.name}」がひとつもらえたよ！`);
+    }
   }
 }
 
-function hideOverlay() {
-  document.getElementById('overlay').classList.add('hidden');
+function showLvUp(lv, bonus) {
+  const pop = document.getElementById('lvup-popup');
+  document.getElementById('lv-num').textContent = lv;
+  document.getElementById('lv-bonus').textContent = `さいだいHPが +${bonus} あがった！`;
+  pop.classList.add('show');
+  if(lvupTimer) clearTimeout(lvupTimer);
+  lvupTimer = setTimeout(()=>pop.classList.remove('show'), 2000);
 }
 
-// ============ START ============
+function spawnFloat(text, color) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;left:50%;top:45%;transform:translateX(-50%);font-size:1.6rem;font-weight:800;color:${color};pointer-events:none;z-index:500;animation:floatUp 0.9s ease forwards;`;
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+// ========== レンダリング ==========
+function render() {
+  // ステータス
+  const pPct = (G.playerHP/G.playerMaxHP*100).toFixed(1);
+  const ePct = (G.enemyHP/G.enemyMaxHP*100).toFixed(1);
+  document.getElementById('p-hp-bar').style.width = pPct+'%';
+  document.getElementById('e-hp-bar').style.width = ePct+'%';
+  document.getElementById('p-hp-num').textContent = G.playerHP+'/'+G.playerMaxHP;
+  document.getElementById('e-hp-num').textContent = G.enemyHP+'/'+G.enemyMaxHP;
+  document.getElementById('p-lv').textContent = G.playerLv;
+  document.getElementById('e-lv').textContent = G.enemyLv;
+  document.getElementById('round-num').textContent = G.round;
+
+  const expPct = (G.playerExp / expNeeded(G.playerLv)*100).toFixed(1);
+  document.getElementById('p-exp').textContent = G.playerExp;
+  document.getElementById('p-exp-max').textContent = expNeeded(G.playerLv);
+  document.getElementById('p-exp-bar').style.width = expPct+'%';
+
+  document.getElementById('e-power-bar').style.width = ePct+'%';
+  document.getElementById('enemy-name').textContent = G.enemyName;
+  document.getElementById('enemy-name').style.color = G.enemyColor;
+  document.getElementById('enemy-tag').textContent = G.enemyTag;
+
+  // 手ふだ情報
+  document.getElementById('hand-info').textContent = `（${G.playerHand.length}まい）　のこりデッキ：${G.deck.length}まい`;
+
+  // 敵手ふだ
+  const eh = document.getElementById('enemy-hand');
+  eh.innerHTML = '';
+  G.enemyHand.forEach((card, i) => {
+    const el = G.enemyRevealed ? makeCard(card, false) : makeBack();
+    el.style.animationDelay = i*0.04+'s';
+    el.classList.add('deal-anim');
+    eh.appendChild(el);
+  });
+
+  // プレイヤー手ふだ
+  const ph = document.getElementById('player-hand');
+  ph.innerHTML = '';
+  G.playerHand.forEach((card, i) => {
+    const el = makeCard(card, true);
+    el.style.animationDelay = i*0.04+'s';
+    el.classList.add('deal-anim');
+    if(card === selectedCard) el.classList.add('selected');
+    el.onclick = ()=>selectCard(card);
+    ph.appendChild(el);
+  });
+
+  // バトルフィールド
+  const bfHint = document.getElementById('bf-hint-text');
+  const vsEl   = document.getElementById('vs-text');
+  const ppG    = document.getElementById('p-played-group');
+  const epG    = document.getElementById('e-played-group');
+  const ppS    = document.getElementById('p-played-slot');
+  const epS    = document.getElementById('e-played-slot');
+  ppS.innerHTML=''; epS.innerHTML='';
+
+  if(G.playerPlayed || G.enemyPlayed) {
+    bfHint.style.display='none';
+    vsEl.style.display='block';
+    ppG.style.display = G.playerPlayed ? 'flex' : 'none';
+    epG.style.display = G.enemyPlayed  ? 'flex' : 'none';
+    if(G.playerPlayed) { const c=makeCard(G.playerPlayed,false); c.classList.add('bf','player-bf'); ppS.appendChild(c); }
+    if(G.enemyPlayed)  { const c=makeCard(G.enemyPlayed,false);  c.classList.add('bf','enemy-bf');  epS.appendChild(c); }
+  } else {
+    bfHint.style.display='block';
+    vsEl.style.display='none';
+    ppG.style.display='none'; epG.style.display='none';
+  }
+
+  // アイテム
+  const ir = document.getElementById('items-row');
+  ir.innerHTML = '';
+  G.items.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'item-btn';
+    btn.disabled = item.count<=0 || G.phase!=='select';
+    btn.innerHTML = `<span class="item-icon">${item.icon}</span><span class="item-name">${item.name}</span><span class="item-count">あと${item.count}こ</span>`;
+    btn.title = item.desc;
+    btn.onclick = ()=>useItem(item.id);
+    ir.appendChild(btn);
+  });
+
+  // ボタン
+  const canAct = G.phase==='select' && G.playerHand.length>0;
+  document.getElementById('btn-play').disabled = !canAct || !selectedCard;
+  document.getElementById('btn-pass').disabled = !canAct;
+}
+
+function makeCard(card, interactive) {
+  const sym = SUIT_SYM[card.suit];
+  const div = document.createElement('div');
+  div.className = `card suit-${card.suit}${card.special?' special':''}${interactive?'':' no-hover'}`;
+  div.innerHTML = `<div class="card-inner">
+    <div class="cn">${card.rank}<br>${sym}</div>
+    <div class="cs">${sym}</div>
+    <div class="cn bot">${card.rank}<br>${sym}</div>
+    ${card.special ? `<div class="special-badge">${card.special.name}</div>` : ''}
+  </div>`;
+  return div;
+}
+
+function makeBack() {
+  const div = document.createElement('div');
+  div.className = 'card back no-hover';
+  div.innerHTML = '<div class="card-inner"></div>';
+  return div;
+}
+
+function log(html) {
+  document.getElementById('log-box').innerHTML = html;
+}
+
+// ========== オーバーレイ ==========
+function showOverlay(result) {
+  const ov    = document.getElementById('overlay');
+  const title = document.getElementById('ov-title');
+  const sub   = document.getElementById('ov-sub');
+  const stats = document.getElementById('ov-stats');
+  ov.classList.remove('hidden');
+
+  if(result==='win') {
+    title.textContent='🏆 しょうり！'; title.className='ov-title win';
+    sub.textContent = G.enemyName+'をたおした！すごい！';
+  } else if(result==='lose') {
+    title.textContent='💀 やられた…'; title.className='ov-title lose';
+    sub.textContent='またちょうせんしよう！';
+  } else {
+    title.textContent='🤝 ひきわけ！'; title.className='ov-title';
+    sub.textContent='おたがいにぜんりょくをつくした！';
+  }
+  stats.innerHTML = `
+    たたかったラウンド：<b>${G.round}</b>　／　
+    あたえたダメージ：<b>${G.stats.dmgDealt}</b>　／　
+    かいふくした：<b>${G.stats.healed}HP</b>　／　
+    レベル：<b>Lv.${G.playerLv}</b>
+  `;
+}
+function hideOverlay() { document.getElementById('overlay').classList.add('hidden'); }
+
+// ========== 星の生成 ==========
+(function() {
+  const c = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    const sz = Math.random()*2+1;
+    s.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      top:${Math.random()*100}%;
+      left:${Math.random()*100}%;
+      animation-delay:${Math.random()*4}s;
+      animation-duration:${2+Math.random()*3}s;
+    `;
+    c.appendChild(s);
+  }
+})();
+
+// ========== スタート ==========
 newGame();
 </script>
 </body>
