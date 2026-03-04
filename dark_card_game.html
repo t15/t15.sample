@@ -3,177 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ドラゴンカードバトル</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
+<title>モンスターカードバトル</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique+Soft&family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#04030a; --panel:rgba(8,6,20,0.88); --panel2:rgba(6,4,16,0.92);
-  --border:rgba(255,160,30,0.18); --border2:rgba(80,180,255,0.18);
-  --text:#f0e8d0; --dim:#6a6050;
-  --gold:#ffb830; --gold2:#ff8c00;
-  --red:#ff3a1a; --blue:#30b0ff; --green:#20e8a0;
-  --fire:#ff5010; --ice:#60d8ff; --dark:#9040ff;
-  --shadow:#1a0a00; --shadow2:#000820;
+:root {
+  --bg:#060610; --panel:#0e0f22; --panel2:#0a0b1a; --border:#1c1e3a;
+  --text:#dde2ff; --dim:#4a5080; --dimmer:#2a2e55;
+  --gold:#ffd166; --green:#00f5a0; --red:#ff4466; --blue:#4cc9f0; --purple:#c77dff;
+  --fire:#ff6b35; --water:#4cc9f0; --grass:#57cc99;
+  --elec:#ffd60a; --dark:#9b5de5; --rock:#c4a35a;
+  --wind:#80ffdb; --ice:#a8dadc;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
 body{
   background:var(--bg);color:var(--text);
   font-family:'M PLUS Rounded 1c',sans-serif;
   min-height:100vh;overflow-x:hidden;
 }
-
-/* ===== 背景：ドラゴンバトルシーン ===== */
-#dragon-bg{
-  position:fixed;inset:0;z-index:0;
-  overflow:hidden;
+/* 背景グラデーション */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -5%,rgba(155,93,229,.1) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 60% at 0% 80%,rgba(0,245,160,.04) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 100% 20%,rgba(76,201,240,.04) 0%,transparent 50%);
 }
-#dragon-bg svg{width:100%;height:100%;}
-
-/* 炎パーティクル */
-.ember{
-  position:absolute;border-radius:50%;
-  pointer-events:none;
-  animation:emberFloat linear infinite;
-}
-@keyframes emberFloat{
-  0%{transform:translateY(0) translateX(0) scale(1);opacity:.9;}
-  100%{transform:translateY(-120vh) translateX(var(--dx)) scale(0);opacity:0;}
+/* 六角形グリッドパターン */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16Z' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E");
 }
 
-/* ===== 全体コンテナ ===== */
-#app{
-  position:relative;z-index:1;
-  max-width:780px;margin:0 auto;
-  padding:10px 10px 100px;
-}
+/* ===== STARS ===== */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle 3s infinite;}
+@keyframes twinkle{0%,100%{opacity:.06}50%{opacity:.5}}
 
-/* ===== ガラスパネル共通 ===== */
-.glass{
-  background:rgba(4,3,12,0.82);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(255,160,30,0.15);
-  border-radius:14px;
-}
-.glass-blue{
-  background:rgba(4,8,20,0.82);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(30,120,255,0.2);
-  border-radius:14px;
-}
+#app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:10px 10px 100px;}
 
-/* ===== ヘッダー ===== */
+/* ===== SCREENS ===== */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ===== HEADER ===== */
 header{
-  text-align:center;padding:10px 0 6px;
-  position:relative;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:12px 0 6px;position:relative;
+  display:flex;align-items:center;justify-content:center;gap:10px;
 }
 .title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:clamp(1.2rem,4vw,2rem);
-  background:linear-gradient(135deg,#ff8c00 0%,#ffdd88 40%,#fff 55%,#60d8ff 85%,#3070ff 100%);
+  font-family:'Zen Antique Soft',serif;
+  font-size:clamp(1.4rem,4.5vw,2.2rem);
+  background:linear-gradient(130deg,var(--gold) 0%,#fff 40%,var(--blue) 80%,var(--purple) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 0 20px rgba(255,140,0,.6));
-  letter-spacing:.06em;
+  filter:drop-shadow(0 0 20px rgba(155,93,229,.5));
+  letter-spacing:.08em;
 }
-.header-btns{
-  position:absolute;right:0;top:50%;transform:translateY(-50%);
-  display:flex;gap:5px;
-}
+.header-btns{display:flex;gap:6px;position:absolute;right:0;top:50%;transform:translateY(-50%);}
 .hbtn{
-  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.65rem;font-weight:700;
-  padding:5px 10px;border-radius:18px;border:1.5px solid;cursor:pointer;
-  background:rgba(0,0,0,.5);transition:all .15s;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:.68rem;font-weight:700;
+  padding:5px 11px;border-radius:20px;border:1.5px solid;cursor:pointer;
+  background:transparent;transition:all .15s;letter-spacing:.03em;
 }
-.hbtn-fire{color:var(--gold);border-color:rgba(255,140,0,.4);}
-.hbtn-fire:hover{background:rgba(255,140,0,.15);box-shadow:0 0 12px rgba(255,140,0,.3);}
-.hbtn-ice{color:var(--blue);border-color:rgba(48,176,255,.4);}
-.hbtn-ice:hover{background:rgba(48,176,255,.12);}
+.hbtn-gold{color:var(--gold);border-color:rgba(255,209,102,.4);}
+.hbtn-gold:hover{background:rgba(255,209,102,.12);box-shadow:0 0 10px rgba(255,209,102,.2);}
+.hbtn-blue{color:var(--blue);border-color:rgba(76,201,240,.4);}
+.hbtn-blue:hover{background:rgba(76,201,240,.1);}
 
-/* ===== ステータスバー ===== */
+/* ===== STATUS BAR ===== */
 .status-bar{
-  display:grid;grid-template-columns:1fr 72px 1fr;gap:10px;
-  padding:11px 14px;margin:7px 0;
+  display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:11px 14px;margin:7px 0;
+  position:relative;overflow:hidden;
 }
-.s-col{display:flex;flex-direction:column;gap:4px;}
+.status-bar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(155,93,229,.4),transparent);
+}
+.s-col{display:flex;flex-direction:column;gap:5px;}
 .s-col.right{align-items:flex-end;}
 .hp-row{display:flex;align-items:center;gap:5px;}
-.hp-lbl{font-size:.7rem;font-weight:800;min-width:28px;}
+.hp-lbl{font-size:.68rem;font-weight:800;min-width:28px;}
 .hp-track{flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;min-width:50px;}
 .hp-fill{height:100%;border-radius:5px;transition:width .4s ease;}
-.hp-fill.p{background:linear-gradient(90deg,#00c860,#20e8a0);}
-.hp-fill.e{background:linear-gradient(90deg,#cc2000,#ff3a1a);}
+.hp-fill.p{background:linear-gradient(90deg,#00c88a,#00f5a0);}
+.hp-fill.e{background:linear-gradient(90deg,#cc2244,#ff4466);}
 .hp-val{font-size:.68rem;font-weight:800;min-width:34px;}
 .lv-pip{
   display:inline-flex;align-items:center;gap:3px;
-  background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.3);
-  border-radius:20px;padding:2px 9px;font-size:.65rem;font-weight:700;color:var(--gold);
+  background:rgba(199,125,255,.15);border:1px solid rgba(199,125,255,.35);
+  border-radius:20px;padding:2px 9px;font-size:.65rem;font-weight:700;color:var(--purple);
 }
 .exp-mini{margin-top:1px;}
 .exp-lbl-sm{font-size:.55rem;color:var(--dim);}
-.exp-track{height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:2px;}
-.exp-fill{height:100%;background:linear-gradient(90deg,#ff8c00,#ffdd00);border-radius:2px;transition:width .4s;}
+.exp-track{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:2px;}
+.exp-fill{height:100%;background:linear-gradient(90deg,#9b5de5,#f15bb5);border-radius:2px;transition:width .4s;}
 .round-c{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.round-num{font-family:'Cinzel Decorative',serif;font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;}
+.round-num{font-size:1.6rem;font-weight:900;color:var(--gold);line-height:1;}
 .round-lbl{font-size:.55rem;color:var(--dim);letter-spacing:.1em;}
 
 /* ===== TYPE HINT ===== */
 .type-hint{
-  text-align:center;font-size:.7rem;padding:5px 12px;
-  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06);
-  border-radius:8px;margin-bottom:6px;color:var(--dim);
-  min-height:28px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;
+  text-align:center;font-size:.72rem;
+  padding:5px 12px;background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);border-radius:8px;
+  margin-bottom:6px;color:var(--dim);min-height:28px;
+  display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;
 }
 
 /* ===== ZONES ===== */
-.zone{padding:11px 12px;margin-bottom:7px;position:relative;overflow:hidden;}
-.zone-enemy{background:rgba(20,4,4,0.85);border:1px solid rgba(255,60,20,.2);backdrop-filter:blur(14px);}
-.zone-enemy::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,80,16,.5),transparent);}
-.zone-player{background:rgba(4,8,20,0.85);border:1px solid rgba(30,100,255,.2);backdrop-filter:blur(14px);}
-.zone-player::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(30,120,255,.4),transparent);}
+.zone{
+  border-radius:14px;padding:11px 12px;margin-bottom:7px;
+  position:relative;overflow:hidden;
+}
+.zone-enemy{
+  background:var(--panel2);border:1px solid rgba(255,68,102,.18);
+}
+.zone-enemy::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,68,102,.35),transparent);}
+.zone-player{
+  background:var(--panel2);border:1px solid rgba(155,93,229,.2);
+}
+.zone-player::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(155,93,229,.35),transparent);}
 .zone-lbl{font-size:.58rem;letter-spacing:.35em;color:var(--dim);text-transform:uppercase;margin-bottom:7px;}
 .enemy-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.enemy-name-txt{font-family:'Cinzel Decorative',serif;font-size:.9rem;text-shadow:0 0 12px currentColor;}
-.enemy-tag-txt{font-size:.6rem;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:700;}
-.hand-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:50px;align-items:center;}
-.phand-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:130px;align-items:center;}
+.enemy-name{font-family:'Zen Antique Soft',serif;font-size:.95rem;text-shadow:0 0 12px currentColor;}
+.enemy-tag{font-size:.62rem;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:700;}
+.hand-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:55px;align-items:center;}
+.phand-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:130px;align-items:center;}
 .hand-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.hand-count{font-size:.6rem;color:var(--dim);}
+.hand-count{font-size:.62rem;color:var(--dim);}
 
 /* ===== BATTLEFIELD ===== */
 .battlefield{
-  background:rgba(8,4,24,0.75);
-  border:1px solid rgba(255,140,0,.1);
-  backdrop-filter:blur(14px);
+  background:rgba(155,93,229,.03);border:1px solid rgba(155,93,229,.12);
   border-radius:14px;padding:14px;margin-bottom:7px;
   min-height:150px;display:flex;align-items:center;
   justify-content:center;gap:20px;flex-wrap:wrap;position:relative;
 }
-.bf-lbl{position:absolute;top:8px;left:12px;font-size:.56rem;letter-spacing:.3em;color:var(--dim);}
-.vs-txt{
-  font-family:'Cinzel Decorative',serif;font-size:2rem;
-  background:linear-gradient(135deg,var(--fire),var(--gold),var(--ice));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  display:none;filter:drop-shadow(0 0 8px rgba(255,140,0,.4));
-}
+.bf-lbl{position:absolute;top:8px;left:12px;font-size:.58rem;letter-spacing:.3em;color:var(--dim);}
+.vs-txt{font-family:'Zen Antique Soft',serif;font-size:1.8rem;color:rgba(255,255,255,.1);display:none;user-select:none;}
 .played-g{display:none;flex-direction:column;align-items:center;gap:5px;}
 .played-who{font-size:.58rem;letter-spacing:.2em;color:var(--dim);}
-.bf-empty{font-size:.72rem;color:var(--dim);}
+.bf-empty{font-size:.73rem;color:var(--dim);}
 
 /* ===== ITEMS ===== */
 .items-zone{
-  background:rgba(8,6,4,0.8);border:1px solid rgba(255,180,0,.12);
-  backdrop-filter:blur(12px);border-radius:14px;padding:10px 12px;margin-bottom:7px;
+  background:var(--panel2);border:1px solid rgba(255,209,102,.15);
+  border-radius:14px;padding:10px 12px;margin-bottom:7px;
 }
 .items-row{display:flex;gap:7px;flex-wrap:wrap;}
 .ibtn{
   display:flex;flex-direction:column;align-items:center;
-  background:rgba(255,180,0,.04);border:1.5px solid rgba(255,180,0,.18);
+  background:rgba(255,209,102,.04);border:1.5px solid rgba(255,209,102,.18);
   border-radius:10px;padding:6px 9px;cursor:pointer;
   transition:all .15s;font-family:'M PLUS Rounded 1c',sans-serif;
-  color:var(--gold);min-width:58px;
+  color:var(--gold);min-width:60px;
 }
-.ibtn:hover:not(:disabled){background:rgba(255,180,0,.1);transform:translateY(-2px);box-shadow:0 0 14px rgba(255,180,0,.2);}
+.ibtn:hover:not(:disabled){background:rgba(255,209,102,.1);transform:translateY(-2px);box-shadow:0 0 14px rgba(255,209,102,.15);}
 .ibtn:disabled{opacity:.3;cursor:not-allowed;}
-.iico{font-size:1.2rem;}.iname{font-size:.54rem;font-weight:700;margin-top:2px;}.icnt{font-size:.52rem;color:var(--dim);}
+.iico{font-size:1.25rem;}
+.iname{font-size:.54rem;font-weight:700;margin-top:2px;}
+.icnt{font-size:.52rem;color:var(--dim);}
 
 /* ===== CONTROLS ===== */
 .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:7px 0;}
@@ -183,89 +174,92 @@ header{
   transition:all .15s;background:transparent;letter-spacing:.04em;
 }
 .btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
-.btn-fire{color:var(--gold);border-color:rgba(255,180,0,.5);}
-.btn-fire:hover:not(:disabled){background:rgba(255,140,0,.12);box-shadow:0 0 20px rgba(255,140,0,.3);transform:translateY(-2px);}
-.btn-ice{color:var(--blue);border-color:rgba(48,176,255,.4);}
-.btn-ice:hover:not(:disabled){background:rgba(48,176,255,.1);}
+.btn-g{color:var(--green);border-color:var(--green);}
+.btn-g:hover:not(:disabled){background:rgba(0,245,160,.1);box-shadow:0 0 20px rgba(0,245,160,.25);transform:translateY(-2px);}
+.btn-r{color:var(--red);border-color:rgba(255,68,102,.45);font-size:.75rem;}
+.btn-r:hover{background:rgba(255,68,102,.07);}
 .btn-dim{color:var(--dim);border-color:rgba(255,255,255,.1);font-size:.74rem;}
 .btn-dim:hover:not(:disabled){background:rgba(255,255,255,.04);}
-.btn-red{color:var(--red);border-color:rgba(255,60,20,.4);font-size:.74rem;}
-.btn-red:hover{background:rgba(255,60,20,.07);}
+.btn-p{color:var(--purple);border-color:rgba(199,125,255,.4);}
+.btn-p:hover:not(:disabled){background:rgba(199,125,255,.1);box-shadow:0 0 16px rgba(199,125,255,.2);transform:translateY(-2px);}
 
 /* ===== LOG ===== */
 .log-box{
-  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.05);
-  backdrop-filter:blur(10px);border-radius:10px;padding:10px 14px;
-  font-size:.77rem;min-height:38px;line-height:1.6;color:var(--dim);
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.04);
+  border-radius:10px;padding:10px 14px;font-size:.77rem;
+  min-height:38px;line-height:1.6;color:var(--dim);
 }
 
-/* ===== DRAGON CARD ===== */
-.dcard{
-  width:88px;height:124px;cursor:pointer;flex-shrink:0;
-  transition:transform .18s,filter .18s;position:relative;border-radius:10px;
+/* ===== SVG CARD ===== */
+.mcard{
+  width:86px;height:120px;cursor:pointer;flex-shrink:0;
+  transition:transform .18s,filter .18s;position:relative;
+  border-radius:10px;
 }
-.dcard:hover:not(.no-hover){transform:translateY(-20px) scale(1.1);}
-.dcard.selected{transform:translateY(-26px) scale(1.13)!important;}
-.dcard svg{width:100%;height:100%;display:block;border-radius:10px;}
-.dcard.bf-card{cursor:default;}
-.dcard.back-card{cursor:default;}
+.mcard:hover:not(.no-hover){transform:translateY(-18px) scale(1.08);}
+.mcard.selected{transform:translateY(-24px) scale(1.12)!important;filter:drop-shadow(0 0 12px var(--sel-glow,white));}
+.mcard.bf-card{cursor:default;width:86px;height:120px;}
+.mcard.back-card{cursor:default;}
+.mcard svg{width:100%;height:100%;border-radius:10px;overflow:hidden;}
 
-/* ===== LEVEL UP ===== */
+/* ===== LEVEL UP POPUP ===== */
 .lvup{
-  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
-  z-index:800;background:rgba(12,8,0,.95);border:2px solid var(--gold);
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);z-index:600;
+  background:var(--panel);border:2px solid var(--gold);
   border-radius:18px;padding:24px 36px;text-align:center;
-  box-shadow:0 0 80px rgba(255,140,0,.6);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+  box-shadow:0 0 70px rgba(255,209,102,.5);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
 }
 .lvup.show{transform:translate(-50%,-50%) scale(1);}
-.lvup-ttl{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);}
+.lvup-ttl{font-size:1.5rem;font-weight:900;color:var(--gold);}
 .lvup-sub{font-size:.8rem;color:var(--dim);margin-top:4px;}
 .lvup-bonus{font-size:.85rem;color:var(--green);margin-top:8px;font-weight:700;}
 
-/* ===== OVERLAY ===== */
+/* ===== GAME OVERLAY ===== */
 .g-overlay{
-  position:fixed;inset:0;z-index:500;background:rgba(2,1,6,.92);
-  backdrop-filter:blur(16px);display:flex;flex-direction:column;
+  position:fixed;inset:0;z-index:400;background:rgba(4,4,14,.93);
+  backdrop-filter:blur(12px);display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:10px;
 }
 .g-overlay.hidden{display:none;}
-.ov-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,6vw,3rem);text-align:center;}
-.ov-title.win{color:var(--gold);text-shadow:0 0 40px rgba(255,140,0,.6);}
-.ov-title.lose{color:var(--red);text-shadow:0 0 40px rgba(255,60,20,.6);}
+.ov-title{font-family:'Zen Antique Soft',serif;font-size:clamp(2rem,6vw,3.2rem);text-align:center;}
+.ov-title.win{color:var(--gold);text-shadow:0 0 40px rgba(255,209,102,.5);}
+.ov-title.lose{color:var(--red);text-shadow:0 0 40px rgba(255,68,102,.5);}
 .ov-sub{font-size:.85rem;color:var(--dim);letter-spacing:.15em;}
-.ov-stats{font-size:.77rem;color:var(--text);line-height:2;text-align:center;}
+.ov-stats{font-size:.78rem;color:var(--text);line-height:2;text-align:center;margin:6px 0;}
 
-/* ===== MODAL ===== */
+/* ===== MODAL BASE ===== */
 .modal-bg{
-  position:fixed;inset:0;z-index:600;background:rgba(2,1,6,.88);
-  backdrop-filter:blur(12px);display:flex;align-items:center;
+  position:fixed;inset:0;z-index:500;background:rgba(4,4,14,.9);
+  backdrop-filter:blur(10px);display:flex;align-items:center;
   justify-content:center;padding:12px;
 }
 .modal-bg.hidden{display:none;}
 .modal{
-  background:rgba(8,6,18,.97);border:1.5px solid rgba(255,140,0,.2);
+  background:var(--panel);border:1.5px solid var(--border);
   border-radius:18px;max-width:600px;width:100%;
   max-height:90vh;overflow-y:auto;padding:22px;position:relative;
 }
 .modal-ttl{
-  font-family:'Cinzel Decorative',serif;font-size:1.2rem;
+  font-family:'Zen Antique Soft',serif;font-size:1.3rem;
   color:var(--gold);margin-bottom:14px;text-align:center;
-  text-shadow:0 0 14px rgba(255,140,0,.4);
+  text-shadow:0 0 14px rgba(255,209,102,.35);
 }
 .modal-x{
   position:absolute;top:12px;right:12px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
   color:var(--text);border-radius:50%;width:28px;height:28px;
   font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .15s;
 }
-.modal-x:hover{background:rgba(255,60,20,.2);border-color:var(--red);}
+.modal-x:hover{background:rgba(255,68,102,.2);border-color:var(--red);}
 
-/* デッキビルダー */
+/* ===== DECK BUILDER ===== */
 .deck-builder{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:500px){.deck-builder{grid-template-columns:1fr;}}
-.db-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;}
+.db-panel{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:12px;}
 .db-panel-ttl{font-size:.7rem;font-weight:800;color:var(--blue);margin-bottom:8px;letter-spacing:.1em;}
 .db-card-list{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto;}
 .db-row{
@@ -273,21 +267,24 @@ header{
   background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);
   border-radius:8px;cursor:pointer;transition:all .13s;
 }
-.db-row:hover{background:rgba(255,255,255,.05);}
-.db-row.in-deck{background:rgba(255,140,0,.07);border-color:rgba(255,140,0,.25);}
-.db-icon{font-size:1.5rem;width:30px;text-align:center;}
+.db-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
+.db-row.in-deck{background:rgba(155,93,229,.08);border-color:rgba(155,93,229,.3);}
+.db-icon{font-size:1.3rem;width:28px;text-align:center;}
 .db-info{flex:1;min-width:0;}
-.db-name{font-size:.7rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.db-name{font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .db-meta{font-size:.58rem;color:var(--dim);margin-top:1px;}
+.db-lv{font-size:.62rem;font-weight:700;color:var(--gold);}
+.db-pow{font-size:.65rem;font-weight:700;color:var(--green);}
 .db-add{
   font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;
   border:1px solid;cursor:pointer;background:transparent;
-  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .12s;white-space:nowrap;
+  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .12s;
+  white-space:nowrap;
 }
-.db-add.add{color:var(--green);border-color:rgba(32,232,160,.4);}
-.db-add.add:hover{background:rgba(32,232,160,.1);}
-.db-add.remove{color:var(--red);border-color:rgba(255,60,20,.4);}
-.db-add.remove:hover{background:rgba(255,60,20,.1);}
+.db-add.add{color:var(--green);border-color:rgba(0,245,160,.4);}
+.db-add.add:hover{background:rgba(0,245,160,.12);}
+.db-add.remove{color:var(--red);border-color:rgba(255,68,102,.4);}
+.db-add.remove:hover{background:rgba(255,68,102,.1);}
 .db-count-info{font-size:.68rem;color:var(--dim);margin-bottom:6px;text-align:center;}
 .type-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
 .tf-btn{
@@ -295,452 +292,83 @@ header{
   cursor:pointer;background:transparent;font-family:'M PLUS Rounded 1c',sans-serif;
   font-weight:700;transition:all .12s;
 }
-.tf-btn.active{opacity:1;}.tf-btn:not(.active){opacity:.3;}
+.tf-btn.active{opacity:1;}
+.tf-btn:not(.active){opacity:.35;}
 
-/* コレクション */
-.col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:4px;}
-.col-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;}
-.col-lv-info{font-size:.65rem;text-align:center;}
-.col-exp-bar{width:88px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
-.col-exp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;}
-.col-upg-btn{
-  font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:12px;
-  border:1.5px solid rgba(255,180,0,.4);color:var(--gold);
-  background:rgba(255,180,0,.07);cursor:pointer;
-  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .13s;white-space:nowrap;
+/* ===== CARD COLLECTION (Level Up) ===== */
+.collection-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));
+  gap:10px;max-height:400px;overflow-y:auto;padding:4px;
 }
-.col-upg-btn:hover{background:rgba(255,180,0,.16);}
-.col-upg-btn:disabled{opacity:.3;cursor:not-allowed;}
-.gold-disp{
+.col-card-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;
+}
+.col-lv-info{font-size:.65rem;text-align:center;}
+.col-exp-bar{width:86px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.col-exp-fill{height:100%;background:linear-gradient(90deg,var(--gold),#ff9f1c);border-radius:2px;transition:width .3s;}
+.col-upgrade-btn{
+  font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:12px;
+  border:1.5px solid rgba(255,209,102,.5);color:var(--gold);
+  background:rgba(255,209,102,.08);cursor:pointer;
+  font-family:'M PLUS Rounded 1c',sans-serif;transition:all .13s;
+  white-space:nowrap;
+}
+.col-upgrade-btn:hover{background:rgba(255,209,102,.18);box-shadow:0 0 10px rgba(255,209,102,.2);}
+.col-upgrade-btn:disabled{opacity:.3;cursor:not-allowed;}
+.gold-display{
   display:flex;align-items:center;gap:5px;
-  background:rgba(255,180,0,.07);border:1px solid rgba(255,180,0,.2);
-  border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;color:var(--gold);
+  background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);
+  border-radius:20px;padding:4px 12px;font-size:.75rem;font-weight:700;color:var(--gold);
   margin-bottom:10px;justify-content:center;
 }
 
-/* ルール */
-.rule-sec{margin-bottom:15px;}
-.rule-sec h3{font-size:.82rem;font-weight:800;color:var(--blue);margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:3px;}
-.rule-sec p,.rule-sec li{font-size:.75rem;color:var(--text);line-height:1.75;margin-bottom:2px;}
+/* ===== RULES MODAL ===== */
+.rule-sec{margin-bottom:16px;}
+.rule-sec h3{font-size:.82rem;font-weight:800;color:var(--blue);margin-bottom:7px;letter-spacing:.05em;border-bottom:1px solid var(--border);padding-bottom:3px;}
+.rule-sec p,.rule-sec li{font-size:.76rem;color:var(--text);line-height:1.75;margin-bottom:2px;}
 .rule-sec ul{padding-left:1.2em;}
 .type-tbl{width:100%;border-collapse:collapse;font-size:.66rem;margin-top:5px;}
-.type-tbl th,.type-tbl td{padding:5px 6px;text-align:center;border:1px solid rgba(255,255,255,.07);}
+.type-tbl th,.type-tbl td{padding:5px 6px;text-align:center;border:1px solid var(--border);}
 .type-tbl th{background:rgba(255,255,255,.04);font-weight:700;}
-.eff-s{color:var(--green);font-weight:800;}.eff-w{color:var(--red);font-weight:800;}
+.eff-s{color:var(--green);font-weight:800;}
+.eff-w{color:var(--red);font-weight:800;}
 
-/* アニメーション */
+/* ===== FLOAT ===== */
 @keyframes floatUp{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-55px)}}
-@keyframes dealIn{from{transform:translateY(-16px) scale(.87);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes flameFlicker{0%,100%{opacity:.8;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.05)}}
+@keyframes dealIn{from{transform:translateY(-16px) scale(.88);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
 .deal{animation:dealIn .22s ease forwards;}
+
+/* スクロールバー */
 ::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03);}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
 </style>
 </head>
 <body>
-
-<!-- ===== 背景：ドラゴンバトル ===== -->
-<div id="dragon-bg">
-<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-  <defs>
-    <!-- 空のグラデーション -->
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#020008"/>
-      <stop offset="40%" stop-color="#0a0418"/>
-      <stop offset="100%" stop-color="#180804"/>
-    </linearGradient>
-    <!-- 炎グロー -->
-    <radialGradient id="fireGlow" cx="38%" cy="60%" r="35%">
-      <stop offset="0%" stop-color="#ff6000" stop-opacity=".5"/>
-      <stop offset="100%" stop-color="transparent"/>
-    </radialGradient>
-    <radialGradient id="iceGlow" cx="62%" cy="60%" r="35%">
-      <stop offset="0%" stop-color="#0060ff" stop-opacity=".4"/>
-      <stop offset="100%" stop-color="transparent"/>
-    </radialGradient>
-    <radialGradient id="centerGlow" cx="50%" cy="55%" r="25%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity=".12"/>
-      <stop offset="100%" stop-color="transparent"/>
-    </radialGradient>
-    <!-- 炎エフェクト用フィルター -->
-    <filter id="fireBlur"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="glow2"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="glow4"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="softBlur"><feGaussianBlur stdDeviation="2"/></filter>
-  </defs>
-
-  <!-- 空 -->
-  <rect width="1200" height="700" fill="url(#sky)"/>
-  <!-- 炎・氷グロー -->
-  <rect width="1200" height="700" fill="url(#fireGlow)"/>
-  <rect width="1200" height="700" fill="url(#iceGlow)"/>
-  <rect width="1200" height="700" fill="url(#centerGlow)"/>
-
-  <!-- 遠景の崩れた城壁 -->
-  <g opacity=".25" fill="#0a0608">
-    <rect x="0" y="520" width="1200" height="180"/>
-    <rect x="20" y="480" width="40" height="80"/><rect x="80" y="460" width="30" height="100"/>
-    <rect x="120" y="490" width="50" height="70"/><rect x="200" y="440" width="35" height="120"/>
-    <rect x="250" y="470" width="25" height="90"/>
-    <rect x="900" y="450" width="35" height="120"/><rect x="950" y="470" width="28" height="100"/>
-    <rect x="1000" y="460" width="40" height="110"/><rect x="1060" y="480" width="30" height="90"/>
-    <rect x="1110" y="440" width="50" height="130"/>
-    <!-- 中央アーチ -->
-    <path d="M520 520 Q600 440 680 520 Z" fill="#08040c"/>
-    <rect x="520" y="520" width="20" height="80"/><rect x="660" y="520" width="20" height="80"/>
-  </g>
-
-  <!-- 地面 -->
-  <ellipse cx="600" cy="680" rx="700" ry="80" fill="#0c0408" opacity=".8"/>
-  <rect x="0" y="640" width="1200" height="60" fill="#060208" opacity=".9"/>
-
-  <!-- 溶岩・亀裂（地面） -->
-  <g filter="url(#fireBlur)" opacity=".6">
-    <ellipse cx="300" cy="655" rx="120" ry="12" fill="#ff4400"/>
-    <ellipse cx="600" cy="660" rx="80" ry="10" fill="#ff6600"/>
-    <ellipse cx="900" cy="652" rx="100" ry="11" fill="#ff3300"/>
-  </g>
-  <g opacity=".9">
-    <path d="M200 645 Q240 638 280 645 Q260 648 200 645Z" fill="#ff6600"/>
-    <path d="M540 650 Q580 642 620 650 Q600 653 540 650Z" fill="#ff8800"/>
-    <path d="M850 643 Q890 636 930 643 Q910 646 850 643Z" fill="#ff5500"/>
-  </g>
-
-  <!-- ===== 左ドラゴン（炎・赤） ===== -->
-  <g id="dragon-fire" transform="translate(80,180)">
-    <animateTransform attributeName="transform" type="translate" values="80,180;80,165;80,180" dur="3.5s" repeatCount="indefinite"/>
-
-    <!-- 翼（左奥） -->
-    <path d="M120,120 C60,60 -60,20 -100,80 C-70,90 -30,100 0,110 C-10,60 40,50 80,90Z"
-      fill="#1a0408" stroke="#ff2200" stroke-width="1.2" opacity=".7"/>
-    <path d="M120,120 C60,60 -60,20 -100,80 L0,110Z"
-      fill="none" stroke="#ff4400" stroke-width=".6" opacity=".4"/>
-    <!-- 翼の骨 -->
-    <line x1="120" y1="120" x2="-60" y2="40" stroke="#ff2200" stroke-width="1.5" opacity=".6"/>
-    <line x1="80" y1="115" x2="-20" y2="55" stroke="#ff1800" stroke-width="1" opacity=".5"/>
-    <line x1="50" y1="108" x2="-60" y2="78" stroke="#ff1800" stroke-width=".8" opacity=".4"/>
-
-    <!-- 胴体 -->
-    <ellipse cx="180" cy="180" rx="80" ry="45" fill="#1c0608" stroke="#cc2200" stroke-width="1.5"/>
-    <!-- 胴体のウロコ -->
-    <path d="M120,175 C130,160 150,155 170,165 C160,175 140,178 120,175Z" fill="#2a0a0c" stroke="#ff2200" stroke-width=".8"/>
-    <path d="M150,185 C165,170 185,166 200,178 C190,188 168,190 150,185Z" fill="#2a0a0c" stroke="#ff2200" stroke-width=".8"/>
-    <path d="M185,178 C200,163 220,160 235,172 C225,182 205,184 185,178Z" fill="#2a0a0c" stroke="#ff2200" stroke-width=".8"/>
-    <path d="M215,168 C228,155 245,152 258,162 C248,172 230,174 215,168Z" fill="#2a0a0c" stroke="#cc2200" stroke-width=".8"/>
-
-    <!-- 首 -->
-    <path d="M250,150 C270,120 290,100 310,90 C330,80 345,85 350,95 C335,105 315,115 300,130 C285,145 270,160 255,175Z"
-      fill="#1c0608" stroke="#cc2200" stroke-width="1.5"/>
-    <!-- 首のウロコ -->
-    <path d="M268,138 C278,125 292,120 300,128" fill="none" stroke="#ff3300" stroke-width=".8" opacity=".7"/>
-    <path d="M278,152 C288,139 302,134 310,142" fill="none" stroke="#ff3300" stroke-width=".8" opacity=".7"/>
-
-    <!-- 頭 -->
-    <path d="M340,70 C360,55 385,58 395,72 C400,82 395,95 385,100 C375,105 355,103 345,95 C335,87 335,78 340,70Z"
-      fill="#220608" stroke="#ff2200" stroke-width="2"/>
-    <!-- 頭のウロコ模様 -->
-    <path d="M348,75 C355,68 365,67 370,73" fill="none" stroke="#ff4400" stroke-width="1" opacity=".8"/>
-    <path d="M358,85 C365,78 375,77 380,83" fill="none" stroke="#ff3300" stroke-width=".8" opacity=".7"/>
-    <!-- 眼 -->
-    <ellipse cx="372" cy="78" rx="7" ry="6" fill="#ff8800"/>
-    <ellipse cx="372" cy="78" rx="3.5" ry="4" fill="#1a0000"/>
-    <ellipse cx="374" cy="76" rx="1.5" ry="1.5" fill="#ffdd00"/>
-    <!-- 角（大） -->
-    <path d="M360,62 C358,45 365,30 372,22 C375,35 372,50 368,62Z" fill="#330c0c" stroke="#ff2200" stroke-width="1.5"/>
-    <path d="M375,58 C376,42 383,28 388,22 C389,35 386,50 382,58Z" fill="#330c0c" stroke="#ff1800" stroke-width="1.2"/>
-    <!-- 小角 -->
-    <path d="M350,68 C347,57 351,47 354,42 C356,52 354,62 352,68Z" fill="#280a0a" stroke="#cc1800" stroke-width="1"/>
-    <!-- 鼻 -->
-    <ellipse cx="392" cy="90" rx="6" ry="4" fill="#1c0404" stroke="#cc2200" stroke-width="1"/>
-    <ellipse cx="390" cy="90" rx="2.5" ry="2" fill="#330808"/>
-    <ellipse cx="394" cy="90" rx="2.5" ry="2" fill="#330808"/>
-    <!-- 口・牙 -->
-    <path d="M348,98 C355,106 370,110 388,106 C395,100 398,94 395,90 C390,96 375,100 355,98Z"
-      fill="#1a0404" stroke="#cc2200" stroke-width="1.2"/>
-    <!-- 牙 -->
-    <path d="M358,102 L354,115 L362,103Z" fill="#f0e8d0"/>
-    <path d="M368,106 L365,119 L373,107Z" fill="#f0e8d0"/>
-    <path d="M380,106 L378,118 L385,107Z" fill="#f0e8d0"/>
-    <path d="M355,100 L352,96 L358,100Z" fill="#e0d8c0"/>
-    <!-- 炎のブレス -->
-    <g filter="url(#glow2)" opacity=".9">
-      <path d="M398,90 C440,75 500,60 580,55 C560,68 520,75 490,88 C540,80 590,72 640,82 C610,95 570,98 540,100 C580,95 620,100 650,110 C610,115 560,112 520,108 C560,115 590,120 610,130 C570,128 520,122 480,118 C440,112 410,105 398,95Z"
-        fill="url(#flamePath)"/>
-      <defs>
-        <linearGradient id="flamePath" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="15%" stop-color="#ffff80"/>
-          <stop offset="35%" stop-color="#ff8800"/>
-          <stop offset="65%" stop-color="#ff3300"/>
-          <stop offset="100%" stop-color="transparent"/>
-        </linearGradient>
-      </defs>
-    </g>
-    <!-- 炎コア（明るい部分） -->
-    <g filter="url(#fireBlur)" opacity=".7">
-      <ellipse cx="480" cy="88" rx="50" ry="18" fill="#ffaa00"/>
-      <ellipse cx="540" cy="100" rx="40" ry="14" fill="#ff6600"/>
-    </g>
-
-    <!-- 翼（右・手前） -->
-    <path d="M180,150 C220,90 300,50 350,70 C320,90 290,110 265,140 C310,100 360,80 380,110 C350,130 310,145 280,160 C320,135 360,125 370,155 C340,165 290,168 240,165Z"
-      fill="#1c0408" stroke="#ff2200" stroke-width="1.2" opacity=".85"/>
-    <!-- 翼の骨（手前） -->
-    <line x1="180" y1="150" x2="345" y2="72" stroke="#ff3300" stroke-width="1.5" opacity=".7"/>
-    <line x1="200" y1="148" x2="362" y2="95" stroke="#ff2200" stroke-width="1" opacity=".6"/>
-    <line x1="215" y1="155" x2="368" y2="128" stroke="#ff1800" stroke-width=".8" opacity=".5"/>
-    <line x1="230" y1="162" x2="368" y2="158" stroke="#ff1800" stroke-width=".8" opacity=".4"/>
-
-    <!-- 脚（後） -->
-    <path d="M120,210 C115,230 110,250 108,275 C115,278 125,278 130,275 C128,255 130,235 135,215Z"
-      fill="#1c0608" stroke="#cc2200" stroke-width="1.2"/>
-    <path d="M108,275 C100,285 92,290 88,296 L100,300 L112,292 L124,298 L130,275Z"
-      fill="#1a0608" stroke="#cc2200" stroke-width="1.2"/>
-    <!-- 爪 -->
-    <path d="M88,296 L80,308 L90,302Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-    <path d="M100,300 L96,314 L106,306Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-    <path d="M112,292 L112,306 L120,298Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-
-    <!-- 脚（前） -->
-    <path d="M220,210 C218,230 215,250 212,275 C220,278 230,278 235,275 C232,255 232,235 236,215Z"
-      fill="#1c0608" stroke="#cc2200" stroke-width="1.2"/>
-    <path d="M212,275 C205,285 198,290 194,297 L206,302 L218,293 L228,300 L235,275Z"
-      fill="#1a0608" stroke="#cc2200" stroke-width="1.2"/>
-    <path d="M194,297 L186,310 L196,303Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-    <path d="M206,302 L202,316 L212,308Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-    <path d="M218,293 L218,308 L226,300Z" fill="#c0a890" stroke="#aa9070" stroke-width=".8"/>
-
-    <!-- 尻尾 -->
-    <path d="M120,210 C80,230 40,240 10,260 C30,250 0,280 -20,290" fill="none"
-      stroke="#cc2200" stroke-width="12" stroke-linecap="round" opacity=".7"/>
-    <path d="M120,210 C80,230 40,240 10,260 C30,250 0,280 -20,290" fill="none"
-      stroke="#1c0608" stroke-width="10" stroke-linecap="round"/>
-    <!-- 尻尾の棘 -->
-    <path d="M-20,290 C-30,278 -15,265 -20,290Z" fill="#cc2200" stroke="#ff2200" stroke-width=".8"/>
-    <path d="M0,282 C-12,272 2,260 0,282Z" fill="#aa1800" stroke="#cc2000" stroke-width=".8"/>
-    <path d="M20,270 C8,262 22,250 20,270Z" fill="#aa1800" stroke="#cc2000" stroke-width=".8"/>
-
-    <!-- 背中の棘 -->
-    <g stroke="#ff2200" stroke-width="1" fill="#330808">
-      <path d="M140,150 C132,130 142,118 148,128 C145,135 142,143 140,150Z"/>
-      <path d="M162,142 C155,122 165,110 171,120 C168,128 165,136 162,142Z"/>
-      <path d="M185,138 C178,118 188,106 194,116 C191,124 188,132 185,138Z"/>
-      <path d="M210,140 C203,120 213,108 219,118 C216,126 213,134 210,140Z"/>
-      <path d="M232,145 C226,125 235,114 241,124 C238,132 235,140 232,145Z"/>
-    </g>
-
-    <!-- 体表の光沢 -->
-    <ellipse cx="160" cy="165" rx="30" ry="18" fill="#ff2200" opacity=".08" filter="url(#softBlur)"/>
-    <ellipse cx="210" cy="158" rx="25" ry="15" fill="#ff4400" opacity=".06" filter="url(#softBlur)"/>
-  </g>
-
-
-  <!-- ===== 右ドラゴン（氷・青） ===== -->
-  <g id="dragon-ice" transform="translate(1120,180) scale(-1,1)">
-    <animateTransform attributeName="transform" type="translate" values="1120,180;1120,168;1120,180" dur="4s" repeatCount="indefinite"/>
-
-    <!-- 翼（左奥）-->
-    <path d="M120,120 C60,60 -60,20 -100,80 C-70,90 -30,100 0,110 C-10,60 40,50 80,90Z"
-      fill="#040c18" stroke="#0066ff" stroke-width="1.2" opacity=".7"/>
-    <line x1="120" y1="120" x2="-60" y2="40" stroke="#0066ff" stroke-width="1.5" opacity=".6"/>
-    <line x1="80" y1="115" x2="-20" y2="55" stroke="#0044cc" stroke-width="1" opacity=".5"/>
-    <line x1="50" y1="108" x2="-60" y2="78" stroke="#0044cc" stroke-width=".8" opacity=".4"/>
-
-    <!-- 胴体 -->
-    <ellipse cx="180" cy="180" rx="80" ry="45" fill="#040c1c" stroke="#0055cc" stroke-width="1.5"/>
-    <path d="M120,175 C130,160 150,155 170,165 C160,175 140,178 120,175Z" fill="#060e22" stroke="#0066ff" stroke-width=".8"/>
-    <path d="M150,185 C165,170 185,166 200,178 C190,188 168,190 150,185Z" fill="#060e22" stroke="#0066ff" stroke-width=".8"/>
-    <path d="M185,178 C200,163 220,160 235,172 C225,182 205,184 185,178Z" fill="#060e22" stroke="#0066ff" stroke-width=".8"/>
-    <path d="M215,168 C228,155 245,152 258,162 C248,172 230,174 215,168Z" fill="#060e22" stroke="#0055cc" stroke-width=".8"/>
-
-    <!-- 首 -->
-    <path d="M250,150 C270,120 290,100 310,90 C330,80 345,85 350,95 C335,105 315,115 300,130 C285,145 270,160 255,175Z"
-      fill="#040c1c" stroke="#0055cc" stroke-width="1.5"/>
-    <path d="M268,138 C278,125 292,120 300,128" fill="none" stroke="#0088ff" stroke-width=".8" opacity=".7"/>
-    <path d="M278,152 C288,139 302,134 310,142" fill="none" stroke="#0088ff" stroke-width=".8" opacity=".7"/>
-
-    <!-- 頭 -->
-    <path d="M340,70 C360,55 385,58 395,72 C400,82 395,95 385,100 C375,105 355,103 345,95 C335,87 335,78 340,70Z"
-      fill="#040e20" stroke="#0066ff" stroke-width="2"/>
-    <path d="M348,75 C355,68 365,67 370,73" fill="none" stroke="#0088ff" stroke-width="1" opacity=".8"/>
-    <path d="M358,85 C365,78 375,77 380,83" fill="none" stroke="#0077ee" stroke-width=".8" opacity=".7"/>
-    <!-- 眼（氷色） -->
-    <ellipse cx="372" cy="78" rx="7" ry="6" fill="#00aaff"/>
-    <ellipse cx="372" cy="78" rx="3.5" ry="4" fill="#000820"/>
-    <ellipse cx="374" cy="76" rx="1.5" ry="1.5" fill="#80ffff"/>
-    <!-- 角（氷の結晶） -->
-    <path d="M360,62 C358,45 365,30 372,22 C375,35 372,50 368,62Z" fill="#040c1c" stroke="#0088ff" stroke-width="1.5"/>
-    <path d="M375,58 C376,42 383,28 388,22 C389,35 386,50 382,58Z" fill="#040c1c" stroke="#0066ff" stroke-width="1.2"/>
-    <path d="M366,40 L362,32 L370,32Z" fill="#80ccff" opacity=".6"/>
-    <path d="M381,36 L377,28 L385,28Z" fill="#80ccff" opacity=".6"/>
-    <path d="M350,68 C347,57 351,47 354,42 C356,52 354,62 352,68Z" fill="#030c1a" stroke="#0055cc" stroke-width="1"/>
-    <!-- 鼻 -->
-    <ellipse cx="392" cy="90" rx="6" ry="4" fill="#040c18" stroke="#0055cc" stroke-width="1"/>
-    <ellipse cx="390" cy="90" rx="2.5" ry="2" fill="#060e22"/>
-    <ellipse cx="394" cy="90" rx="2.5" ry="2" fill="#060e22"/>
-    <!-- 口・牙（氷の牙） -->
-    <path d="M348,98 C355,106 370,110 388,106 C395,100 398,94 395,90 C390,96 375,100 355,98Z"
-      fill="#030c18" stroke="#0055cc" stroke-width="1.2"/>
-    <!-- 氷の牙 -->
-    <path d="M358,102 L354,116 L362,103Z" fill="#c0e8ff" opacity=".9"/>
-    <path d="M368,106 L365,120 L373,107Z" fill="#c0e8ff" opacity=".9"/>
-    <path d="M380,106 L378,119 L385,107Z" fill="#c0e8ff" opacity=".9"/>
-    <path d="M355,100 L352,96 L358,100Z" fill="#a0d8f0"/>
-    <!-- 氷ブレス -->
-    <g filter="url(#glow2)" opacity=".85">
-      <path d="M398,90 C440,75 500,60 580,55 C560,68 520,75 490,88 C540,80 590,72 640,82 C610,95 570,98 540,100 C580,95 620,100 650,110 C610,115 560,112 520,108 C560,115 590,120 610,130 C570,128 520,122 480,118 C440,112 410,105 398,95Z"
-        fill="url(#iceBeamGrad)"/>
-      <defs>
-        <linearGradient id="iceBeamGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="15%" stop-color="#c0f0ff"/>
-          <stop offset="35%" stop-color="#0088ff"/>
-          <stop offset="65%" stop-color="#0044cc"/>
-          <stop offset="100%" stop-color="transparent"/>
-        </linearGradient>
-      </defs>
-    </g>
-    <g filter="url(#fireBlur)" opacity=".6">
-      <ellipse cx="480" cy="88" rx="50" ry="18" fill="#0088ff"/>
-      <ellipse cx="540" cy="100" rx="40" ry="14" fill="#0044cc"/>
-    </g>
-
-    <!-- 翼（手前） -->
-    <path d="M180,150 C220,90 300,50 350,70 C320,90 290,110 265,140 C310,100 360,80 380,110 C350,130 310,145 280,160 C320,135 360,125 370,155 C340,165 290,168 240,165Z"
-      fill="#040c1c" stroke="#0066ff" stroke-width="1.2" opacity=".85"/>
-    <!-- 翼の骨（手前）氷の結晶パターン -->
-    <line x1="180" y1="150" x2="345" y2="72" stroke="#0088ff" stroke-width="1.5" opacity=".7"/>
-    <line x1="200" y1="148" x2="362" y2="95" stroke="#0066ff" stroke-width="1" opacity=".6"/>
-    <line x1="215" y1="155" x2="368" y2="128" stroke="#0044cc" stroke-width=".8" opacity=".5"/>
-    <line x1="230" y1="162" x2="368" y2="158" stroke="#0044cc" stroke-width=".8" opacity=".4"/>
-    <!-- 翼の氷結晶 -->
-    <g opacity=".4" stroke="#80ccff" stroke-width=".6" fill="none">
-      <line x1="265" y1="100" x2="258" y2="92"/><line x1="265" y1="100" x2="272" y2="92"/>
-      <line x1="265" y1="100" x2="262" y2="108"/><line x1="265" y1="100" x2="268" y2="108"/>
-      <line x1="300" y1="118" x2="293" y2="110"/><line x1="300" y1="118" x2="307" y2="110"/>
-      <line x1="300" y1="118" x2="297" y2="126"/><line x1="300" y1="118" x2="303" y2="126"/>
-    </g>
-
-    <!-- 脚（後）-->
-    <path d="M120,210 C115,230 110,250 108,275 C115,278 125,278 130,275 C128,255 130,235 135,215Z"
-      fill="#040c1c" stroke="#0055cc" stroke-width="1.2"/>
-    <path d="M108,275 C100,285 92,290 88,296 L100,300 L112,292 L124,298 L130,275Z"
-      fill="#040c1c" stroke="#0055cc" stroke-width="1.2"/>
-    <path d="M88,296 L80,308 L90,302Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-    <path d="M100,300 L96,314 L106,306Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-    <path d="M112,292 L112,306 L120,298Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-
-    <!-- 脚（前）-->
-    <path d="M220,210 C218,230 215,250 212,275 C220,278 230,278 235,275 C232,255 232,235 236,215Z"
-      fill="#040c1c" stroke="#0055cc" stroke-width="1.2"/>
-    <path d="M212,275 C205,285 198,290 194,297 L206,302 L218,293 L228,300 L235,275Z"
-      fill="#040c1c" stroke="#0055cc" stroke-width="1.2"/>
-    <path d="M194,297 L186,310 L196,303Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-    <path d="M206,302 L202,316 L212,308Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-    <path d="M218,293 L218,308 L226,300Z" fill="#c0e0f8" stroke="#a0c8e8" stroke-width=".8"/>
-
-    <!-- 尻尾 -->
-    <path d="M120,210 C80,230 40,240 10,260 C30,250 0,280 -20,290" fill="none"
-      stroke="#0055cc" stroke-width="12" stroke-linecap="round" opacity=".7"/>
-    <path d="M120,210 C80,230 40,240 10,260 C30,250 0,280 -20,290" fill="none"
-      stroke="#040c1c" stroke-width="10" stroke-linecap="round"/>
-    <!-- 氷の棘 -->
-    <path d="M-20,290 C-30,278 -15,265 -20,290Z" fill="#0066ff" stroke="#0088ff" stroke-width=".8"/>
-    <path d="M0,282 C-12,272 2,260 0,282Z" fill="#0044aa" stroke="#0066cc" stroke-width=".8"/>
-    <path d="M20,270 C8,262 22,250 20,270Z" fill="#0044aa" stroke="#0066cc" stroke-width=".8"/>
-
-    <!-- 背中の氷の棘 -->
-    <g stroke="#0088ff" stroke-width="1" fill="#060c20">
-      <path d="M140,150 C132,130 142,118 148,128 C145,135 142,143 140,150Z"/>
-      <path d="M162,142 C155,122 165,110 171,120 C168,128 165,136 162,142Z"/>
-      <path d="M185,138 C178,118 188,106 194,116 C191,124 188,132 185,138Z"/>
-      <path d="M210,140 C203,120 213,108 219,118 C216,126 213,134 210,140Z"/>
-      <path d="M232,145 C226,125 235,114 241,124 C238,132 235,140 232,145Z"/>
-    </g>
-    <!-- 棘の氷結晶 -->
-    <g opacity=".5" stroke="#80ccff" stroke-width=".5" fill="none">
-      <line x1="148" y1="120" x2="144" y2="114"/><line x1="148" y1="120" x2="152" y2="114"/>
-      <line x1="171" y1="112" x2="167" y2="106"/><line x1="171" y1="112" x2="175" y2="106"/>
-      <line x1="194" y1="108" x2="190" y2="102"/><line x1="194" y1="108" x2="198" y2="102"/>
-    </g>
-
-    <!-- 体表の光沢 -->
-    <ellipse cx="160" cy="165" rx="30" ry="18" fill="#0066ff" opacity=".07" filter="url(#softBlur)"/>
-    <ellipse cx="210" cy="158" rx="25" ry="15" fill="#0088ff" opacity=".05" filter="url(#softBlur)"/>
-  </g>
-
-  <!-- 衝突エフェクト（中央・炎と氷が激突） -->
-  <g transform="translate(550,310)" filter="url(#glow4)">
-    <animateTransform attributeName="transform" type="translate" values="545,308;555,312;545,308" dur="1.5s" repeatCount="indefinite"/>
-    <!-- 衝突の核 -->
-    <circle cx="0" cy="0" r="28" fill="white" opacity=".9"/>
-    <circle cx="0" cy="0" r="18" fill="#ffffaa" opacity=".95"/>
-    <!-- 炎側の放射 -->
-    <path d="M0,0 L-80,-15 L-75,0 L-80,15Z" fill="#ff6600" opacity=".8"/>
-    <path d="M0,0 L-70,-30 L-65,-10Z" fill="#ff4400" opacity=".6"/>
-    <path d="M0,0 L-70,30 L-65,10Z" fill="#ff4400" opacity=".6"/>
-    <!-- 氷側の放射 -->
-    <path d="M0,0 L80,-15 L75,0 L80,15Z" fill="#0088ff" opacity=".8"/>
-    <path d="M0,0 L70,-30 L65,-10Z" fill="#0066ff" opacity=".6"/>
-    <path d="M0,0 L70,30 L65,10Z" fill="#0066ff" opacity=".6"/>
-    <!-- 上下への衝撃波 -->
-    <path d="M0,0 L-20,-60 L0,-50 L20,-60Z" fill="#ffaa00" opacity=".5"/>
-    <path d="M0,0 L-20,60 L0,50 L20,60Z" fill="#ffaa00" opacity=".5"/>
-    <!-- スパーク -->
-    <circle cx="-40" cy="-20" r="4" fill="#ffdd00" opacity=".8"/>
-    <circle cx="40" cy="20" r="3" fill="#80ccff" opacity=".8"/>
-    <circle cx="-30" cy="25" r="3" fill="#ff8800" opacity=".7"/>
-    <circle cx="35" cy="-22" r="4" fill="#00aaff" opacity=".7"/>
-    <circle cx="0" cy="-45" r="3" fill="#ffffff" opacity=".6"/>
-    <circle cx="0" cy="45" r="3" fill="#ffffff" opacity=".6"/>
-  </g>
-
-  <!-- 背景の煙・雲 -->
-  <g filter="url(#fireBlur)" opacity=".18">
-    <ellipse cx="200" cy="280" rx="120" ry="60" fill="#330800"/>
-    <ellipse cx="400" cy="250" rx="100" ry="50" fill="#220600"/>
-    <ellipse cx="800" cy="270" rx="110" ry="55" fill="#000a22"/>
-    <ellipse cx="1000" cy="260" rx="90" ry="45" fill="#000820"/>
-  </g>
-
-  <!-- 前景の飛び散る破片 -->
-  <g opacity=".6">
-    <rect x="480" y="380" width="6" height="3" fill="#ff6600" transform="rotate(30 480 380)"/>
-    <rect x="510" y="400" width="5" height="2" fill="#ff4400" transform="rotate(-20 510 400)"/>
-    <rect x="660" y="370" width="6" height="3" fill="#0088ff" transform="rotate(45 660 370)"/>
-    <rect x="640" y="395" width="5" height="2" fill="#0066ff" transform="rotate(-35 640 395)"/>
-    <rect x="590" y="420" width="8" height="3" fill="#ffaa00" transform="rotate(15 590 420)"/>
-    <circle cx="500" cy="360" r="3" fill="#ff8800" opacity=".8"/>
-    <circle cx="650" cy="355" r="3" fill="#00aaff" opacity=".8"/>
-    <circle cx="570" cy="340" r="4" fill="#ffffff" opacity=".6"/>
-  </g>
-</svg>
-</div>
-
-<!-- 炎パーティクル -->
-<div id="embers"></div>
+<div class="stars" id="stars"></div>
 
 <div id="app">
   <!-- ヘッダー -->
   <header>
-    <div class="title">🐉 Dragon Card Battle 🐉</div>
+    <div class="title">👹 モンスターカードバトル</div>
     <div class="header-btns">
-      <button class="hbtn hbtn-fire" onclick="openCollection()">⭐ カード強化</button>
-      <button class="hbtn hbtn-ice" onclick="openDeck()">🃏 デッキ編集</button>
-      <button class="hbtn hbtn-fire" onclick="openRules()">📖 ルール</button>
+      <button class="hbtn hbtn-gold" onclick="openCollection()">⭐ カード強化</button>
+      <button class="hbtn hbtn-blue" onclick="openDeckBuilder()">🃏 デッキ編集</button>
+      <button class="hbtn hbtn-gold" onclick="openRules()">📖 ルール</button>
     </div>
   </header>
 
   <!-- ステータスバー -->
-  <div class="status-bar glass">
+  <div class="status-bar">
     <div class="s-col">
       <div class="hp-row">
         <span class="hp-lbl" style="color:var(--green)">自分</span>
         <div class="hp-track"><div class="hp-fill p" id="p-hp-bar" style="width:100%"></div></div>
         <span class="hp-val" id="p-hp-val" style="color:var(--green)">20/20</span>
       </div>
-      <div class="lv-pip">🔥 Lv.<span id="p-lv">1</span></div>
+      <div class="lv-pip">⭐ Lv.<span id="p-lv">1</span></div>
       <div class="exp-mini">
         <div class="exp-lbl-sm">けいけんち <span id="p-exp">0</span>/<span id="p-exp-max">10</span></div>
         <div class="exp-track"><div class="exp-fill" id="p-exp-bar" style="width:0%"></div></div>
@@ -748,7 +376,7 @@ header{
     </div>
     <div class="round-c">
       <span class="round-num" id="round-num">1</span>
-      <div class="round-lbl">ROUND</div>
+      <div class="round-lbl">ラウンド</div>
     </div>
     <div class="s-col right">
       <div class="hp-row">
@@ -756,34 +384,34 @@ header{
         <div class="hp-track"><div class="hp-fill e" id="e-hp-bar" style="width:100%"></div></div>
         <span class="hp-val" id="e-hp-val" style="color:var(--red)">20/20</span>
       </div>
-      <div class="lv-pip" style="border-color:rgba(255,60,20,.3);color:var(--red);">🐉 Lv.<span id="e-lv">1</span></div>
+      <div class="lv-pip" style="border-color:rgba(255,68,102,.35);color:var(--red);">👹 Lv.<span id="e-lv">1</span></div>
       <div class="exp-mini">
         <div class="exp-lbl-sm" style="color:var(--dim)">てきのちから</div>
-        <div class="exp-track"><div id="e-str-bar" style="height:100%;background:linear-gradient(90deg,#cc2000,#ff3a1a);border-radius:2px;transition:width .4s;"></div></div>
+        <div class="exp-track"><div id="e-str-bar" style="height:100%;background:linear-gradient(90deg,#cc2244,#ff4466);border-radius:2px;transition:width .4s;"></div></div>
       </div>
     </div>
   </div>
 
   <!-- タイプヒント -->
-  <div class="type-hint" id="type-hint">ドラゴンカードをえらぶとタイプ相性がわかるよ！</div>
+  <div class="type-hint" id="type-hint">カードをえらぶとタイプ相性がわかるよ！</div>
 
   <!-- てき -->
-  <div class="zone zone-enemy" style="border-radius:14px;">
+  <div class="zone zone-enemy">
     <div class="zone-lbl">▲ てきの手ふだ</div>
     <div class="enemy-header">
-      <div class="enemy-name-txt" id="enemy-name" style="color:var(--red)">炎獄竜ヴルカノス</div>
-      <div class="enemy-tag-txt" id="enemy-tag" style="color:var(--red);border-color:rgba(255,60,20,.35)">🔥 炎獄の覇者</div>
+      <div class="enemy-name" id="enemy-name" style="color:var(--red)">あんこくりゅう</div>
+      <div class="enemy-tag" id="enemy-tag" style="color:var(--red);border-color:rgba(255,68,102,.35)">👹 やみのまじん</div>
     </div>
     <div class="hand-row" id="enemy-hand"></div>
   </div>
 
   <!-- バトルフィールド -->
-  <div class="battlefield">
+  <div class="battlefield" id="battlefield">
     <div class="bf-lbl">⚔️ バトルフィールド</div>
     <div class="played-g" id="p-grp"><div class="played-who">あなた</div><div id="p-slot"></div></div>
     <div class="vs-txt" id="vs-txt">VS</div>
     <div class="played-g" id="e-grp"><div class="played-who">てき</div><div id="e-slot"></div></div>
-    <div class="bf-empty" id="bf-empty">ドラゴンカードをえらんで「だす！」をおそう</div>
+    <div class="bf-empty" id="bf-empty">カードをえらんで「だす！」をおそう</div>
   </div>
 
   <!-- アイテム -->
@@ -792,8 +420,8 @@ header{
     <div class="items-row" id="items-row"></div>
   </div>
 
-  <!-- 手ふだ -->
-  <div class="zone zone-player" style="border-radius:14px;">
+  <!-- プレイヤー手ふだ -->
+  <div class="zone zone-player">
     <div class="hand-meta">
       <div class="zone-lbl" style="margin:0">▼ あなたの手ふだ</div>
       <div class="hand-count" id="hand-count"></div>
@@ -803,73 +431,80 @@ header{
 
   <!-- コントロール -->
   <div class="controls">
-    <button class="btn btn-fire" id="btn-play" onclick="playCard()" disabled>🐉 だす！</button>
+    <button class="btn btn-g" id="btn-play" onclick="playCard()" disabled>⚔️ だす！</button>
     <button class="btn btn-dim" id="btn-pass" onclick="passTurn()" disabled>🏳️ パス</button>
-    <button class="btn btn-red" onclick="newGame()">🔄 あたらしいゲーム</button>
+    <button class="btn btn-r" onclick="newGame()">🔄 あたらしいゲーム</button>
   </div>
 
   <!-- ログ -->
-  <div class="log-box" id="log-box">「あたらしいゲーム」をおして、ドラゴンバトルをはじめよう！</div>
+  <div class="log-box" id="log-box">「あたらしいゲーム」をおしてはじめよう！デッキもへんこうできるよ。</div>
 </div>
 
 <!-- レベルアップ -->
 <div class="lvup" id="lvup">
-  <div class="lvup-ttl">🐉 LEVEL UP!</div>
-  <div class="lvup-sub">プレイヤー Lv.<span id="lv-num">2</span> になった！</div>
-  <div class="lvup-bonus" id="lv-bonus">さいだいHP が +5 あがった！</div>
+  <div class="lvup-ttl">⭐ レベルアップ！</div>
+  <div class="lvup-sub">プレイヤーLv.<span id="lv-num">2</span> になった！</div>
+  <div class="lvup-bonus" id="lv-bonus">さいだいHPが +5 あがった！</div>
 </div>
 
 <!-- ゲームオーバー -->
 <div class="g-overlay hidden" id="g-overlay">
-  <div class="ov-title" id="ov-title">VICTORY!</div>
+  <div class="ov-title" id="ov-title">しょうり！</div>
   <div class="ov-sub" id="ov-sub"></div>
   <div class="ov-stats" id="ov-stats"></div>
-  <button class="btn btn-fire" onclick="newGame()" style="font-size:.95rem;padding:12px 32px;margin-top:10px;">🐉 もう一度！</button>
+  <button class="btn btn-g" onclick="newGame()" style="font-size:.95rem;padding:12px 32px;margin-top:10px;">🎮 もう一度！</button>
 </div>
 
-<!-- デッキ編集 -->
+<!-- ===== デッキ編集モーダル ===== -->
 <div class="modal-bg hidden" id="deck-modal">
   <div class="modal">
     <button class="modal-x" onclick="closeDeck()">✕</button>
     <div class="modal-ttl">🃏 デッキ編集</div>
-    <div class="db-count-info">デッキ：<b id="deck-cnt">0</b> / 12 まい</div>
+    <div class="db-count-info" id="db-count">デッキ：<b id="deck-cnt">0</b> / 12 まい</div>
+
     <div class="type-filter" id="type-filter"></div>
+
     <div class="deck-builder">
       <div class="db-panel">
-        <div class="db-panel-ttl">📦 コレクション</div>
-        <div class="db-card-list" id="db-col"></div>
+        <div class="db-panel-ttl">📦 コレクション（えらんでついか）</div>
+        <div class="db-card-list" id="db-collection"></div>
       </div>
       <div class="db-panel">
         <div class="db-panel-ttl">🃏 いまのデッキ</div>
-        <div class="db-card-list" id="db-deck"></div>
+        <div class="db-card-list" id="db-deck-list"></div>
       </div>
     </div>
+
     <div style="text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;">
-      <button class="btn btn-fire" onclick="saveDeck()">✅ このデッキで決定！</button>
+      <button class="btn btn-p" onclick="saveDeck()">✅ このデッキで決定！</button>
       <button class="btn btn-dim" onclick="closeDeck()">もどる</button>
     </div>
   </div>
 </div>
 
-<!-- カード強化 -->
+<!-- ===== カード強化モーダル ===== -->
 <div class="modal-bg hidden" id="col-modal">
   <div class="modal">
     <button class="modal-x" onclick="closeCollection()">✕</button>
-    <div class="modal-ttl">⭐ ドラゴン強化</div>
-    <div class="gold-disp">💰 ゴールド：<span id="col-gold">0</span> G</div>
-    <p style="font-size:.7rem;color:var(--dim);text-align:center;margin-bottom:10px;">バトルで勝ってゴールドをためよう！<br>ゴールドでドラゴンをレベルアップできるよ。</p>
-    <div class="col-grid" id="col-grid"></div>
-    <div style="text-align:center;margin-top:12px;">
+    <div class="modal-ttl">⭐ カード強化</div>
+    <div class="gold-display">💰 ゴールド：<span id="col-gold">0</span> G</div>
+    <p style="font-size:.72rem;color:var(--dim);text-align:center;margin-bottom:10px;">
+      バトルで勝つとゴールドがもらえる。<br>
+      ゴールドをつかってカードをレベルアップしよう！<br>
+      レベルアップするとこうげきりょくとHPがあがるよ。
+    </p>
+    <div class="collection-grid" id="col-grid"></div>
+    <div style="text-align:center;margin-top:14px;">
       <button class="btn btn-dim" onclick="closeCollection()">もどる</button>
     </div>
   </div>
 </div>
 
-<!-- ルール -->
+<!-- ===== ルールモーダル ===== -->
 <div class="modal-bg hidden" id="rules-modal">
   <div class="modal">
     <button class="modal-x" onclick="closeRules()">✕</button>
-    <div class="modal-ttl">📖 あそびかた</div>
+    <div class="modal-ttl">📖 あそびかた＆ルール</div>
     <div class="rule-sec">
       <h3>🎮 ゲームの目的</h3>
       <p>てきのHPをゼロにしたら <b>しょうり</b>！自分のHPがゼロになったら <b>まけ</b>。</p>
@@ -877,32 +512,49 @@ header{
     <div class="rule-sec">
       <h3>🃏 1ラウンドの流れ</h3>
       <ul>
-        <li>手ふだからドラゴンカードを1まいえらぶ</li>
-        <li>「だす！」をおす → てきもカードをだす</li>
+        <li>手ふだからモンスターを１まいえらぶ</li>
+        <li>「だす！」ボタンをおす → てきもカードをだす</li>
         <li>タイプ相性＋こうげきりょくで勝負！</li>
         <li>かったほうがてきにダメージをあたえる</li>
+        <li>ラウンドがおわると手ふだをほじゅう</li>
       </ul>
     </div>
     <div class="rule-sec">
-      <h3>🐉 タイプ相性</h3>
+      <h3>🔥 タイプ相性</h3>
       <table class="type-tbl">
         <tr><th>タイプ</th><th>とくい（×1.8）</th><th>にがて（×0.5）</th></tr>
-        <tr><td>🔥ほのお</td><td class="eff-s">🌿くさ・🧊こおり</td><td class="eff-w">💧みず・🪨いわ</td></tr>
-        <tr><td>💧みず</td><td class="eff-s">🔥ほのお・🪨いわ</td><td class="eff-w">🌿くさ・⚡かみなり</td></tr>
-        <tr><td>🌿くさ</td><td class="eff-s">💧みず・🪨いわ</td><td class="eff-w">🔥ほのお・🌀かぜ</td></tr>
-        <tr><td>⚡かみなり</td><td class="eff-s">💧みず・🌀かぜ</td><td class="eff-w">🪨いわ・🌿くさ</td></tr>
+        <tr><td>🔥ほのお</td><td class="eff-s">🌿くさ　🧊こおり</td><td class="eff-w">💧みず　🪨いわ</td></tr>
+        <tr><td>💧みず</td><td class="eff-s">🔥ほのお　🪨いわ</td><td class="eff-w">🌿くさ　⚡かみなり</td></tr>
+        <tr><td>🌿くさ</td><td class="eff-s">💧みず　🪨いわ</td><td class="eff-w">🔥ほのお　🌀かぜ</td></tr>
+        <tr><td>⚡かみなり</td><td class="eff-s">💧みず　🌀かぜ</td><td class="eff-w">🪨いわ　🌿くさ</td></tr>
         <tr><td>🌑やみ</td><td class="eff-s">なし（全タイプ等倍）</td><td class="eff-w">なし</td></tr>
-        <tr><td>🪨いわ</td><td class="eff-s">🔥ほのお・⚡かみなり</td><td class="eff-w">💧みず・🌿くさ</td></tr>
-        <tr><td>🌀かぜ</td><td class="eff-s">🌿くさ・🔥ほのお</td><td class="eff-w">⚡かみなり・🧊こおり</td></tr>
-        <tr><td>🧊こおり</td><td class="eff-s">🌿くさ・🌀かぜ</td><td class="eff-w">🔥ほのお・🪨いわ</td></tr>
+        <tr><td>🪨いわ</td><td class="eff-s">🔥ほのお　⚡かみなり</td><td class="eff-w">💧みず　🌿くさ</td></tr>
+        <tr><td>🌀かぜ</td><td class="eff-s">🌿くさ　🔥ほのお</td><td class="eff-w">⚡かみなり　🧊こおり</td></tr>
+        <tr><td>🧊こおり</td><td class="eff-s">🌿くさ　🌀かぜ</td><td class="eff-w">🔥ほのお　🪨いわ</td></tr>
       </table>
     </div>
     <div class="rule-sec">
-      <h3>⭐ カード強化</h3>
+      <h3>💥 ダメージ計算</h3>
+      <ul>
+        <li>こうげきりょくが高いほうが勝ち</li>
+        <li>タイプとくい → <b class="eff-s">ダメージ×1.8！</b></li>
+        <li>タイプにがて → <b class="eff-w">ダメージ×0.5…</b></li>
+      </ul>
+    </div>
+    <div class="rule-sec">
+      <h3>⭐ カード強化システム</h3>
       <ul>
         <li>バトルで勝つと💰ゴールドがもらえる</li>
-        <li>「カード強化」でゴールドをつかってLvアップ！</li>
-        <li>レベルが上がるごとにこうげき+2！</li>
+        <li>「カード強化」でゴールドをつかってカードをLvアップ！</li>
+        <li>Lv2：こうげき+2　Lv3：こうげき+4　Lv4：こうげき+6＋スキル強化</li>
+      </ul>
+    </div>
+    <div class="rule-sec">
+      <h3>🃏 デッキ編集</h3>
+      <ul>
+        <li>「デッキ編集」から好きなカードを12まいえらべる</li>
+        <li>コレクションの全モンスターからえらべるよ</li>
+        <li>タイプのバランスを考えよう！</li>
       </ul>
     </div>
     <div class="rule-sec">
@@ -915,85 +567,111 @@ header{
       </ul>
     </div>
     <div style="text-align:center;margin-top:10px;">
-      <button class="btn btn-fire" onclick="closeRules()">✅ わかった！</button>
+      <button class="btn btn-g" onclick="closeRules()" style="font-size:.82rem;padding:9px 26px;">✅ わかった！</button>
     </div>
   </div>
 </div>
 
 <script>
 // ============================================================
-//  ドラゴンデータ
+//  定数・データ
 // ============================================================
-const TYPES={
-  fire: {name:'ほのお',icon:'🔥',col:'#ff6020',bg:'rgba(255,96,32,.15)',grad:['#2a0800','#180400']},
-  water:{name:'みず',  icon:'💧',col:'#30a8ff',bg:'rgba(48,168,255,.15)',grad:['#00101c','#000810']},
-  grass:{name:'くさ',  icon:'🌿',col:'#40c870',bg:'rgba(64,200,112,.15)',grad:['#002010','#001008']},
-  elec: {name:'かみなり',icon:'⚡',col:'#ffcc00',bg:'rgba(255,204,0,.15)',grad:['#201800','#140f00']},
-  dark: {name:'やみ',  icon:'🌑',col:'#8840ff',bg:'rgba(136,64,255,.15)',grad:['#120020','#0a0015']},
-  rock: {name:'いわ',  icon:'🪨',col:'#c09040',bg:'rgba(192,144,64,.15)',grad:['#180e00','#0f0900']},
-  wind: {name:'かぜ',  icon:'🌀',col:'#60e8c0',bg:'rgba(96,232,192,.15)',grad:['#00201a','#001410']},
-  ice:  {name:'こおり',icon:'🧊',col:'#80d8f0',bg:'rgba(128,216,240,.15)',grad:['#001418','#000c10']},
+const TYPES = {
+  fire:  {name:'ほのお',icon:'🔥',col:'#ff6b35',bg:'rgba(255,107,53,.15)',grad:['#3a1000','#1a0800']},
+  water: {name:'みず',  icon:'💧',col:'#4cc9f0',bg:'rgba(76,201,240,.15)',grad:['#001a2a','#000d18']},
+  grass: {name:'くさ',  icon:'🌿',col:'#57cc99',bg:'rgba(87,204,153,.15)',grad:['#002a12','#001508']},
+  elec:  {name:'かみなり',icon:'⚡',col:'#ffd60a',bg:'rgba(255,214,10,.15)',grad:['#2a2000','#181200']},
+  dark:  {name:'やみ',  icon:'🌑',col:'#9b5de5',bg:'rgba(155,93,229,.15)',grad:['#18003a','#0c001e']},
+  rock:  {name:'いわ',  icon:'🪨',col:'#c4a35a',bg:'rgba(196,163,90,.15)',grad:['#1a1000','#0f0a00']},
+  wind:  {name:'かぜ',  icon:'🌀',col:'#80ffdb',bg:'rgba(128,255,219,.15)',grad:['#002a24','#001614']},
+  ice:   {name:'こおり',icon:'🧊',col:'#a8dadc',bg:'rgba(168,218,220,.15)',grad:['#001a20','#000f14']},
 };
-const ADV={fire:['grass','ice'],water:['fire','rock'],grass:['water','rock'],elec:['water','wind'],dark:[],rock:['fire','elec'],wind:['grass','fire'],ice:['grass','wind']};
-const DIS={fire:['water','rock'],water:['grass','elec'],grass:['fire','wind'],elec:['rock','grass'],dark:[],rock:['water','grass'],wind:['elec','ice'],ice:['fire','rock']};
-function mult(a,d){if(ADV[a]?.includes(d))return 1.8;if(DIS[a]?.includes(d))return 0.5;return 1;}
+const ADV = {
+  fire:['grass','ice'],water:['fire','rock'],grass:['water','rock'],
+  elec:['water','wind'],dark:[],rock:['fire','elec'],wind:['grass','fire'],ice:['grass','wind']
+};
+const DIS = {
+  fire:['water','rock'],water:['grass','elec'],grass:['fire','wind'],
+  elec:['rock','grass'],dark:[],rock:['water','grass'],wind:['elec','ice'],ice:['fire','rock']
+};
+function mult(atk,def){
+  if(ADV[atk]?.includes(def)) return 1.8;
+  if(DIS[atk]?.includes(def)) return 0.5;
+  return 1.0;
+}
 
-// ドラゴンマスターデータ
-const DRAGONS=[
-  {id:'vulcanos', name:'炎獄竜ヴルカノス',  type:'fire', basePow:9,  special:'double', sdesc:'×2ダメ！'},
-  {id:'ignis',    name:'烈火竜イグニス',     type:'fire', basePow:7,  special:'burn',   sdesc:'🔥+2こうげき'},
-  {id:'emberon',  name:'残火竜エンベロン',   type:'fire', basePow:6,  special:null,     sdesc:''},
-  {id:'aquados',  name:'深海竜アクアドス',   type:'water',basePow:8,  special:'heal',   sdesc:'💚HP回復'},
-  {id:'thalassa', name:'潮嵐竜タラッサ',     type:'water',basePow:10, special:null,     sdesc:''},
-  {id:'glaciel',  name:'氷海竜グラシエル',   type:'water',basePow:7,  special:null,     sdesc:''},
-  {id:'verdant',  name:'翠緑竜ヴェルダント', type:'grass',basePow:7,  special:'heal',   sdesc:'💚HP回復'},
-  {id:'thornis',  name:'荊棘竜ソルニス',     type:'grass',basePow:8,  special:null,     sdesc:''},
-  {id:'fulgur',   name:'雷霆竜フルグル',     type:'elec', basePow:9,  special:'stun',   sdesc:'⚡スタン'},
-  {id:'sparkon',  name:'電光竜スパーコン',   type:'elec', basePow:7,  special:null,     sdesc:''},
-  {id:'umbral',   name:'虚空竜ウンブラル',   type:'dark', basePow:11, special:'double', sdesc:'×2ダメ！'},
-  {id:'noctis',   name:'夜闇竜ノクティス',   type:'dark', basePow:7,  special:'dodge',  sdesc:'💨かいひ'},
-  {id:'petros',   name:'岩壁竜ペトロス',     type:'rock', basePow:9,  special:'shield', sdesc:'🛡️ダメ半減'},
-  {id:'cragnar',  name:'鉱岩竜クラグナル',   type:'rock', basePow:7,  special:null,     sdesc:''},
-  {id:'zephyros', name:'暴風竜ゼピュロス',   type:'wind', basePow:8,  special:'dodge',  sdesc:'💨かいひ'},
-  {id:'sirocco',  name:'旋風竜シロッコ',     type:'wind', basePow:7,  special:null,     sdesc:''},
-  {id:'glacius',  name:'氷帝竜グラキウス',   type:'ice',  basePow:10, special:'heal',   sdesc:'💚HP回復'},
-  {id:'frostis',  name:'霜刃竜フロスティス', type:'ice',  basePow:8,  special:null,     sdesc:''},
-  {id:'borealis', name:'極光竜ボレアリス',   type:'ice',  basePow:7,  special:null,     sdesc:''},
+// モンスターマスターデータ（コレクション）
+const MASTER = [
+  {id:'foxflare', name:'フレアギツネ',    type:'fire',  basePow:7,  icon:'🦊', special:'burn',   desc:'炎の尻尾をもつキツネ。ほのおのブレスで敵を焼く。'},
+  {id:'pyrodragon',name:'ヒードラゴン',   type:'fire',  basePow:9,  icon:'🐉', special:'double', desc:'天空を舞う炎の竜。その咆哮は大地を割る。'},
+  {id:'embiebird', name:'モエルトリ',     type:'fire',  basePow:6,  icon:'🐦‍🔥',special:'burn',   desc:'羽ばたくたびに火花が散る神秘の鳥。'},
+  {id:'aquawhale', name:'アクアクジラ',   type:'water', basePow:8,  icon:'🐋', special:null,     desc:'深海に住む巨大クジラ。潮吹きで敵を一掃する。'},
+  {id:'tidalturtle',name:'タイダルカメ',  type:'water', basePow:6,  icon:'🐢', special:'heal',   desc:'古の海を泳ぐ賢いカメ。癒しの水を出す。'},
+  {id:'stormshark', name:'ストームサメ',  type:'water', basePow:10, icon:'🦈', special:null,     desc:'嵐を呼ぶ最強の海の王者。'},
+  {id:'leafspirit', name:'モリノセイレイ', type:'grass', basePow:7,  icon:'🌱', special:'heal',   desc:'森の精霊。仲間を緑の光で癒す。'},
+  {id:'vinewolf',   name:'ツタオオカミ',  type:'grass', basePow:8,  icon:'🐺', special:null,     desc:'蔦をまとった森の番人。その遠吠えが森を震わす。'},
+  {id:'boltlion',   name:'イナズマライオン',type:'elec', basePow:9, icon:'🦁', special:'stun',   desc:'稲妻をたてがみに宿す百獣の王。'},
+  {id:'sparkbun',   name:'デンキウサギ',  type:'elec',  basePow:6,  icon:'🐰', special:null,     desc:'ふわふわの毛に電気をためるウサギ。'},
+  {id:'zapbird',    name:'サンダーワシ',  type:'elec',  basePow:8,  icon:'🦅', special:null,     desc:'空を切り裂く雷の翼を持つ大鷲。'},
+  {id:'shadowcat',  name:'シャドウネコ',  type:'dark',  basePow:7,  icon:'🐱', special:'dodge',  desc:'闇に溶ける幻のネコ。その姿を掴むことはできない。'},
+  {id:'voiddragon', name:'ヴォイドドラゴン',type:'dark', basePow:11, icon:'🐲', special:'double', desc:'虚空から現れる最恐の竜。全てを飲み込む闇を放つ。'},
+  {id:'stonegolem', name:'ガンセキゴーレム',type:'rock', basePow:9,  icon:'🗿', special:null,     desc:'大地の力を宿す巨大な岩の戦士。'},
+  {id:'cragbear',   name:'クラッグベア',  type:'rock',  basePow:7,  icon:'🐻', special:'shield', desc:'岩のような毛皮をもつ最強のクマ。'},
+  {id:'galedolphin',name:'ガレイルカ',    type:'wind',  basePow:7,  icon:'🐬', special:null,     desc:'嵐の海を跳ぶ風速のイルカ。'},
+  {id:'breezeowl',  name:'ブリーズフクロウ',type:'wind', basePow:8, icon:'🦉', special:'dodge',  desc:'夜風に乗る知恵者のフクロウ。攻撃を音もなくかわす。'},
+  {id:'frostbear',  name:'フロストシロクマ',type:'ice',  basePow:8,  icon:'🐻‍❄️',special:null,   desc:'吹雪を呼ぶ氷原の王者シロクマ。'},
+  {id:'blizzphnx',  name:'ブリザードフェニックス',type:'ice',basePow:10,icon:'🦚',special:'heal',desc:'氷の羽根をもつ不死鳥。倒されても蘇る。'},
 ];
 
-const ENEMIES=[
-  {name:'炎獄竜ヴルカノス',  tag:'🔥 炎獄の覇者',   hp:20,lv:1,types:['fire','dark']},
-  {name:'深海竜アクアドス',  tag:'💧 深海の支配者',  hp:24,lv:2,types:['water','ice']},
-  {name:'雷霆竜フルグル',    tag:'⚡ 雷の神使',      hp:26,lv:3,types:['elec','wind']},
-  {name:'虚空竜ウンブラル',  tag:'🌑 虚空の暴君',    hp:28,lv:3,types:['dark','fire']},
-  {name:'氷帝竜グラキウス',  tag:'🧊 氷原の帝王',    hp:30,lv:4,types:['ice','water']},
-];
+// 特殊スキル
+const SPE = {double:'💥×2',heal:'💚回復',burn:'🔥+2',dodge:'💨かいひ',stun:'⚡スタン',shield:'🛡️半減',null:''};
 
-const ITEM_DEFS=[
-  {id:'potion',icon:'🧪',name:'ポーション',cnt:2,eff:'heal5'},
-  {id:'shield',icon:'🛡️',name:'バリア',   cnt:1,eff:'shield'},
-  {id:'sword', icon:'⚔️',name:'つるぎ',  cnt:1,eff:'sword4'},
-  {id:'star',  icon:'⭐',name:'スター',  cnt:1,eff:'reveal'},
+// 敵定義
+const ENEMIES = [
+  {name:'あんこくりゅう', tag:'👹 やみのまじん',  hp:20,lv:1,types:['dark','fire']},
+  {name:'もりのおに',      tag:'🌲 もりのまもりびと',hp:25,lv:2,types:['grass','rock']},
+  {name:'うみのりゅう',    tag:'🌊 りゅうおう',   hp:28,lv:3,types:['water','wind']},
+  {name:'いかずちおに',    tag:'⚡ らいじんのつかい',hp:26,lv:3,types:['elec','wind']},
+  {name:'まおうへいか',    tag:'👑 まかいのおう',  hp:32,lv:4,types:['dark','fire','elec']},
 ];
 
 // ============================================================
-//  セーブ
+//  セーブデータ（ローカルステート）
 // ============================================================
-let SAVE=loadSave();
+let SAVE = loadSave();
 function defaultSave(){
-  return{
-    gold:0,
-    cardLevels:Object.fromEntries(DRAGONS.map(d=>[d.id,{lv:1,exp:0}])),
-    deck:['vulcanos','ignis','aquados','thalassa','fulgur','umbral','petros','zephyros','glacius','verdant','frostis','noctis'],
+  return {
+    gold: 0,
+    // カードごとのLv・Exp
+    cardLevels: Object.fromEntries(MASTER.map(m=>[m.id,{lv:1,exp:0}])),
+    // デッキ（IDの配列、重複あり、max12）
+    deck: ['foxflare','pyrodragon','aquawhale','stormshark','boltlion','voiddragon',
+           'stonegolem','breezeowl','tidalturtle','leafspirit','frostbear','blizzphnx'],
   };
 }
-function loadSave(){try{return JSON.parse(localStorage.getItem('dcb_save'))||defaultSave();}catch(e){return defaultSave();}}
-function writeSave(){try{localStorage.setItem('dcb_save',JSON.stringify(SAVE));}catch(e){}}
-function cardLv(id){return SAVE.cardLevels[id]?.lv||1;}
-function cardPow(id){const d=DRAGONS.find(x=>x.id===id);if(!d)return 5;return d.basePow+(cardLv(id)-1)*2;}
-function cardExp(id){return SAVE.cardLevels[id]?.exp||0;}
-function cardExpMax(id){return cardLv(id)*15;}
-function buildGameDeck(){return SAVE.deck.map(id=>{const d=DRAGONS.find(x=>x.id===id)||DRAGONS[0];return{...d,power:cardPow(id),lv:cardLv(id)};});}
+function loadSave(){
+  try{ return JSON.parse(localStorage.getItem('mcb_save'))||defaultSave(); }catch(e){ return defaultSave(); }
+}
+function writeSave(){ try{localStorage.setItem('mcb_save',JSON.stringify(SAVE));}catch(e){} }
+
+// カードの実際のパワー（レベル補正）
+function cardPow(id){
+  const m=MASTER.find(x=>x.id===id);
+  if(!m) return 5;
+  const lv=SAVE.cardLevels[id]?.lv||1;
+  return m.basePow + (lv-1)*2;
+}
+function cardLv(id){ return SAVE.cardLevels[id]?.lv||1; }
+function cardExp(id){ return SAVE.cardLevels[id]?.exp||0; }
+function cardExpMax(id){ return cardLv(id)*15; }
+
+// デッキからゲーム用カードリストを生成
+function buildGameDeck(){
+  return SAVE.deck.map(id=>{
+    const m=MASTER.find(x=>x.id===id)||MASTER[0];
+    return {...m, power:cardPow(id), lv:cardLv(id)};
+  });
+}
 
 // ============================================================
 //  ゲーム状態
@@ -1001,6 +679,14 @@ function buildGameDeck(){return SAVE.deck.map(id=>{const d=DRAGONS.find(x=>x.id=
 let G={};
 let sel=null;
 let lvupTmr=null;
+
+const ITEM_DEFS=[
+  {id:'potion',icon:'🧪',name:'ポーション',cnt:2,eff:'heal5'},
+  {id:'shield',icon:'🛡️',name:'バリア',   cnt:1,eff:'shield'},
+  {id:'sword', icon:'⚔️',name:'つるぎ',   cnt:1,eff:'sword4'},
+  {id:'star',  icon:'⭐',name:'スター',   cnt:1,eff:'reveal'},
+];
+
 function sh(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
 function rnd(a){return a[0|Math.random()*a.length];}
 function expMax(lv){return lv*10;}
@@ -1008,10 +694,11 @@ function expMax(lv){return lv*10;}
 function newGame(){
   const enemy=rnd(ENEMIES);
   const gameDeck=sh(buildGameDeck());
-  const eDeck=sh([...DRAGONS,...DRAGONS].map(d=>({...d,power:d.basePow+enemy.lv,lv:1})));
+  // てきのデッキはランダム（てきのタイプに合ったものを多めに）
+  const eDeck=sh([...MASTER,...MASTER].map(m=>({...m,power:m.basePow+enemy.lv,lv:1})));
   G={
-    deck:gameDeck,enemyDeck:eDeck,
-    playerHand:[],enemyHand:[],
+    deck:gameDeck, enemyDeck:eDeck,
+    playerHand:[], enemyHand:[],
     playerHP:20,playerMaxHP:20,
     playerLv:1,playerExp:0,
     enemyHP:enemy.hp,enemyMaxHP:enemy.hp,enemyLv:enemy.lv,
@@ -1022,100 +709,208 @@ function newGame(){
     shieldActive:false,swordBonus:0,enemyRevealed:false,
     stats:{wins:0,dmgDealt:0,healed:0},
   };
-  sel=null;closeOverlay();dealN(5);render();
-  log(`🐉 <b>${enemy.name}</b> があらわれた！ドラゴンカードで戦え！`);
+  sel=null;
+  closeOverlay();
+  dealN(5);
+  render();
+  log(`🎮 <b>${enemy.name}</b> があらわれた！モンスターをえらんでたたかおう！`);
 }
-function dealN(n){for(let i=0;i<n;i++){if(G.deck.length)G.playerHand.push(G.deck.pop());if(G.enemyDeck.length)G.enemyHand.push(G.enemyDeck.pop());}}
 
+function dealN(n){
+  for(let i=0;i<n;i++){
+    if(G.deck.length) G.playerHand.push(G.deck.pop());
+    if(G.enemyDeck.length) G.enemyHand.push(G.enemyDeck.pop());
+  }
+}
+
+// ============================================================
+//  アイテム
+// ============================================================
 function useItem(id){
-  if(G.phase!=='select')return;
-  const it=G.items.find(i=>i.id===id);if(!it||it.cnt<=0)return;
+  if(G.phase!=='select') return;
+  const it=G.items.find(i=>i.id===id);
+  if(!it||it.cnt<=0) return;
   it.cnt--;
-  if(it.eff==='heal5'){const h=Math.min(5,G.playerMaxHP-G.playerHP);G.playerHP+=h;G.stats.healed+=h;float('+'+h+'HP','var(--green)');log(`🧪 HP <b style="color:var(--green)">+${h}</b> かいふく！`);}
-  else if(it.eff==='shield'){G.shieldActive=true;log(`🛡️ バリアをはった！`);}
-  else if(it.eff==='sword4'){G.swordBonus+=4;log(`⚔️ つぎのこうげきが <b style="color:var(--gold)">+4</b>！`);}
-  else if(it.eff==='reveal'){G.enemyRevealed=true;log(`⭐ てきの手ふだが見えるようになった！`);}
+  if(it.eff==='heal5'){
+    const h=Math.min(5,G.playerMaxHP-G.playerHP);
+    G.playerHP+=h;G.stats.healed+=h;
+    float('+'+h+'HP','var(--green)');
+    log(`🧪 ポーションでHP <b style="color:var(--green)">+${h}</b> かいふく！`);
+  }else if(it.eff==='shield'){
+    G.shieldActive=true;
+    log(`🛡️ バリアをはった！つぎのダメージを <b>0</b> にするよ！`);
+  }else if(it.eff==='sword4'){
+    G.swordBonus+=4;
+    log(`⚔️ つるぎをつかった！つぎのこうげきが <b style="color:var(--gold)">+4</b> つよくなる！`);
+  }else if(it.eff==='reveal'){
+    G.enemyRevealed=true;
+    log(`⭐ スターをつかった！てきの手ふだが見えるようになったよ！`);
+  }
   render();
 }
 
-function selectCard(card){if(G.phase!=='select')return;sel=(sel===card)?null:card;updateHint();render();}
+// ============================================================
+//  カード選択
+// ============================================================
+function selectCard(card){
+  if(G.phase!=='select') return;
+  sel=(sel===card)?null:card;
+  updateHint();
+  render();
+}
 
 function updateHint(){
   const el=document.getElementById('type-hint');
-  if(!sel){el.textContent='ドラゴンカードをえらぶとタイプ相性がわかるよ！';return;}
+  if(!sel){el.textContent='カードをえらぶとタイプ相性がわかるよ！';return;}
   const t=TYPES[sel.type];
   const adv=ADV[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
   const dis=DIS[sel.type].map(k=>TYPES[k].icon+TYPES[k].name);
   let parts=[];
-  if(adv.length)parts.push(`<b style="color:var(--green)">とくい：${adv.join('・')}</b>`);
-  if(dis.length)parts.push(`<b style="color:var(--red)">にがて：${dis.join('・')}</b>`);
-  const eH=G.enemyTypes.map(et=>{const m=mult(sel.type,et);if(m>1)return`<span style="color:var(--green)">てき(${TYPES[et].icon})に×${m}！</span>`;if(m<1)return`<span style="color:var(--red)">てき(${TYPES[et].icon})に×${m}…</span>`;return null;}).filter(Boolean);
-  el.innerHTML=`${t.icon}<b>${t.name}</b>　${parts.join(' / ')}${eH.length?' 　'+eH.join(' '):''}`;
+  if(adv.length) parts.push(`<b style="color:var(--green)">とくい：${adv.join('・')}</b>`);
+  if(dis.length) parts.push(`<b style="color:var(--red)">にがて：${dis.join('・')}</b>`);
+  const eHints=G.enemyTypes.map(et=>{
+    const m2=mult(sel.type,et);
+    if(m2>1) return `<span style="color:var(--green)">てき(${TYPES[et].icon})に×${m2}！</span>`;
+    if(m2<1) return `<span style="color:var(--red)">てき(${TYPES[et].icon})に×${m2}…</span>`;
+    return null;
+  }).filter(Boolean);
+  el.innerHTML=`${t.icon}<b>${t.name}</b>　${parts.join(' / ')}${eHints.length?' 　'+eHints.join(' '):''}`;
 }
 
+// ============================================================
+//  バトル
+// ============================================================
 function playCard(){
-  if(!sel||G.phase!=='select')return;
-  const idx=G.playerHand.indexOf(sel);if(idx===-1)return;
+  if(!sel||G.phase!=='select') return;
+  const idx=G.playerHand.indexOf(sel);
+  if(idx===-1) return;
   G.playerPlayed=sel;G.playerHand.splice(idx,1);
+  // 敵カード選択
   let ei;
-  if(G.enemyLv>=3&&Math.random()<.55){const pType=G.playerPlayed.type;const goods=G.enemyHand.map((c,i)=>({c,i})).filter(({c})=>mult(c.type,pType)>1||c.power>=8).map(({i})=>i);ei=goods.length?rnd(goods):0|Math.random()*G.enemyHand.length;}
-  else ei=0|Math.random()*G.enemyHand.length;
+  if(G.enemyLv>=3&&Math.random()<.55){
+    const pType=G.playerPlayed.type;
+    const goods=G.enemyHand.map((c,i)=>({c,i})).filter(({c})=>mult(c.type,pType)>1||c.power>=8).map(({i})=>i);
+    ei=goods.length?rnd(goods):0|Math.random()*G.enemyHand.length;
+  }else{
+    ei=0|Math.random()*G.enemyHand.length;
+  }
   G.enemyPlayed=G.enemyHand[ei];G.enemyHand.splice(ei,1);
-  G.enemyRevealed=false;sel=null;G.phase='resolve';render();setTimeout(resolveRound,750);
+  G.enemyRevealed=false;sel=null;G.phase='resolve';
+  render();setTimeout(resolveRound,750);
 }
-function passTurn(){if(G.phase!=='select')return;G.playerPlayed=null;G.enemyHand.sort((a,b)=>b.power-a.power);G.enemyPlayed=G.enemyHand.shift();sel=null;G.phase='resolve';render();setTimeout(resolveRound,750);}
+
+function passTurn(){
+  if(G.phase!=='select') return;
+  G.playerPlayed=null;
+  G.enemyHand.sort((a,b)=>b.power-a.power);
+  G.enemyPlayed=G.enemyHand.shift();
+  sel=null;G.phase='resolve';
+  render();setTimeout(resolveRound,750);
+}
 
 function resolveRound(){
-  const pp=G.playerPlayed,ep=G.enemyPlayed;let msg='';
+  const pp=G.playerPlayed,ep=G.enemyPlayed;
+  let msg='';
   if(!pp&&ep){
     let dmg=Math.ceil(ep.power/3);
     if(G.shieldActive){dmg=0;G.shieldActive=false;msg+='🛡️バリアでダメージ0！　';}
     G.playerHP=Math.max(0,G.playerHP-dmg);
-    msg+=`🏳️ パス… ${ep.name} に <b style="color:var(--red)">-${dmg}HP</b>`;
+    msg+=`🏳️ パス… ${ep.icon}${ep.name} の攻撃で <b style="color:var(--red)">-${dmg}HP</b>`;
   }else if(pp&&ep){
     let pMult=Math.max(...G.enemyTypes.map(et=>mult(pp.type,et)));
     let eMult=Math.max(...G.enemyTypes.map(et=>mult(ep.type,pp.type)));
-    let pv=pp.power+G.swordBonus,ev=ep.power;G.swordBonus=0;
+    let pv=pp.power+G.swordBonus,ev=ep.power;
+    G.swordBonus=0;
     let pNote='',eNote='';
-    if(pp.special==='double')pNote='💥×2ダメ！';
+    // プレイヤー特殊
+    if(pp.special==='double')  pNote='💥×2ダメ！';
     if(pp.special==='heal'){const h=Math.min(3,G.playerMaxHP-G.playerHP);G.playerHP+=h;G.stats.healed+=h;pNote=`💚HP+${h}`;float('+'+h+'HP','var(--green)');}
     if(pp.special==='burn'){pv+=2;pNote='🔥+2こうげき';}
-    if(pp.special==='dodge'&&ev>pv){msg=`💨 ${pp.name} のかいひ！てきの攻撃をよけた！`;finishRound(msg);return;}
+    if(pp.special==='dodge'&&ev>pv){msg=`💨 ${pp.icon}のかいひ！てきの攻撃をよけた！`;finishRound(msg);return;}
     if(pp.special==='shield'){G.shieldActive=true;pNote='🛡️バリア発動';}
     if(pp.special==='stun'){ev=Math.max(1,ev-2);pNote='⚡スタン！';}
-    if(ep.special==='dodge'&&pv>ev){msg=`💨 てきの${ep.name} がかいひ！`;finishRound(msg);return;}
+    // 敵特殊
+    if(ep.special==='dodge'&&pv>ev){msg=`💨 てきの${ep.icon}がかいひ！`;finishRound(msg);return;}
     if(ep.special==='double'){eMult*=1.5;eNote='💥てき×2！';}
     if(ep.special==='burn'){ev+=2;eNote='🔥てき+2';}
+
     if(pv>ev){
-      let dmg=Math.ceil((pv-ev)/2)+1;dmg=Math.round(dmg*pMult);if(pp.special==='double')dmg*=2;
-      G.enemyHP=Math.max(0,G.enemyHP-dmg);G.stats.dmgDealt+=dmg;G.stats.wins++;
-      gainExp(dmg);gainGold(Math.ceil(dmg/2));float('-'+dmg,'var(--red)');
+      let dmg=Math.ceil((pv-ev)/2)+1;
+      dmg=Math.round(dmg*pMult);
+      if(pp.special==='double') dmg*=2;
+      G.enemyHP=Math.max(0,G.enemyHP-dmg);
+      G.stats.dmgDealt+=dmg;G.stats.wins++;
+      gainExp(dmg);gainGold(Math.ceil(dmg/2));
+      float('-'+dmg,'var(--red)');
       const mt=pMult>1?`<span style="color:var(--green)">（とくい×${pMult}！）</span>`:pMult<1?`<span style="color:var(--red)">（にがて×${pMult}）</span>`:'';
-      msg=`🎉 <b style="color:var(--green)">かった！</b> ${pp.name}(${pv}) > ${ep.name}(${ev}) → <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
+      msg=`🎉 <b style="color:var(--green)">かった！</b> ${pp.icon}(${pv}) > ${ep.icon}(${ev}) → てきに <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
     }else if(ev>pv){
-      let dmg=Math.ceil((ev-pv)/2)+1;dmg=Math.round(dmg*eMult);if(ep.special==='double')dmg=Math.round(dmg*1.5);
+      let dmg=Math.ceil((ev-pv)/2)+1;
+      dmg=Math.round(dmg*eMult);
+      if(ep.special==='double') dmg=Math.round(dmg*1.5);
       if(G.shieldActive){dmg=0;G.shieldActive=false;msg+='🛡️バリアでダメージ0！　';}
       G.playerHP=Math.max(0,G.playerHP-dmg);
       const mt=eMult>1?`<span style="color:var(--red)">（てきにとくいタイプ！）</span>`:'';
-      msg+=`😢 <b style="color:var(--red)">まけた…</b> ${ep.name}(${ev}) > ${pp.name}(${pv}) → <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
-    }else{msg=`🤝 <b>ひきわけ！</b> ダメージなし。`;}
-    if(pNote)msg+=`　${pNote}`;if(eNote)msg+=`　${eNote}`;
+      msg+=`😢 <b style="color:var(--red)">まけた…</b> ${ep.icon}(${ev}) > ${pp.icon}(${pv}) → 自分に <b style="color:var(--red)">-${dmg}HP</b> ${mt}`;
+    }else{
+      msg=`🤝 <b>ひきわけ！</b> ダメージなし。`;
+    }
+    if(pNote) msg+=`　${pNote}`;
+    if(eNote) msg+=`　${eNote}`;
   }
   finishRound(msg);
 }
+
 function finishRound(msg){
-  log(msg);G.playerHP=Math.max(0,Math.min(G.playerHP,G.playerMaxHP));G.enemyHP=Math.max(0,G.enemyHP);
-  if(G.playerHP<=0||G.enemyHP<=0){G.phase='gameover';render();setTimeout(()=>{if(G.playerHP<=0&&G.enemyHP<=0)showOverlay('draw');else if(G.enemyHP<=0)showOverlay('win');else showOverlay('lose');},400);return;}
+  log(msg);
+  G.playerHP=Math.max(0,Math.min(G.playerHP,G.playerMaxHP));
+  G.enemyHP=Math.max(0,G.enemyHP);
+  if(G.playerHP<=0||G.enemyHP<=0){
+    G.phase='gameover';render();
+    setTimeout(()=>{
+      if(G.playerHP<=0&&G.enemyHP<=0) showOverlay('draw');
+      else if(G.enemyHP<=0) showOverlay('win');
+      else showOverlay('lose');
+    },400);
+    return;
+  }
   G.round++;G.phase='select';G.playerPlayed=null;G.enemyPlayed=null;
-  const pN=Math.max(0,4-G.playerHand.length),eN=Math.max(0,4-G.enemyHand.length);
-  for(let i=0;i<Math.max(pN,eN);i++){if(i<pN&&G.deck.length)G.playerHand.push(G.deck.pop());if(i<eN&&G.enemyDeck.length)G.enemyHand.push(G.enemyDeck.pop());}
+  const pN=Math.max(0,4-G.playerHand.length);
+  const eN=Math.max(0,4-G.enemyHand.length);
+  for(let i=0;i<Math.max(pN,eN);i++){
+    if(i<pN&&G.deck.length) G.playerHand.push(G.deck.pop());
+    if(i<eN&&G.enemyDeck.length) G.enemyHand.push(G.enemyDeck.pop());
+  }
   if(G.deck.length<3){G.deck=sh(buildGameDeck());dealN(2);}
   updateHint();render();
 }
-function gainExp(amt){G.playerExp+=amt;const mx=expMax(G.playerLv);if(G.playerExp>=mx){G.playerExp-=mx;G.playerLv++;G.playerMaxHP+=5;G.playerHP=Math.min(G.playerHP+5,G.playerMaxHP);showLvUp(G.playerLv);if(G.playerLv%2===0){const it=G.items[0|Math.random()*G.items.length];it.cnt++;}}}
-function gainGold(amt){SAVE.gold+=amt;writeSave();}
-function showLvUp(lv){const p=document.getElementById('lvup');document.getElementById('lv-num').textContent=lv;p.classList.add('show');if(lvupTmr)clearTimeout(lvupTmr);lvupTmr=setTimeout(()=>p.classList.remove('show'),2200);}
-function float(txt,color){const el=document.createElement('div');el.style.cssText=`position:fixed;left:50%;top:40%;font-size:1.8rem;font-weight:900;color:${color};pointer-events:none;z-index:900;animation:floatUp .9s ease forwards;white-space:nowrap;`;el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
+
+function gainExp(amt){
+  G.playerExp+=amt;
+  const mx=expMax(G.playerLv);
+  if(G.playerExp>=mx){
+    G.playerExp-=mx;G.playerLv++;
+    G.playerMaxHP+=5;G.playerHP=Math.min(G.playerHP+5,G.playerMaxHP);
+    showLvUp(G.playerLv);
+    if(G.playerLv%2===0){const it=G.items[0|Math.random()*G.items.length];it.cnt++;}
+  }
+}
+function gainGold(amt){
+  SAVE.gold+=amt;writeSave();
+}
+function showLvUp(lv){
+  const p=document.getElementById('lvup');
+  document.getElementById('lv-num').textContent=lv;
+  document.getElementById('lv-bonus').textContent=`さいだいHPが +5 あがった！`;
+  p.classList.add('show');
+  if(lvupTmr) clearTimeout(lvupTmr);
+  lvupTmr=setTimeout(()=>p.classList.remove('show'),2200);
+}
+function float(txt,color){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;left:50%;top:40%;font-size:1.8rem;font-weight:900;color:${color};pointer-events:none;z-index:700;animation:floatUp .9s ease forwards;white-space:nowrap;`;
+  el.textContent=txt;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
 
 // ============================================================
 //  レンダリング
@@ -1133,234 +928,146 @@ function render(){
   s('enemy-name','textContent',G.enemyName);s('enemy-tag','textContent',G.enemyTag);
   s('hand-count','textContent',`手ふだ${G.playerHand.length}まい　デッキ残${G.deck.length}まい`);
 
+  // てき手ふだ
   const eh=document.getElementById('enemy-hand');eh.innerHTML='';
-  G.enemyHand.forEach((d,i)=>{const el=G.enemyRevealed?makeDragonCard(d,'enemy',false):makeBackCard();el.style.animationDelay=i*.05+'s';el.classList.add('deal');eh.appendChild(el);});
+  G.enemyHand.forEach((m,i)=>{
+    const el=G.enemyRevealed?makeCard(m,'enemy',false):makeBackCard();
+    el.style.animationDelay=i*.05+'s';el.classList.add('deal');eh.appendChild(el);
+  });
 
+  // プレイヤー手ふだ
   const ph=document.getElementById('player-hand');ph.innerHTML='';
-  G.playerHand.forEach((d,i)=>{const el=makeDragonCard(d,'player',true);el.style.animationDelay=i*.05+'s';el.classList.add('deal');if(d===sel)el.classList.add('selected');el.onclick=()=>selectCard(d);ph.appendChild(el);});
+  G.playerHand.forEach((m,i)=>{
+    const el=makeCard(m,'player',true);
+    el.style.animationDelay=i*.05+'s';el.classList.add('deal');
+    if(m===sel) el.classList.add('selected');
+    el.onclick=()=>selectCard(m);ph.appendChild(el);
+  });
 
+  // バトルフィールド
+  const bfe=document.getElementById('bf-empty');
   const vs=document.getElementById('vs-txt');
   const pg=document.getElementById('p-grp'),eg=document.getElementById('e-grp');
   const ps=document.getElementById('p-slot'),es=document.getElementById('e-slot');
   ps.innerHTML='';es.innerHTML='';
   if(G.playerPlayed||G.enemyPlayed){
-    s('bf-empty','style.display','none');vs.style.display='block';
-    pg.style.display=G.playerPlayed?'flex':'none';eg.style.display=G.enemyPlayed?'flex':'none';
-    if(G.playerPlayed){const c=makeDragonCard(G.playerPlayed,'bf',false);c.classList.add('bf-card');ps.appendChild(c);}
-    if(G.enemyPlayed){const c=makeDragonCard(G.enemyPlayed,'bf',false);c.classList.add('bf-card');es.appendChild(c);}
+    bfe.style.display='none';vs.style.display='block';
+    pg.style.display=G.playerPlayed?'flex':'none';
+    eg.style.display=G.enemyPlayed?'flex':'none';
+    if(G.playerPlayed){const c=makeCard(G.playerPlayed,'bf',false);c.classList.add('bf-card');ps.appendChild(c);}
+    if(G.enemyPlayed) {const c=makeCard(G.enemyPlayed,'bf',false); c.classList.add('bf-card');es.appendChild(c);}
   }else{
-    s('bf-empty','style.display','');vs.style.display='none';pg.style.display='none';eg.style.display='none';
+    bfe.style.display='';vs.style.display='none';
+    pg.style.display='none';eg.style.display='none';
   }
 
+  // アイテム
   const ir=document.getElementById('items-row');ir.innerHTML='';
-  G.items.forEach(it=>{const b=document.createElement('button');b.className='ibtn';b.disabled=it.cnt<=0||G.phase!=='select';b.innerHTML=`<span class="iico">${it.icon}</span><span class="iname">${it.name}</span><span class="icnt">あと${it.cnt}こ</span>`;b.onclick=()=>useItem(it.id);ir.appendChild(b);});
+  G.items.forEach(it=>{
+    const b=document.createElement('button');b.className='ibtn';
+    b.disabled=it.cnt<=0||G.phase!=='select';
+    b.innerHTML=`<span class="iico">${it.icon}</span><span class="iname">${it.name}</span><span class="icnt">あと${it.cnt}こ</span>`;
+    b.onclick=()=>useItem(it.id);ir.appendChild(b);
+  });
 
+  // ボタン
   const canAct=G.phase==='select'&&G.playerHand.length>0;
   document.getElementById('btn-play').disabled=!canAct||!sel;
   document.getElementById('btn-pass').disabled=!canAct;
 }
-function s(id,prop,val){const el=document.getElementById(id);if(!el)return;if(prop.includes('.')){const[a,b]=prop.split('.');el[a][b]=val;}else el[prop]=val;}
-function log(h){document.getElementById('log-box').innerHTML=h;}
+
+function s(id,prop,val){
+  const el=document.getElementById(id);if(!el)return;
+  if(prop.includes('.')){const[a,b]=prop.split('.');el[a][b]=val;}else el[prop]=val;
+}
 
 // ============================================================
-//  SVGドラゴンカード（各タイプ固有のドラゴンシルエット）
+//  SVGカード描画
 // ============================================================
-function makeDragonCard(d, role, interactive){
-  const t=TYPES[d.type];
-  const W=88,H=124;
-  const lv=d.lv||1;
-  const pow=d.power||d.basePow;
-  const uid=`${d.id}-${role}-${Math.random().toString(36).slice(2,6)}`;
+function makeCard(m, role, interactive){
+  const t=TYPES[m.type];
+  const W=86,H=120;
+  const lv=m.lv||1;
+  const pow=m.power||m.basePow;
 
-  // タイプ別ドラゴンシルエット
-  const dragonPaths={
-    fire:`
-      <!-- 炎ドラゴン：力強い翼と太い首 -->
-      <path d="M${W/2-8},20 C${W/2-18},16 ${W/2-28},22 ${W/2-26},30 C${W/2-24},38 ${W/2-14},42 ${W/2-8},38Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2+8},20 C${W/2+18},16 ${W/2+28},22 ${W/2+26},30 C${W/2+24},38 ${W/2+14},42 ${W/2+8},38Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-5},15 L${W/2-12},8 L${W/2-8},12 L${W/2-14},4 L${W/2-9},10 L${W/2-6},3 L${W/2-3},12Z" fill="${t.col}" opacity=".8"/>
-      <path d="M${W/2+5},15 L${W/2+12},8 L${W/2+8},12 L${W/2+14},4 L${W/2+9},10 L${W/2+6},3 L${W/2+3},12Z" fill="${t.col}" opacity=".8"/>
-      <ellipse cx="${W/2}" cy="30" rx="10" ry="8" fill="${t.col}" opacity=".6"/>
-      <ellipse cx="${W/2-4}" cy="26" rx="2.5" ry="2.5" fill="${t.bg.replace('.15','0.9')}"/>
-      <ellipse cx="${W/2+4}" cy="26" rx="2.5" ry="2.5" fill="${t.bg.replace('.15','0.9')}"/>
-      <path d="M${W/2-18},35 C${W/2-30},30 ${W/2-38},25 ${W/2-42},18 C${W/2-35},15 ${W/2-26},20 ${W/2-20},28Z" fill="${t.col}" opacity=".35"/>
-      <path d="M${W/2+18},35 C${W/2+30},30 ${W/2+38},25 ${W/2+42},18 C${W/2+35},15 ${W/2+26},20 ${W/2+20},28Z" fill="${t.col}" opacity=".35"/>
-      <path d="M${W/2-8},35 C${W/2-12},42 ${W/2-14},50 ${W/2-10},58 L${W/2},60 L${W/2+10},58 C${W/2+14},50 ${W/2+12},42 ${W/2+8},35Z" fill="${t.col}" opacity=".55"/>
-      <path d="M${W/2-10},55 C${W/2-16},60 ${W/2-14},65 ${W/2-8},64 L${W/2},62 L${W/2+8},64 C${W/2+14},65 ${W/2+16},60 ${W/2+10},55Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2-6},62 L${W/2-9},68 L${W/2-3},65Z M${W/2},63 L${W/2-2},70 L${W/2+2},70 L${W/2},63Z M${W/2+6},62 L${W/2+9},68 L${W/2+3},65Z" fill="${t.col}" opacity=".7"/>
-    `,
-    water:`
-      <!-- 水ドラゴン：流線型 -->
-      <path d="M${W/2},12 C${W/2-8},12 ${W/2-14},18 ${W/2-12},26 C${W/2-10},34 ${W/2-4},36 ${W/2},35 C${W/2+4},36 ${W/2+10},34 ${W/2+12},26 C${W/2+14},18 ${W/2+8},12 ${W/2},12Z" fill="${t.col}" opacity=".55"/>
-      <path d="M${W/2-3},8 L${W/2-6},3 L${W/2-2},7Z M${W/2+3},8 L${W/2+6},3 L${W/2+2},7Z" fill="${t.col}" opacity=".7"/>
-      <path d="M${W/2-8},14 C${W/2-18},12 ${W/2-28},15 ${W/2-32},22 C${W/2-26},22 ${W/2-20},20 ${W/2-14},22Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2+8},14 C${W/2+18},12 ${W/2+28},15 ${W/2+32},22 C${W/2+26},22 ${W/2+20},20 ${W/2+14},22Z" fill="${t.col}" opacity=".4"/>
-      <ellipse cx="${W/2-4}" cy="22" rx="2.5" ry="2.5" fill="#80eeff" opacity=".9"/>
-      <ellipse cx="${W/2+4}" cy="22" rx="2.5" ry="2.5" fill="#80eeff" opacity=".9"/>
-      <path d="M${W/2-6},34 C${W/2-10},40 ${W/2-12},48 ${W/2-8},56 L${W/2},58 L${W/2+8},56 C${W/2+12},48 ${W/2+10},40 ${W/2+6},34Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-10},52 C${W/2-16},56 ${W/2-14},64 ${W/2},65 C${W/2+14},64 ${W/2+16},56 ${W/2+10},52Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2-14},60 C${W/2-20},58 ${W/2-24},62 ${W/2-18},66Z M${W/2+14},60 C${W/2+20},58 ${W/2+24},62 ${W/2+18},66Z" fill="${t.col}" opacity=".5"/>
-    `,
-    grass:`
-      <!-- 草ドラゴン：葉のような翼 -->
-      <ellipse cx="${W/2}" cy="28" rx="9" ry="11" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-2},14 L${W/2-5},6 L${W/2},4 L${W/2+5},6 L${W/2+2},14Z" fill="${t.col}" opacity=".75"/>
-      <path d="M${W/2-14},22 C${W/2-26},14 ${W/2-36},20 ${W/2-36},28 C${W/2-28},26 ${W/2-22},24 ${W/2-14},28Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2+14},22 C${W/2+26},14 ${W/2+36},20 ${W/2+36},28 C${W/2+28},26 ${W/2+22},24 ${W/2+14},28Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-14},22 C${W/2-26},14 ${W/2-36},20 ${W/2-36},28" fill="none" stroke="${t.col}" stroke-width=".8" opacity=".6"/>
-      <path d="M${W/2+14},22 C${W/2+26},14 ${W/2+36},20 ${W/2+36},28" fill="none" stroke="${t.col}" stroke-width=".8" opacity=".6"/>
-      <ellipse cx="${W/2-4}" cy="24" rx="2.5" ry="2.5" fill="#c0ffc0" opacity=".9"/>
-      <ellipse cx="${W/2+4}" cy="24" rx="2.5" ry="2.5" fill="#c0ffc0" opacity=".9"/>
-      <path d="M${W/2-6},36 C${W/2-10},44 ${W/2-10},52 ${W/2-6},60 L${W/2},62 L${W/2+6},60 C${W/2+10},52 ${W/2+10},44 ${W/2+6},36Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-8},56 C${W/2-14},60 ${W/2-12},66 ${W/2},67 C${W/2+12},66 ${W/2+14},60 ${W/2+8},56Z" fill="${t.col}" opacity=".4"/>
-    `,
-    elec:`
-      <!-- 雷ドラゴン：鋭角的 -->
-      <path d="M${W/2},10 L${W/2-6},20 L${W/2-2},18 L${W/2-8},32 L${W/2-4},28 L${W/2-10},40 L${W/2},36 L${W/2+10},40 L${W/2+4},28 L${W/2+8},32 L${W/2+2},18 L${W/2+6},20Z" fill="${t.col}" opacity=".6"/>
-      <path d="M${W/2-14},18 C${W/2-26},12 ${W/2-38},16 ${W/2-40},24 L${W/2-28},22 L${W/2-18},26Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2+14},18 C${W/2+26},12 ${W/2+38},16 ${W/2+40},24 L${W/2+28},22 L${W/2+18},26Z" fill="${t.col}" opacity=".4"/>
-      <circle cx="${W/2-3}" cy="22" r="2.5" fill="#fff8a0" opacity=".9"/>
-      <circle cx="${W/2+3}" cy="22" r="2.5" fill="#fff8a0" opacity=".9"/>
-      <path d="M${W/2-5},38 L${W/2-8},48 L${W/2-2},44 L${W/2-6},58 L${W/2},54 L${W/2+6},58 L${W/2+2},44 L${W/2+8},48 L${W/2+5},38Z" fill="${t.col}" opacity=".55"/>
-    `,
-    dark:`
-      <!-- 闇ドラゴン：翼が大きく威圧的 -->
-      <path d="M${W/2},14 C${W/2-6},10 ${W/2-14},14 ${W/2-14},22 C${W/2-14},30 ${W/2-8},34 ${W/2},34 C${W/2+8},34 ${W/2+14},30 ${W/2+14},22 C${W/2+14},14 ${W/2+6},10 ${W/2},14Z" fill="${t.col}" opacity=".55"/>
-      <path d="M${W/2-4},6 C${W/2-10},2 ${W/2-8},4 ${W/2-5},10Z M${W/2+4},6 C${W/2+10},2 ${W/2+8},4 ${W/2+5},10Z" fill="${t.col}" opacity=".8"/>
-      <path d="M${W/2-12},18 C${W/2-26},8 ${W/2-42},10 ${W/2-44},22 C${W/2-40},20 ${W/2-34},16 ${W/2-26},18 C${W/2-32},24 ${W/2-30},30 ${W/2-22},28 C${W/2-18},24 ${W/2-16},20 ${W/2-12},22Z" fill="${t.col}" opacity=".45"/>
-      <path d="M${W/2+12},18 C${W/2+26},8 ${W/2+42},10 ${W/2+44},22 C${W/2+40},20 ${W/2+34},16 ${W/2+26},18 C${W/2+32},24 ${W/2+30},30 ${W/2+22},28 C${W/2+18},24 ${W/2+16},20 ${W/2+12},22Z" fill="${t.col}" opacity=".45"/>
-      <ellipse cx="${W/2-4}" cy="20" rx="3" ry="3" fill="#e0a0ff" opacity=".95"/>
-      <ellipse cx="${W/2+4}" cy="20" rx="3" ry="3" fill="#e0a0ff" opacity=".95"/>
-      <path d="M${W/2-8},32 C${W/2-14},38 ${W/2-14},48 ${W/2-10},56 L${W/2},58 L${W/2+10},56 C${W/2+14},48 ${W/2+14},38 ${W/2+8},32Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-10},52 C${W/2-16},56 ${W/2-18},64 ${W/2},65 C${W/2+18},64 ${W/2+16},56 ${W/2+10},52Z" fill="${t.col}" opacity=".35"/>
-      <path d="M${W/2-14},56 L${W/2-20},50 L${W/2-18},58Z M${W/2+14},56 L${W/2+20},50 L${W/2+18},58Z" fill="${t.col}" opacity=".6"/>
-    `,
-    rock:`
-      <!-- 岩ドラゴン：ずんぐり太い -->
-      <path d="M${W/2},12 C${W/2-10},10 ${W/2-16},16 ${W/2-16},24 C${W/2-16},32 ${W/2-10},36 ${W/2},36 C${W/2+10},36 ${W/2+16},32 ${W/2+16},24 C${W/2+16},16 ${W/2+10},10 ${W/2},12Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-4},6 L${W/2-7},2 L${W/2-2},5Z M${W/2+4},6 L${W/2+7},2 L${W/2+2},5Z M${W/2},5 L${W/2-2},1 L${W/2+2},1 L${W/2},5Z" fill="${t.col}" opacity=".8"/>
-      <path d="M${W/2-14},18 C${W/2-22},14 ${W/2-32},16 ${W/2-32},24 C${W/2-26},22 ${W/2-20},20 ${W/2-14},24Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2+14},18 C${W/2+22},14 ${W/2+32},16 ${W/2+32},24 C${W/2+26},22 ${W/2+20},20 ${W/2+14},24Z" fill="${t.col}" opacity=".4"/>
-      <ellipse cx="${W/2-5}" cy="22" rx="2.5" ry="2.5" fill="#fff0c0" opacity=".9"/>
-      <ellipse cx="${W/2+5}" cy="22" rx="2.5" ry="2.5" fill="#fff0c0" opacity=".9"/>
-      <path d="M${W/2-10},34 C${W/2-14},40 ${W/2-14},50 ${W/2-10},58 L${W/2},60 L${W/2+10},58 C${W/2+14},50 ${W/2+14},40 ${W/2+10},34Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-12},54 C${W/2-18},58 ${W/2-16},64 ${W/2},65 C${W/2+16},64 ${W/2+18},58 ${W/2+12},54Z" fill="${t.col}" opacity=".4"/>
-    `,
-    wind:`
-      <!-- 風ドラゴン：細くすばしこい -->
-      <path d="M${W/2},10 C${W/2-5},10 ${W/2-10},14 ${W/2-10},20 C${W/2-10},26 ${W/2-6},30 ${W/2},30 C${W/2+6},30 ${W/2+10},26 ${W/2+10},20 C${W/2+10},14 ${W/2+5},10 ${W/2},10Z" fill="${t.col}" opacity=".5"/>
-      <path d="M${W/2-3},6 C${W/2-8},2 ${W/2-6},4 ${W/2-3},8Z M${W/2+3},6 C${W/2+8},2 ${W/2+6},4 ${W/2+3},8Z" fill="${t.col}" opacity=".8"/>
-      <path d="M${W/2-8},16 C${W/2-18},8 ${W/2-36},10 ${W/2-40},18 C${W/2-32},16 ${W/2-22},14 ${W/2-14},20Z" fill="${t.col}" opacity=".35"/>
-      <path d="M${W/2+8},16 C${W/2+18},8 ${W/2+36},10 ${W/2+40},18 C${W/2+32},16 ${W/2+22},14 ${W/2+14},20Z" fill="${t.col}" opacity=".35"/>
-      <path d="M${W/2-18},12 C${W/2-30},6 ${W/2-40},12 ${W/2-38},18 C${W/2-32},14 ${W/2-24},12 ${W/2-18},16Z" fill="${t.col}" opacity=".25"/>
-      <path d="M${W/2+18},12 C${W/2+30},6 ${W/2+40},12 ${W/2+38},18 C${W/2+32},14 ${W/2+24},12 ${W/2+18},16Z" fill="${t.col}" opacity=".25"/>
-      <ellipse cx="${W/2-3}" cy="18" rx="2" ry="2" fill="#c0fff0" opacity=".9"/>
-      <ellipse cx="${W/2+3}" cy="18" rx="2" ry="2" fill="#c0fff0" opacity=".9"/>
-      <path d="M${W/2-4},28 C${W/2-7},35 ${W/2-8},46 ${W/2-4},56 L${W/2},58 L${W/2+4},56 C${W/2+8},46 ${W/2+7},35 ${W/2+4},28Z" fill="${t.col}" opacity=".45"/>
-      <path d="M${W/2-8},52 L${W/2-14},60 L${W/2-6},56Z M${W/2+8},52 L${W/2+14},60 L${W/2+6},56Z" fill="${t.col}" opacity=".55"/>
-      <path d="M${W/2-12},56 L${W/2-18},66 L${W/2-10},60Z M${W/2+12},56 L${W/2+18},66 L${W/2+10},60Z" fill="${t.col}" opacity=".4"/>
-    `,
-    ice:`
-      <!-- 氷ドラゴン：結晶状の翼 -->
-      <path d="M${W/2},12 C${W/2-7},10 ${W/2-12},16 ${W/2-12},24 C${W/2-12},32 ${W/2-7},36 ${W/2},36 C${W/2+7},36 ${W/2+12},32 ${W/2+12},24 C${W/2+12},16 ${W/2+7},10 ${W/2},12Z" fill="${t.col}" opacity=".45"/>
-      <path d="M${W/2-2},5 L${W/2-5},0 L${W/2},3 L${W/2+5},0 L${W/2+2},5Z" fill="${t.col}" opacity=".8"/>
-      <path d="M${W/2-10},16 L${W/2-20},10 L${W/2-26},16 L${W/2-20},14 L${W/2-26},20 L${W/2-18},18 L${W/2-22},24 L${W/2-14},22Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2+10},16 L${W/2+20},10 L${W/2+26},16 L${W/2+20},14 L${W/2+26},20 L${W/2+18},18 L${W/2+22},24 L${W/2+14},22Z" fill="${t.col}" opacity=".4"/>
-      <path d="M${W/2-16},14 L${W/2-30},8 L${W/2-36},14 L${W/2-30},12 L${W/2-36},18 L${W/2-28},16 L${W/2-32},22 L${W/2-22},20Z" fill="${t.col}" opacity=".28"/>
-      <path d="M${W/2+16},14 L${W/2+30},8 L${W/2+36},14 L${W/2+30},12 L${W/2+36},18 L${W/2+28},16 L${W/2+32},22 L${W/2+22},20Z" fill="${t.col}" opacity=".28"/>
-      <ellipse cx="${W/2-3}" cy="22" rx="2.5" ry="2.5" fill="#e0f8ff" opacity=".95"/>
-      <ellipse cx="${W/2+3}" cy="22" rx="2.5" ry="2.5" fill="#e0f8ff" opacity=".95"/>
-      <path d="M${W/2-5},34 C${W/2-8},42 ${W/2-8},52 ${W/2-4},60 L${W/2},62 L${W/2+4},60 C${W/2+8},52 ${W/2+8},42 ${W/2+5},34Z" fill="${t.col}" opacity=".45"/>
-      <path d="M${W/2-4},58 L${W/2-8},66 L${W/2-2},62 L${W/2-6},70 M${W/2+4},58 L${W/2+8},66 L${W/2+2},62 L${W/2+6},70" fill="none" stroke="${t.col}" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
-    `,
-  };
+  // タイプ別の背景グラデーション色
+  const [c1,c2]=t.grad;
 
+  // 選択時のグロー色
   const wrap=document.createElement('div');
-  wrap.className=`dcard type-${d.type}${interactive?' ':' no-hover '}`;
+  wrap.className=`mcard type-${m.type}${interactive?' ':'  no-hover '}`;
   wrap.style.setProperty('--sel-glow',t.col);
 
+  // SVGを構築
   const svgNS='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(svgNS,'svg');
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('xmlns',svgNS);
 
-  const [c1,c2]=t.grad;
-  const nameShort=d.name.length>8?d.name.slice(0,8)+'…':d.name;
-
+  // clipPath
   svg.innerHTML=`
     <defs>
-      <clipPath id="cc-${uid}"><rect width="${W}" height="${H}" rx="9"/></clipPath>
-      <linearGradient id="cbg-${uid}" x1="0" y1="0" x2=".6" y2="1">
+      <clipPath id="card-clip-${m.id}-${role}">
+        <rect width="${W}" height="${H}" rx="9"/>
+      </clipPath>
+      <linearGradient id="bg-g-${m.id}-${role}" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="${c1}"/>
         <stop offset="100%" stop-color="${c2}"/>
       </linearGradient>
-      <radialGradient id="cglow-${uid}" cx="50%" cy="38%" r="55%">
-        <stop offset="0%" stop-color="${t.col}" stop-opacity=".22"/>
+      <radialGradient id="art-g-${m.id}-${role}" cx="50%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="${t.col}" stop-opacity=".18"/>
         <stop offset="100%" stop-color="transparent"/>
       </radialGradient>
-      <filter id="cf-${uid}"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <filter id="cs-${uid}"><feGaussianBlur stdDeviation="1.5"/></filter>
+      <filter id="glow-${m.id}-${role}">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
     </defs>
 
     <!-- 背景 -->
-    <rect width="${W}" height="${H}" rx="9" fill="url(#cbg-${uid})" clip-path="url(#cc-${uid})"/>
-    <!-- グロー -->
-    <rect width="${W}" height="${H}" fill="url(#cglow-${uid})" clip-path="url(#cc-${uid})"/>
+    <rect width="${W}" height="${H}" rx="9" fill="url(#bg-g-${m.id}-${role})" clip-path="url(#card-clip-${m.id}-${role})"/>
 
-    <!-- 六角形タイルパターン（薄く） -->
-    <g clip-path="url(#cc-${uid})" opacity=".06" stroke="${t.col}" stroke-width=".4" fill="none">
-      <polygon points="22,8 30,4 38,8 38,16 30,20 22,16"/><polygon points="38,8 46,4 54,8 54,16 46,20 38,16"/>
-      <polygon points="54,8 62,4 70,8 70,16 62,20 54,16"/><polygon points="14,20 22,16 30,20 30,28 22,32 14,28"/>
-      <polygon points="30,20 38,16 46,20 46,28 38,32 30,28"/><polygon points="46,20 54,16 62,20 62,28 54,32 46,28"/>
-      <polygon points="62,20 70,16 78,20 78,28 70,32 62,28"/>
-    </g>
+    <!-- アートエリア背景グロー -->
+    <rect width="${W}" height="72" fill="url(#art-g-${m.id}-${role})" clip-path="url(#card-clip-${m.id}-${role})"/>
 
-    <!-- ドラゴンアート エリア（上3/5） -->
-    <rect x="2" y="2" width="${W-4}" height="70" rx="7" fill="rgba(0,0,0,.3)" clip-path="url(#cc-${uid})"/>
+    <!-- 上部ボーダーライン（タイプカラー） -->
+    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="${t.col}" opacity=".6"/>
 
-    <!-- ドラゴンシルエット（グロー） -->
-    <g filter="url(#cs-${uid})" transform="translate(0,4)" clip-path="url(#cc-${uid})">
-      ${dragonPaths[d.type]||dragonPaths['fire']}
-    </g>
-    <!-- ドラゴンシルエット本体 -->
-    <g transform="translate(0,4)" clip-path="url(#cc-${uid})">
-      ${dragonPaths[d.type]||dragonPaths['fire']}
-    </g>
+    <!-- 下部パネル -->
+    <rect x="0" y="72" width="${W}" height="${H-72}" fill="rgba(0,0,0,.65)" clip-path="url(#card-clip-${m.id}-${role})"/>
 
-    <!-- 区切りライン -->
-    <line x1="6" y1="74" x2="${W-6}" y2="74" stroke="${t.col}" stroke-width=".8" opacity=".5"/>
-
-    <!-- 情報エリア背景 -->
-    <rect x="0" y="74" width="${W}" height="${H-74}" fill="rgba(0,0,0,.55)" clip-path="url(#cc-${uid})"/>
-
-    <!-- カード名 -->
-    <text x="${W/2}" y="84.5" font-size="6.8" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="#ffffff" text-anchor="middle">${nameShort}</text>
-
-    <!-- タイプバッジ -->
-    <rect x="${W/2-16}" y="87" width="32" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
-    <text x="${W/2}" y="94" font-size="6" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="700" fill="${t.col}" text-anchor="middle">${t.icon}${t.name}</text>
-
-    <!-- パワー（大） -->
-    <text x="${W/2}" y="107" font-size="13" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="900" fill="${t.col}" text-anchor="middle" filter="url(#cf-${uid})">⚡${pow}</text>
-
-    <!-- Lvバッジ（右上） -->
-    <rect x="${W-20}" y="3" width="17" height="9" rx="4" fill="rgba(0,0,0,.6)"/>
-    <rect x="${W-20}" y="3" width="17" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
-    <text x="${W-11.5}" y="10" font-size="6.5" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="${t.col}" text-anchor="middle">Lv${lv}</text>
+    <!-- パネルの上ライン -->
+    <line x1="4" y1="72" x2="${W-4}" y2="72" stroke="${t.col}" stroke-width=".8" stroke-opacity=".4"/>
 
     <!-- タイプアイコン（左上） -->
-    <text x="5" y="13" font-size="9" font-family="sans-serif">${t.icon}</text>
+    <text x="5" y="14" font-size="10" font-family="sans-serif" opacity=".9">${t.icon}</text>
 
-    <!-- 特殊スキル -->
-    ${d.special&&d.sdesc?`
-    <rect x="3" y="${H-11}" width="${W-6}" height="9" rx="3" fill="${t.col}" fill-opacity=".18"/>
-    <text x="${W/2}" y="${H-4.5}" font-size="5.8" font-family="'M PLUS Rounded 1c',sans-serif" text-anchor="middle" fill="${t.col}" font-weight="700">${d.sdesc}</text>
+    <!-- パワー（右上） -->
+    <text x="${W-5}" y="13" font-size="9.5" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="${t.col}" text-anchor="end" filter="url(#glow-${m.id}-${role})">${pow}</text>
+
+    <!-- レベルバッジ（右上小） -->
+    <rect x="${W-18}" y="15" width="16" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
+    <text x="${W-10}" y="22.5" font-size="6.5" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="${t.col}" text-anchor="middle">Lv${lv}</text>
+
+    <!-- モンスター絵文字（中央大） -->
+    <text x="${W/2}" y="60" font-size="32" text-anchor="middle" dominant-baseline="middle">${m.icon}</text>
+
+    <!-- カード名 -->
+    <text x="${W/2}" y="81.5" font-size="6.8" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800" fill="#ffffff" text-anchor="middle">${m.name.length>7?m.name.slice(0,7)+'…':m.name}</text>
+
+    <!-- タイプ名 -->
+    <rect x="${W/2-14}" y="85" width="28" height="9" rx="4" fill="${t.col}" fill-opacity=".2"/>
+    <text x="${W/2}" y="92" font-size="6" font-family="'M PLUS Rounded 1c',sans-serif" font-weight="700" fill="${t.col}" text-anchor="middle">${t.icon}${t.name}</text>
+
+    <!-- 特殊スキル（あれば） -->
+    ${m.special?`
+    <rect x="3" y="${H-13}" width="${W-6}" height="10" rx="3" fill="${t.col}" fill-opacity=".15"/>
+    <text x="${W/2}" y="${H-5.5}" font-size="6" font-family="sans-serif" text-anchor="middle" fill="${t.col}" font-weight="700">${SPE[m.special]||''}</text>
     `:''}
 
-    <!-- 上部ボーダーグロー -->
-    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="${t.col}" fill-opacity=".7"/>
-    <!-- コーナーデコ -->
-    <circle cx="5" cy="5" r="2" fill="${t.col}" opacity=".3"/>
-    <circle cx="${W-5}" cy="${H-5}" r="2" fill="${t.col}" opacity=".3"/>
+    <!-- 四隅デコ -->
+    <circle cx="4" cy="4" r="2" fill="${t.col}" opacity=".3"/>
+    <circle cx="${W-4}" cy="${H-4}" r="2" fill="${t.col}" opacity=".3"/>
   `;
 
   wrap.appendChild(svg);
@@ -1368,138 +1075,229 @@ function makeDragonCard(d, role, interactive){
 }
 
 function makeBackCard(){
-  const W=88,H=124;
-  const wrap=document.createElement('div');wrap.className='dcard back-card no-hover';
-  const svgNS='http://www.w3.org/2000/svg';const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const W=86,H=120;
+  const wrap=document.createElement('div');
+  wrap.className='mcard back-card no-hover';
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   svg.innerHTML=`
     <defs>
-      <clipPath id="bk"><rect width="${W}" height="${H}" rx="9"/></clipPath>
-      <linearGradient id="bkg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0c0818"/><stop offset="100%" stop-color="#060410"/></linearGradient>
+      <pattern id="hex" x="0" y="0" width="14" height="16" patternUnits="userSpaceOnUse">
+        <polygon points="7,1 13,4 13,12 7,15 1,12 1,4" fill="none" stroke="rgba(255,255,255,.07)" stroke-width=".8"/>
+      </pattern>
+      <clipPath id="back-clip"><rect width="${W}" height="${H}" rx="9"/></clipPath>
     </defs>
-    <rect width="${W}" height="${H}" rx="9" fill="url(#bkg)"/>
-    <g clip-path="url(#bk)" opacity=".08" stroke="#ff6020" stroke-width=".6" fill="none">
-      <polygon points="22,8 30,4 38,8 38,16 30,20 22,16"/><polygon points="38,8 46,4 54,8 54,16 46,20 38,16"/>
-      <polygon points="54,8 62,4 70,8 70,16 62,20 54,16"/><polygon points="14,20 22,16 30,20 30,28 22,32 14,28"/>
-      <polygon points="30,20 38,16 46,20 46,28 38,32 30,28"/><polygon points="46,20 54,16 62,20 62,28 54,32 46,28"/>
-      <polygon points="62,20 70,16 78,20 78,28 70,32 62,28"/><polygon points="22,32 30,28 38,32 38,40 30,44 22,40"/>
-      <polygon points="38,32 46,28 54,32 54,40 46,44 38,40"/><polygon points="54,32 62,28 70,32 70,40 62,44 54,40"/>
-    </g>
-    <!-- ドラゴンシール -->
-    <circle cx="${W/2}" cy="${H/2}" r="24" fill="rgba(255,96,20,.06)" stroke="rgba(255,96,20,.2)" stroke-width="1"/>
-    <text x="${W/2}" y="${H/2+14}" font-size="28" text-anchor="middle">🐉</text>
-    <text x="${W/2}" y="${H/2-10}" font-size="7" font-family="'Cinzel Decorative',serif" text-anchor="middle" fill="rgba(255,150,60,.5)">DRAGON</text>
-    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="rgba(255,96,20,.5)"/>
-    <rect x="0" y="${H-2}" width="${W}" height="2" rx="1" fill="rgba(255,96,20,.5)"/>
-    <circle cx="5" cy="5" r="2" fill="rgba(255,96,20,.3)"/><circle cx="${W-5}" cy="${H-5}" r="2" fill="rgba(255,96,20,.3)"/>
+    <rect width="${W}" height="${H}" rx="9" fill="#0a0b1e"/>
+    <rect width="${W}" height="${H}" fill="url(#hex)" clip-path="url(#back-clip)"/>
+    <rect x="0" y="0" width="${W}" height="2" rx="1" fill="rgba(155,93,229,.5)"/>
+    <rect x="0" y="${H-2}" width="${W}" height="2" rx="1" fill="rgba(155,93,229,.5)"/>
+    <text x="${W/2}" y="${H/2+8}" font-size="28" text-anchor="middle">❓</text>
+    <text x="${W/2}" y="${H-7}" font-size="7" font-family="sans-serif" fill="rgba(155,93,229,.5)" text-anchor="middle">MONSTER</text>
   `;
-  wrap.appendChild(svg);return wrap;
+  wrap.appendChild(svg);
+  return wrap;
 }
 
 // ============================================================
 //  デッキ編集
 // ============================================================
-let deckFilter='all',tempDeck=[];
-function openDeck(){tempDeck=[...SAVE.deck];renderDeck();document.getElementById('deck-modal').classList.remove('hidden');}
+let deckFilter='all';
+let tempDeck=[];
+
+function openDeckBuilder(){
+  tempDeck=[...SAVE.deck];
+  renderDeckBuilder();
+  document.getElementById('deck-modal').classList.remove('hidden');
+}
 function closeDeck(){document.getElementById('deck-modal').classList.add('hidden');}
-function renderDeck(){
-  const tf=document.getElementById('type-filter');tf.innerHTML='';
-  [{k:'all',label:'すべて',col:'#aaa'},...Object.entries(TYPES).map(([k,v])=>({k,label:v.icon+v.name,col:v.col}))].forEach(f=>{
-    const b=document.createElement('button');b.className=`tf-btn${deckFilter===f.k?' active':''}`;
-    b.textContent=f.label;b.style.color=f.col;b.style.borderColor=f.col;
-    b.onclick=()=>{deckFilter=f.k;renderDeck();};tf.appendChild(b);
+
+function renderDeckBuilder(){
+  // タイプフィルター
+  const tf=document.getElementById('type-filter');
+  tf.innerHTML='';
+  const filters=[{k:'all',label:'すべて',col:'#aaa'},...Object.entries(TYPES).map(([k,v])=>({k,label:v.icon+v.name,col:v.col}))];
+  filters.forEach(f=>{
+    const b=document.createElement('button');
+    b.className=`tf-btn${deckFilter===f.k?' active':''}`;
+    b.textContent=f.label;
+    b.style.color=f.col;b.style.borderColor=f.col;
+    b.onclick=()=>{deckFilter=f.k;renderDeckBuilder();};
+    tf.appendChild(b);
   });
-  document.getElementById('deck-cnt').textContent=tempDeck.length;
-  const filtered=deckFilter==='all'?DRAGONS:DRAGONS.filter(d=>d.type===deckFilter);
-  const col=document.getElementById('db-col');col.innerHTML='';
-  filtered.forEach(d=>{
-    const inDeck=tempDeck.filter(id=>id===d.id).length;
-    const lv=cardLv(d.id);const pow=cardPow(d.id);
-    const row=document.createElement('div');row.className=`db-row${inDeck>0?' in-deck':''}`;
-    row.innerHTML=`<div class="db-icon">🐉</div><div class="db-info"><div class="db-name">${d.name}</div><div class="db-meta"><span style="color:${TYPES[d.type].col}">${TYPES[d.type].icon}${TYPES[d.type].name}</span> <span style="color:var(--green)">⚡${pow}</span> <span style="color:var(--gold)">Lv.${lv}</span>${d.sdesc?` <span style="color:var(--gold);font-size:.52rem">${d.sdesc}</span>`:''}</div></div><button class="db-add add" onclick="addDeck('${d.id}')">＋</button>`;
+
+  // コレクション
+  const col=document.getElementById('db-collection');col.innerHTML='';
+  const filtered=deckFilter==='all'?MASTER:MASTER.filter(m=>m.type===deckFilter);
+  filtered.forEach(m=>{
+    const inDeck=tempDeck.filter(id=>id===m.id).length;
+    const lv=cardLv(m.id);
+    const pow=cardPow(m.id);
+    const row=document.createElement('div');
+    row.className=`db-row${inDeck>0?' in-deck':''}`;
+    row.innerHTML=`
+      <div class="db-icon">${m.icon}</div>
+      <div class="db-info">
+        <div class="db-name">${m.name}</div>
+        <div class="db-meta">
+          <span style="color:${TYPES[m.type].col}">${TYPES[m.type].icon}${TYPES[m.type].name}</span>
+          <span class="db-pow"> ⚡${pow}</span>
+          <span class="db-lv"> Lv.${lv}</span>
+          ${m.special?`<span style="color:var(--gold);font-size:.55rem"> ${SPE[m.special]||''}</span>`:''}
+        </div>
+      </div>
+      <button class="db-add add" onclick="addToDeck('${m.id}')">＋</button>
+    `;
     col.appendChild(row);
   });
-  const dl=document.getElementById('db-deck');dl.innerHTML='';
-  if(tempDeck.length===0){dl.innerHTML='<div style="font-size:.72rem;color:var(--dim);text-align:center;padding:12px">まだカードなし</div>';return;}
+
+  // デッキリスト
+  const dl=document.getElementById('db-deck-list');dl.innerHTML='';
+  document.getElementById('deck-cnt').textContent=tempDeck.length;
+
+  if(tempDeck.length===0){
+    dl.innerHTML='<div style="font-size:.72rem;color:var(--dim);text-align:center;padding:12px">まだカードがありません</div>';
+  }
+  // ID集計
   const counts={};tempDeck.forEach(id=>{counts[id]=(counts[id]||0)+1;});
   Object.entries(counts).forEach(([id,cnt])=>{
-    const d=DRAGONS.find(x=>x.id===id);if(!d)return;
+    const m=MASTER.find(x=>x.id===id);if(!m) return;
     const pow=cardPow(id);const lv=cardLv(id);
-    const row=document.createElement('div');row.className='db-row in-deck';
-    row.innerHTML=`<div class="db-icon">🐉</div><div class="db-info"><div class="db-name">${d.name} ×${cnt}</div><div class="db-meta"><span style="color:${TYPES[d.type].col}">${TYPES[d.type].icon}</span> <span style="color:var(--green)">⚡${pow}</span> <span style="color:var(--gold)">Lv.${lv}</span></div></div><button class="db-add remove" onclick="remDeck('${id}')">－</button>`;
+    const row=document.createElement('div');
+    row.className='db-row in-deck';
+    row.innerHTML=`
+      <div class="db-icon">${m.icon}</div>
+      <div class="db-info">
+        <div class="db-name">${m.name} ×${cnt}</div>
+        <div class="db-meta">
+          <span style="color:${TYPES[m.type].col}">${TYPES[m.type].icon}</span>
+          <span class="db-pow"> ⚡${pow}</span>
+          <span class="db-lv"> Lv.${lv}</span>
+        </div>
+      </div>
+      <button class="db-add remove" onclick="removeFromDeck('${id}')">－</button>
+    `;
     dl.appendChild(row);
   });
 }
-function addDeck(id){if(tempDeck.length>=12){alert('デッキは12まいまでだよ！');return;}tempDeck.push(id);renderDeck();}
-function remDeck(id){const i=tempDeck.lastIndexOf(id);if(i!==-1){tempDeck.splice(i,1);renderDeck();}}
-function saveDeck(){if(tempDeck.length<4){alert('4まい以上いれてね！');return;}SAVE.deck=[...tempDeck];writeSave();closeDeck();log(`✅ デッキを保存したよ！（${SAVE.deck.length}まい）`);}
+
+function addToDeck(id){
+  if(tempDeck.length>=12){alert('デッキは12まいまでだよ！');return;}
+  tempDeck.push(id);renderDeckBuilder();
+}
+function removeFromDeck(id){
+  const i=tempDeck.lastIndexOf(id);
+  if(i!==-1){tempDeck.splice(i,1);renderDeckBuilder();}
+}
+function saveDeck(){
+  if(tempDeck.length<4){alert('デッキは4まい以上いれてね！');return;}
+  SAVE.deck=[...tempDeck];writeSave();closeDeck();
+  log(`✅ デッキを保存したよ！（${SAVE.deck.length}まい）`);
+}
 
 // ============================================================
 //  カード強化
 // ============================================================
-function openCollection(){renderCollection();document.getElementById('col-modal').classList.remove('hidden');}
+function openCollection(){
+  renderCollection();
+  document.getElementById('col-modal').classList.remove('hidden');
+}
 function closeCollection(){document.getElementById('col-modal').classList.add('hidden');}
+
 function renderCollection(){
   document.getElementById('col-gold').textContent=SAVE.gold;
   const grid=document.getElementById('col-grid');grid.innerHTML='';
-  DRAGONS.forEach(d=>{
-    const lv=cardLv(d.id);const exp=cardExp(d.id);const maxLv=4;
-    const expMx=cardExpMax(d.id);const pow=cardPow(d.id);const upgCost=lv*20;
-    const canUpg=lv<maxLv&&SAVE.gold>=upgCost;const pct=lv>=maxLv?100:(exp/expMx*100).toFixed(0);
-    const wrap=document.createElement('div');wrap.className='col-wrap';
-    const cardEl=makeDragonCard({...d,power:pow,lv},'col',false);cardEl.classList.add('no-hover');
+  MASTER.forEach(m=>{
+    const lv=cardLv(m.id);
+    const exp=cardExp(m.id);
+    const maxLv=4;
+    const expMx=cardExpMax(m.id);
+    const pow=cardPow(m.id);
+    const upgCost=lv*20;
+    const canUpg=lv<maxLv&&SAVE.gold>=upgCost;
+    const pct=lv>=maxLv?100:(exp/expMx*100).toFixed(0);
+
+    const wrap=document.createElement('div');
+    wrap.className='col-card-wrap';
+
+    // ミニカード
+    const cardEl=makeCard({...m,power:pow,lv},'col',false);
+    cardEl.style.width='86px';cardEl.style.height='120px';
+    cardEl.classList.add('no-hover');
     wrap.appendChild(cardEl);
-    const info=document.createElement('div');info.className='col-lv-info';
+
+    // Lvバー
+    const info=document.createElement('div');
+    info.className='col-lv-info';
     info.innerHTML=`<span style="color:var(--gold);font-weight:800">Lv.${lv}</span> <span style="color:var(--dim);font-size:.6rem">⚡${pow}</span>`;
     wrap.appendChild(info);
-    const eb=document.createElement('div');eb.className='col-exp-bar';const ef=document.createElement('div');ef.className='col-exp-fill';ef.style.width=pct+'%';eb.appendChild(ef);wrap.appendChild(eb);
-    const ub=document.createElement('button');ub.className='col-upg-btn';
-    if(lv>=maxLv){ub.textContent='MAX！';ub.disabled=true;}
-    else{ub.innerHTML=`Lvアップ<br><span style="font-size:.52rem">💰${upgCost}G</span>`;ub.disabled=!canUpg;ub.onclick=()=>upgradeCard(d.id);}
-    wrap.appendChild(ub);grid.appendChild(wrap);
+
+    const expBar=document.createElement('div');expBar.className='col-exp-bar';
+    const expFill=document.createElement('div');expFill.className='col-exp-fill';
+    expFill.style.width=pct+'%';expBar.appendChild(expFill);wrap.appendChild(expBar);
+
+    const upgBtn=document.createElement('button');
+    upgBtn.className='col-upgrade-btn';
+    if(lv>=maxLv){
+      upgBtn.textContent='MAX！';upgBtn.disabled=true;
+    }else{
+      upgBtn.innerHTML=`Lvアップ<br><span style="font-size:.55rem">💰${upgCost}G</span>`;
+      upgBtn.disabled=!canUpg;
+      upgBtn.onclick=()=>upgradeCard(m.id);
+    }
+    wrap.appendChild(upgBtn);
+    grid.appendChild(wrap);
   });
 }
+
 function upgradeCard(id){
-  const lv=cardLv(id);const cost=lv*20;
-  if(SAVE.gold<cost){alert(`ゴールドが足りない！\n必要：${cost}G　持ち：${SAVE.gold}G`);return;}
-  if(lv>=4){alert('もうMAX！');return;}
-  SAVE.gold-=cost;SAVE.cardLevels[id].lv++;SAVE.cardLevels[id].exp=0;writeSave();
-  float('Lv UP!','var(--gold)');renderCollection();
-  log(`⭐ <b style="color:var(--gold)">${DRAGONS.find(d=>d.id===id)?.name}</b> が Lv.${cardLv(id)} になった！ こうげき+2！`);
+  const lv=cardLv(id);
+  const cost=lv*20;
+  if(SAVE.gold<cost){alert(`ゴールドが足りないよ！\n必要：${cost}G　持っている：${SAVE.gold}G`);return;}
+  if(lv>=4){alert('もうMAXレベルだよ！');return;}
+  SAVE.gold-=cost;
+  SAVE.cardLevels[id].lv++;
+  SAVE.cardLevels[id].exp=0;
+  writeSave();
+  float('Lv UP!','var(--gold)');
+  renderCollection();
+  log(`⭐ <b style="color:var(--gold)">${MASTER.find(m=>m.id===id)?.name}</b> が Lv.${cardLv(id)} になった！ こうげき+2！`);
 }
 
 // ============================================================
 //  オーバーレイ・モーダル
 // ============================================================
 function showOverlay(r){
-  const ov=document.getElementById('g-overlay');ov.classList.remove('hidden');
-  const t=document.getElementById('ov-title');const sb=document.getElementById('ov-sub');const st=document.getElementById('ov-stats');
-  if(r==='win'){t.textContent='🏆 VICTORY!';t.className='ov-title win';sb.textContent=G.enemyName+'をたおした！';}
-  else if(r==='lose'){t.textContent='💀 DEFEATED…';t.className='ov-title lose';sb.textContent='またちょうせんしよう！';}
-  else{t.textContent='🤝 DRAW';t.className='ov-title';sb.textContent='どちらも全力をつくした！';}
-  st.innerHTML=`ラウンド：<b>${G.round}</b>　ダメージ：<b>${G.stats.dmgDealt}</b>　回復：<b>${G.stats.healed}HP</b>　Lv：<b>${G.playerLv}</b>`;
+  const ov=document.getElementById('g-overlay');
+  const t=document.getElementById('ov-title');
+  const sb=document.getElementById('ov-sub');
+  const st=document.getElementById('ov-stats');
+  ov.classList.remove('hidden');
+  if(r==='win'){t.textContent='🏆 しょうり！';t.className='ov-title win';sb.textContent=G.enemyName+'をたおした！すごい！';}
+  else if(r==='lose'){t.textContent='💀 やられた…';t.className='ov-title lose';sb.textContent='またちょうせんしよう！';}
+  else{t.textContent='🤝 ひきわけ！';t.className='ov-title';sb.textContent='どちらも全力をつくした！';}
+  st.innerHTML=`ラウンド：<b>${G.round}</b>　ダメージ：<b>${G.stats.dmgDealt}</b>　かいふく：<b>${G.stats.healed}HP</b>　Lv：<b>${G.playerLv}</b>`;
 }
 function closeOverlay(){document.getElementById('g-overlay').classList.add('hidden');}
 function openRules(){document.getElementById('rules-modal').classList.remove('hidden');}
 function closeRules(){document.getElementById('rules-modal').classList.add('hidden');}
+function log(h){document.getElementById('log-box').innerHTML=h;}
 
 // ============================================================
-//  炎パーティクル
+//  星
 // ============================================================
 (()=>{
-  const c=document.getElementById('embers');
-  for(let i=0;i<20;i++){
-    const el=document.createElement('div');el.className='ember';
-    const sz=Math.random()*4+2;const x=Math.random()*100;const dx=(Math.random()-0.5)*200;
-    const dur=4+Math.random()*6;const delay=Math.random()*8;
-    const hue=Math.random()<0.5?`hsl(${20+Math.random()*20},100%,${60+Math.random()*20}%)`:
-      `hsl(${200+Math.random()*20},100%,${60+Math.random()*20}%)`;
-    el.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;bottom:-10px;background:${hue};--dx:${dx}px;animation-duration:${dur}s;animation-delay:${delay}s;box-shadow:0 0 ${sz*2}px ${hue};`;
+  const c=document.getElementById('stars');
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');el.className='star';
+    const sz=Math.random()*2+.4;
+    el.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*3}s;`;
     c.appendChild(el);
   }
 })();
 
 // ============================================================
-//  スタート
+//  初期化
 // ============================================================
 newGame();
 </script>
