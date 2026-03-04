@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOID CARDS — 深淵のカード</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #030309;
+    --abyss: #08080f;
+    --deep: #0d0d1a;
+    --card-bg: #111120;
+    --card-border: #2a2a4a;
+    --accent: #7b4fff;
+    --accent-glow: #9d6fff;
+    --blood: #c0392b;
+    --gold: #c9a84c;
+    --silver: #8a9bb0;
+    --text: #d0d4e8;
+    --dim: #5a5e7a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(123,79,255,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 0% 100%, rgba(192,57,43,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 100% 50%, rgba(123,79,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    padding: 24px 0 16px;
+    width: 100%;
+  }
+
+  .game-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, var(--gold) 0%, #fff 50%, var(--accent-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 20px rgba(123,79,255,0.4));
+  }
+
+  .game-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    color: var(--dim);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 720px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    margin: 12px 0;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-block {
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .stat-value.hp { color: var(--blood); }
+  .stat-value.mana { color: var(--accent-glow); }
+  .stat-value.gold { color: var(--gold); }
+
+  /* HP BAR */
+  .hp-bar-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 8px;
+  }
+
+  .hp-bar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .hp-bar-label { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--dim); }
+
+  .hp-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blood), #e74c3c);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    position: relative;
+  }
+
+  .hp-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ENEMY AREA */
+  .arena {
+    width: 100%;
+    max-width: 720px;
+    margin: 8px 0;
+  }
+
+  .enemy-zone {
+    background: rgba(8,8,15,0.8);
+    border: 1px solid rgba(192,57,43,0.2);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .enemy-zone::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(192,57,43,0.5), transparent);
+  }
+
+  .zone-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .enemy-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .enemy-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.9rem;
+    color: var(--blood);
+    text-shadow: 0 0 12px rgba(192,57,43,0.5);
+  }
+
+  .enemy-hp-text {
+    font-size: 0.85rem;
+    color: var(--blood);
+    font-weight: 600;
+  }
+
+  .enemy-hand {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    min-height: 80px;
+    align-items: center;
+  }
+
+  /* BATTLEFIELD */
+  .battlefield {
+    background: rgba(8,8,15,0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+  }
+
+  .battlefield-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  /* PLAYER ZONE */
+  .player-zone {
+    background: rgba(8,8,15,0.8);
+    border: 1px solid rgba(123,79,255,0.2);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .player-zone::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(123,79,255,0.5), transparent);
+  }
+
+  .player-hand {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 100px;
+    align-items: center;
+  }
+
+  /* CARDS */
+  .card {
+    width: 62px;
+    height: 90px;
+    border-radius: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .card:hover:not(.enemy-card):not(.battlefield-card) {
+    transform: translateY(-12px) scale(1.05);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px rgba(123,79,255,0.3);
+  }
+
+  .card.selected {
+    transform: translateY(-16px) scale(1.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 30px rgba(123,79,255,0.6);
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .card.selected .card-inner {
+    border-color: var(--accent);
+    background: linear-gradient(145deg, #15152a, #0d0d1a);
+  }
+
+  .card.enemy-card .card-inner {
+    border-color: rgba(192,57,43,0.3);
+    background: linear-gradient(145deg, #1a0808, #0d0808);
+  }
+
+  .card.back .card-inner {
+    background: repeating-linear-gradient(
+      45deg,
+      #0d0d1a,
+      #0d0d1a 4px,
+      #111124 4px,
+      #111124 8px
+    );
+    border-color: var(--card-border);
+  }
+
+  .card-corner {
+    font-size: 0.55rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    color: var(--text);
+  }
+
+  .card-corner.bottom {
+    transform: rotate(180deg);
+  }
+
+  .card-suit {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .card-power {
+    position: absolute;
+    bottom: 3px;
+    right: 4px;
+    font-size: 0.6rem;
+    color: var(--accent-glow);
+    font-weight: 600;
+  }
+
+  .card.suit-♠ .card-suit,
+  .card.suit-♣ .card-suit { color: #8a9ec0; }
+
+  .card.suit-♥ .card-inner,
+  .card.suit-♦ .card-inner { background: linear-gradient(145deg, #1a0d0d, #110808); }
+
+  .card.suit-♥ .card-corner,
+  .card.suit-♦ .card-corner,
+  .card.suit-♥ .card-suit,
+  .card.suit-♦ .card-suit { color: #c0392b; }
+
+  /* Battlefield cards */
+  .battlefield-card {
+    cursor: default;
+  }
+
+  .battlefield-card.player-played .card-inner {
+    border-color: rgba(123,79,255,0.5);
+    box-shadow: 0 0 15px rgba(123,79,255,0.2);
+  }
+
+  .battlefield-card.enemy-played .card-inner {
+    border-color: rgba(192,57,43,0.5);
+    box-shadow: 0 0 15px rgba(192,57,43,0.2);
+  }
+
+  /* VS indicator */
+  .vs-indicator {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.9rem;
+    color: var(--dim);
+    text-shadow: 0 0 10px rgba(123,79,255,0.3);
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border-radius: 3px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn:hover::before { opacity: 0.08; }
+  .btn:active::before { opacity: 0.15; }
+
+  .btn-primary {
+    color: var(--accent-glow);
+    border-color: var(--accent);
+    text-shadow: 0 0 10px rgba(123,79,255,0.5);
+    box-shadow: 0 0 15px rgba(123,79,255,0.1);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 25px rgba(123,79,255,0.3), inset 0 0 15px rgba(123,79,255,0.05);
+  }
+
+  .btn-danger {
+    color: var(--blood);
+    border-color: rgba(192,57,43,0.6);
+  }
+
+  .btn-danger:hover {
+    box-shadow: 0 0 20px rgba(192,57,43,0.2);
+  }
+
+  .btn-ghost {
+    color: var(--dim);
+    border-color: rgba(255,255,255,0.08);
+    font-size: 0.7rem;
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* MESSAGE LOG */
+  .message-log {
+    width: 100%;
+    max-width: 720px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 4px;
+    padding: 10px 14px;
+    min-height: 40px;
+    font-size: 0.78rem;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .message-log .msg-new {
+    color: var(--text);
+  }
+
+  .message-log .msg-win { color: var(--gold); }
+  .message-log .msg-lose { color: var(--blood); }
+  .message-log .msg-info { color: var(--accent-glow); }
+
+  /* OVERLAY */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,3,9,0.92);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .overlay.hidden { display: none; }
+
+  .overlay-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    margin-bottom: 12px;
+  }
+
+  .overlay-title.win { color: var(--gold); text-shadow: 0 0 30px rgba(201,168,76,0.5); }
+  .overlay-title.lose { color: var(--blood); text-shadow: 0 0 30px rgba(192,57,43,0.5); }
+
+  .overlay-sub {
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    margin-bottom: 32px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes dealIn {
+    from { transform: translateY(-30px) scale(0.8); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(123,79,255,0.2); }
+    50% { box-shadow: 0 0 25px rgba(123,79,255,0.5); }
+  }
+
+  .card-deal { animation: dealIn 0.3s ease forwards; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    60% { transform: translateX(6px); }
+    80% { transform: translateX(-3px); }
+  }
+
+  .shake { animation: shake 0.4s ease; }
+
+  /* DECK counter */
+  .deck-info {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* Round indicator */
+  .round-badge {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--dim);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 3px 12px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="game-title">VOID CARDS</div>
+    <div class="game-subtitle">深淵のカード対決</div>
+  </header>
+
+  <div class="status-bar">
+    <div class="stat-block">
+      <div class="stat-label">PLAYER HP</div>
+      <div class="stat-value hp" id="player-hp">20</div>
+    </div>
+    <div class="round-badge" id="round-label">ROUND 1</div>
+    <div class="stat-block">
+      <div class="stat-label">ENEMY HP</div>
+      <div class="stat-value hp" id="enemy-hp">20</div>
+    </div>
+  </div>
+
+  <div class="arena">
+
+    <!-- Enemy Zone -->
+    <div class="enemy-zone">
+      <div class="zone-label">■ ENEMY</div>
+      <div class="enemy-info">
+        <div class="enemy-name" id="enemy-name">SHADOW DEMON</div>
+        <div class="enemy-hp-text" id="enemy-hp-bar-label">HP: 20 / 20</div>
+      </div>
+      <div class="enemy-hand" id="enemy-hand"></div>
+      <div class="deck-info" id="enemy-deck-info">Hand: 0 cards</div>
+    </div>
+
+    <!-- Battlefield -->
+    <div class="battlefield">
+      <div class="battlefield-label">BATTLEFIELD</div>
+      <div id="player-played-slot" style="display:flex;gap:8px;align-items:center;"></div>
+      <div class="vs-indicator" id="vs-text" style="display:none;">VS</div>
+      <div id="enemy-played-slot" style="display:flex;gap:8px;align-items:center;"></div>
+    </div>
+
+    <!-- Player Zone -->
+    <div class="player-zone">
+      <div class="zone-label">■ YOU</div>
+      <div class="player-hand" id="player-hand"></div>
+      <div class="deck-info" id="player-deck-info">Hand: 0 cards</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-primary" id="btn-play" onclick="playCard()" disabled>PLAY CARD</button>
+    <button class="btn btn-ghost" id="btn-pass" onclick="passTurn()" disabled>PASS</button>
+    <button class="btn btn-danger" onclick="newGame()">NEW GAME</button>
+  </div>
+
+  <!-- Message Log -->
+  <div class="message-log" id="message-log">ゲームを開始してください。</div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay hidden" id="overlay">
+  <div class="overlay-title" id="overlay-title">VICTORY</div>
+  <div class="overlay-sub" id="overlay-sub">暗闇を制した</div>
+  <button class="btn btn-primary" onclick="newGame()" style="margin-top:16px;">PLAY AGAIN</button>
+</div>
+
+<script>
+// ============ GAME ENGINE ============
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RANK_VALUE = { A:14, '2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10, J:11, Q:12, K:13 };
+
+let state = {};
+let selectedCard = null;
+
+function createDeck() {
+  const deck = [];
+  for (const suit of SUITS)
+    for (const rank of RANKS)
+      deck.push({ suit, rank, value: RANK_VALUE[rank] });
+  return shuffle(deck);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const ENEMIES = [
+  { name: 'SHADOW DEMON', hp: 20 },
+  { name: 'VOID KNIGHT', hp: 24 },
+  { name: 'DARK ORACLE', hp: 22 },
+  { name: 'NIGHTMARE KING', hp: 28 },
+];
+
+function newGame() {
+  const enemy = ENEMIES[Math.floor(Math.random() * ENEMIES.length)];
+  const deck = createDeck();
+  state = {
+    deck,
+    playerHand: [],
+    enemyHand: [],
+    playerHP: 20,
+    enemyHP: enemy.hp,
+    enemyMaxHP: enemy.hp,
+    enemyName: enemy.name,
+    round: 1,
+    phase: 'deal', // deal | select | resolve | gameover
+    playerPlayed: null,
+    enemyPlayed: null,
+  };
+  selectedCard = null;
+  hideOverlay();
+  dealHands();
+  render();
+  log(`<span class="msg-info">⚔ ${enemy.name} が現れた！カードを選んで戦え。</span>`);
+}
+
+function dealHands() {
+  // Deal 5 cards each
+  for (let i = 0; i < 5; i++) {
+    if (state.deck.length) state.playerHand.push(state.deck.pop());
+    if (state.deck.length) state.enemyHand.push(state.deck.pop());
+  }
+  state.phase = 'select';
+  state.playerPlayed = null;
+  state.enemyPlayed = null;
+}
+
+function playCard() {
+  if (!selectedCard || state.phase !== 'select') return;
+  const idx = state.playerHand.indexOf(selectedCard);
+  if (idx === -1) return;
+
+  state.playerPlayed = selectedCard;
+  state.playerHand.splice(idx, 1);
+
+  // Enemy picks random card
+  const ei = Math.floor(Math.random() * state.enemyHand.length);
+  state.enemyPlayed = state.enemyHand[ei];
+  state.enemyHand.splice(ei, 1);
+
+  state.phase = 'resolve';
+  selectedCard = null;
+  render();
+
+  setTimeout(resolveRound, 800);
+}
+
+function passTurn() {
+  if (state.phase !== 'select') return;
+  // Enemy attacks with strongest card
+  state.enemyHand.sort((a, b) => b.value - a.value);
+  state.enemyPlayed = state.enemyHand.shift();
+  state.playerPlayed = null;
+  state.phase = 'resolve';
+  render();
+  setTimeout(resolveRound, 800);
+}
+
+function resolveRound() {
+  const pp = state.playerPlayed;
+  const ep = state.enemyPlayed;
+
+  if (!pp && ep) {
+    // Player passed - take damage
+    const dmg = Math.ceil(ep.value / 3);
+    state.playerHP -= dmg;
+    log(`<span class="msg-lose">パス：${ep.rank}${ep.suit} (${ep.value}) の攻撃を受けた！ -${dmg} HP</span>`);
+  } else if (pp && ep) {
+    if (pp.value > ep.value) {
+      const dmg = Math.ceil((pp.value - ep.value) / 2) + 1;
+      state.enemyHP -= dmg;
+      log(`<span class="msg-win">勝利！${pp.rank}${pp.suit}(${pp.value}) > ${ep.rank}${ep.suit}(${ep.value}) → 敵に -${dmg} HP</span>`);
+    } else if (ep.value > pp.value) {
+      const dmg = Math.ceil((ep.value - pp.value) / 2) + 1;
+      state.playerHP -= dmg;
+      log(`<span class="msg-lose">敗北…${ep.rank}${ep.suit}(${ep.value}) > ${pp.rank}${pp.suit}(${pp.value}) → 自分に -${dmg} HP</span>`);
+    } else {
+      log(`<span class="msg-info">引き分け！両者ノーダメージ。</span>`);
+    }
+  }
+
+  state.playerHP = Math.max(0, state.playerHP);
+  state.enemyHP = Math.max(0, state.enemyHP);
+
+  // Check game over
+  if (state.playerHP <= 0 && state.enemyHP <= 0) {
+    state.phase = 'gameover';
+    render();
+    showOverlay('draw');
+    return;
+  }
+  if (state.playerHP <= 0) {
+    state.phase = 'gameover';
+    render();
+    showOverlay('lose');
+    return;
+  }
+  if (state.enemyHP <= 0) {
+    state.phase = 'gameover';
+    render();
+    showOverlay('win');
+    return;
+  }
+
+  // Next round
+  state.round++;
+  state.phase = 'deal';
+
+  // Replenish hands
+  const pNeed = 5 - state.playerHand.length;
+  const eNeed = 5 - state.enemyHand.length;
+  for (let i = 0; i < Math.max(pNeed, eNeed); i++) {
+    if (i < pNeed && state.deck.length) state.playerHand.push(state.deck.pop());
+    if (i < eNeed && state.deck.length) state.enemyHand.push(state.deck.pop());
+  }
+
+  // If deck empty, reshuffle
+  if (state.deck.length === 0 && (state.playerHand.length < 2 || state.enemyHand.length < 2)) {
+    state.deck = createDeck();
+    log(`<span class="msg-info">デッキを再シャッフルした。</span>`);
+    for (let i = 0; i < 3; i++) {
+      if (state.playerHand.length < 5 && state.deck.length) state.playerHand.push(state.deck.pop());
+      if (state.enemyHand.length < 5 && state.deck.length) state.enemyHand.push(state.deck.pop());
+    }
+  }
+
+  state.phase = 'select';
+  render();
+}
+
+// ============ RENDER ============
+function render() {
+  // Stats
+  document.getElementById('player-hp').textContent = state.playerHP;
+  document.getElementById('enemy-hp').textContent = state.enemyHP;
+  document.getElementById('round-label').textContent = `ROUND ${state.round}`;
+  document.getElementById('enemy-name').textContent = state.enemyName;
+  document.getElementById('enemy-hp-bar-label').textContent = `HP: ${state.enemyHP} / ${state.enemyMaxHP}`;
+
+  // Deck info
+  document.getElementById('player-deck-info').textContent = `Hand: ${state.playerHand.length} cards  |  Deck: ${state.deck.length}`;
+  document.getElementById('enemy-deck-info').textContent = `Hand: ${state.enemyHand.length} cards`;
+
+  // Player hand
+  const ph = document.getElementById('player-hand');
+  ph.innerHTML = '';
+  state.playerHand.forEach((card, i) => {
+    const el = makeCardEl(card, false);
+    el.style.animationDelay = `${i * 0.04}s`;
+    el.classList.add('card-deal');
+    el.onclick = () => selectCard(card, el);
+    if (card === selectedCard) el.classList.add('selected');
+    ph.appendChild(el);
+  });
+
+  // Enemy hand (face-down)
+  const eh = document.getElementById('enemy-hand');
+  eh.innerHTML = '';
+  state.enemyHand.forEach((_, i) => {
+    const el = makeBackCardEl();
+    el.style.animationDelay = `${i * 0.04}s`;
+    el.classList.add('card-deal');
+    eh.appendChild(el);
+  });
+
+  // Battlefield
+  const pSlot = document.getElementById('player-played-slot');
+  const eSlot = document.getElementById('enemy-played-slot');
+  const vs = document.getElementById('vs-text');
+  pSlot.innerHTML = '';
+  eSlot.innerHTML = '';
+
+  if (state.playerPlayed || state.enemyPlayed) {
+    vs.style.display = 'block';
+    if (state.playerPlayed) {
+      const el = makeCardEl(state.playerPlayed, false);
+      el.classList.add('battlefield-card', 'player-played');
+      pSlot.appendChild(el);
+    }
+    if (state.enemyPlayed) {
+      const el = makeCardEl(state.enemyPlayed, false);
+      el.classList.add('battlefield-card', 'enemy-played');
+      eSlot.appendChild(el);
+    }
+  } else {
+    vs.style.display = 'none';
+  }
+
+  // Buttons
+  const canAct = state.phase === 'select' && state.playerHand.length > 0;
+  document.getElementById('btn-play').disabled = !canAct || !selectedCard;
+  document.getElementById('btn-pass').disabled = !canAct;
+}
+
+function makeCardEl(card, back) {
+  const div = document.createElement('div');
+  div.className = `card suit-${card.suit}`;
+  if (back) div.classList.add('back');
+
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+
+  if (!back) {
+    inner.innerHTML = `
+      <div class="card-corner">${card.rank}<br>${card.suit}</div>
+      <div class="card-suit">${card.suit}</div>
+      <div class="card-corner bottom">${card.rank}<br>${card.suit}</div>
+    `;
+  }
+  div.appendChild(inner);
+  return div;
+}
+
+function makeBackCardEl() {
+  const div = document.createElement('div');
+  div.className = 'card back';
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+  div.appendChild(inner);
+  return div;
+}
+
+function selectCard(card, el) {
+  if (state.phase !== 'select') return;
+  selectedCard = (selectedCard === card) ? null : card;
+  render();
+}
+
+// ============ LOG ============
+function log(html) {
+  const el = document.getElementById('message-log');
+  el.innerHTML = `<span class="msg-new">${html}</span>`;
+}
+
+// ============ OVERLAY ============
+function showOverlay(result) {
+  const overlay = document.getElementById('overlay');
+  const title = document.getElementById('overlay-title');
+  const sub = document.getElementById('overlay-sub');
+  overlay.classList.remove('hidden');
+
+  if (result === 'win') {
+    title.textContent = 'VICTORY';
+    title.className = 'overlay-title win';
+    sub.textContent = '深淵の闇を制した者よ';
+  } else if (result === 'lose') {
+    title.textContent = 'DEFEATED';
+    title.className = 'overlay-title lose';
+    sub.textContent = '闇に飲み込まれた…';
+  } else {
+    title.textContent = 'DRAW';
+    title.className = 'overlay-title';
+    sub.textContent = '互いに滅びた';
+  }
+}
+
+function hideOverlay() {
+  document.getElementById('overlay').classList.add('hidden');
+}
+
+// ============ START ============
+newGame();
+</script>
+</body>
+</html>
