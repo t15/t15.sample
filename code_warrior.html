@@ -2,1043 +2,844 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>コードウォーリアー：デジタル大戦</title>
+<title>コードウォーリアー：デジタル大戦 v2</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
-
-  :root {
-    --cyan: #00fff5;
-    --magenta: #ff00aa;
-    --yellow: #ffe600;
-    --bg: #03040f;
-    --panel: #080d1e;
-    --border: #0d2040;
-    --glow-cyan: 0 0 10px #00fff5, 0 0 30px #00fff566;
-    --glow-mag: 0 0 10px #ff00aa, 0 0 30px #ff00aa66;
-    --glow-yellow: 0 0 10px #ffe600, 0 0 30px #ffe60066;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: #cce8ff;
-    font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* スキャンライン */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,255,245,0.02) 2px,
-      rgba(0,255,245,0.02) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* ノイズ */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9998;
-    opacity: 0.3;
-  }
-
-  #bg-grid {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,245,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,245,0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: gridScroll 20s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes gridScroll {
-    from { background-position: 0 0; }
-    to { background-position: 0 40px; }
-  }
-
-  #game {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 12px;
-    gap: 10px;
-  }
-
-  /* ===== TITLE ===== */
-  #title-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 24px;
-  }
-
-  .game-logo {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(28px, 6vw, 52px);
-    text-align: center;
-    letter-spacing: 0.1em;
-    line-height: 1.2;
-    color: var(--cyan);
-    text-shadow: var(--glow-cyan);
-    animation: flicker 4s infinite;
-  }
-
-  .game-logo span {
-    display: block;
-    color: var(--magenta);
-    text-shadow: var(--glow-mag);
-    font-size: 0.55em;
-    letter-spacing: 0.25em;
-  }
-
-  @keyframes flicker {
-    0%, 95%, 100% { opacity: 1; }
-    96% { opacity: 0.8; }
-    97% { opacity: 1; }
-    98% { opacity: 0.6; }
-    99% { opacity: 1; }
-  }
-
-  .story-box {
-    background: linear-gradient(135deg, #080d1e, #0d1530);
-    border: 1px solid var(--cyan);
-    border-left: 4px solid var(--cyan);
-    box-shadow: var(--glow-cyan), inset 0 0 30px rgba(0,255,245,0.03);
-    padding: 20px 24px;
-    max-width: 600px;
-    width: 100%;
-    font-size: 14px;
-    line-height: 1.8;
-    color: #aaddf0;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .story-box::before {
-    content: 'STORY';
-    position: absolute;
-    top: 8px; right: 12px;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--cyan);
-    opacity: 0.5;
-    letter-spacing: 0.2em;
-  }
-
-  .story-box b {
-    color: var(--yellow);
-    text-shadow: var(--glow-yellow);
-  }
-
-  .btn-start {
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.2em;
-    padding: 14px 40px;
-    background: transparent;
-    border: 2px solid var(--magenta);
-    color: var(--magenta);
-    text-shadow: var(--glow-mag);
-    box-shadow: var(--glow-mag);
-    cursor: pointer;
-    transition: all 0.2s;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-    animation: pulse 2s infinite;
-  }
-
-  .btn-start:hover {
-    background: var(--magenta);
-    color: var(--bg);
-    text-shadow: none;
-    transform: scale(1.05);
-  }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: var(--glow-mag); }
-    50% { box-shadow: 0 0 20px #ff00aa, 0 0 60px #ff00aa88; }
-  }
-
-  /* ===== BATTLE SCREEN ===== */
-  #battle-screen { display: none; flex-direction: column; height: 100%; gap: 10px; }
-
-  /* ヘッダー */
-  .hud-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--cyan);
-    letter-spacing: 0.15em;
-    padding: 4px 8px;
-    border-bottom: 1px solid rgba(0,255,245,0.2);
-  }
-
-  .stage-info { color: var(--yellow); text-shadow: var(--glow-yellow); }
-
-  /* HP バー */
-  .fighters {
-    display: grid;
-    grid-template-columns: 1fr 60px 1fr;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .fighter-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    position: relative;
-  }
-
-  .fighter-card.player { border-color: var(--cyan); box-shadow: inset 0 0 20px rgba(0,255,245,0.05); }
-  .fighter-card.enemy { border-color: var(--magenta); box-shadow: inset 0 0 20px rgba(255,0,170,0.05); text-align: right; }
-
-  .fighter-name {
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    margin-bottom: 6px;
-  }
-
-  .fighter-card.player .fighter-name { color: var(--cyan); text-shadow: var(--glow-cyan); }
-  .fighter-card.enemy .fighter-name { color: var(--magenta); text-shadow: var(--glow-mag); }
-
-  .hp-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: #668899;
-    margin-bottom: 3px;
-  }
-
-  .hp-bar-wrap {
-    background: #0a1220;
-    border: 1px solid #1a3050;
-    height: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hp-bar {
-    height: 100%;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-  }
-
-  .hp-bar.player-hp {
-    background: linear-gradient(90deg, #005577, var(--cyan));
-    box-shadow: 0 0 10px var(--cyan);
-  }
-
-  .hp-bar.enemy-hp {
-    background: linear-gradient(90deg, var(--magenta), #770033);
-    float: right;
-    box-shadow: 0 0 10px var(--magenta);
-  }
-
-  .hp-bar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      90deg, transparent, transparent 8px,
-      rgba(255,255,255,0.06) 8px, rgba(255,255,255,0.06) 9px
-    );
-  }
-
-  .hp-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: #aaccdd;
-    margin-top: 3px;
-  }
-
-  .vs-badge {
-    text-align: center;
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 18px;
-    color: var(--yellow);
-    text-shadow: var(--glow-yellow);
-    animation: vsPulse 1.5s infinite alternate;
-  }
-
-  @keyframes vsPulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
-  }
-
-  /* バトルアリーナ */
-  .arena {
-    flex: 1;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-top: 2px solid rgba(0,255,245,0.15);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  .arena::before {
-    content: '';
-    position: absolute;
-    left: 50%; top: 0; bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
-    opacity: 0.3;
-  }
-
-  .arena-side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 10px;
-    gap: 4px;
-    position: relative;
-  }
-
-  /* キャラクター */
-  .char {
-    font-size: clamp(50px, 8vw, 80px);
-    line-height: 1;
-    filter: drop-shadow(0 0 8px currentColor);
-    transition: transform 0.1s;
-    position: relative;
-  }
-
-  .char.player-char { color: var(--cyan); }
-  .char.enemy-char { color: var(--magenta); transform: scaleX(-1); }
-  .char.attack-anim { animation: attackBounce 0.3s ease; }
-  .char.hurt-anim { animation: hurtShake 0.3s ease; }
-  .char.dead { filter: grayscale(1) opacity(0.3); }
-
-  @keyframes attackBounce {
-    0% { transform: translateX(0) scaleX(1); }
-    40% { transform: translateX(20px) scaleX(1.1); }
-    100% { transform: translateX(0) scaleX(1); }
-  }
-  .char.enemy-char.attack-anim {
-    animation: attackBounceEnemy 0.3s ease;
-  }
-  @keyframes attackBounceEnemy {
-    0% { transform: translateX(0) scaleX(-1); }
-    40% { transform: translateX(-20px) scaleX(-1.1); }
-    100% { transform: translateX(0) scaleX(-1); }
-  }
-  @keyframes hurtShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
-  }
-
-  .char-name-tag {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    padding: 2px 8px;
-    border: 1px solid;
-  }
-
-  .player-side .char-name-tag { color: var(--cyan); border-color: var(--cyan); text-shadow: var(--glow-cyan); }
-  .enemy-side .char-name-tag { color: var(--magenta); border-color: var(--magenta); text-shadow: var(--glow-mag); }
-
-  /* ダメージ表示 */
-  .damage-float {
-    position: absolute;
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 24px;
-    pointer-events: none;
-    animation: floatUp 0.8s ease forwards;
-    z-index: 100;
-    text-shadow: 0 0 10px currentColor;
-  }
-
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    50% { opacity: 1; transform: translateY(-30px) scale(1.3); }
-    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
-  }
-
-  /* コマンドパネル */
-  .command-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-top: 2px solid rgba(255,0,170,0.2);
-    padding: 10px 14px;
-  }
-
-  .command-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: #446688;
-    letter-spacing: 0.2em;
-    margin-bottom: 8px;
-  }
-
-  .command-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-
-  .cmd-btn {
-    background: linear-gradient(135deg, #0a1220, #0d1830);
-    border: 1px solid var(--border);
-    color: #aaccdd;
-    padding: 8px 4px;
-    text-align: center;
-    cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 12px;
-    transition: all 0.15s;
-    position: relative;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-  }
-
-  .cmd-btn:hover:not(:disabled) {
-    border-color: var(--cyan);
-    box-shadow: var(--glow-cyan);
-    color: var(--cyan);
-    background: linear-gradient(135deg, #0d2030, #0a1a28);
-  }
-
-  .cmd-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  .cmd-btn .key-badge {
-    display: block;
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--yellow);
-    text-shadow: var(--glow-yellow);
-    margin-bottom: 2px;
-  }
-
-  .cmd-btn .cmd-name { font-size: 11px; }
-  .cmd-btn .cmd-cost { font-size: 9px; color: #88aabb; margin-top: 2px; }
-
-  .cmd-btn.special {
-    border-color: #3a1060;
-    color: #cc88ff;
-  }
-  .cmd-btn.special:hover:not(:disabled) {
-    border-color: #aa44ff;
-    box-shadow: 0 0 10px #aa44ff, 0 0 30px #aa44ff66;
-    color: #aa44ff;
-  }
-  .cmd-btn.special .key-badge { color: #cc88ff; text-shadow: 0 0 10px #aa44ff; }
-
-  /* SPゲージ */
-  .sp-bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .sp-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: #aa44ff;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
-  }
-
-  .sp-bar-bg {
-    flex: 1;
-    background: #0a1220;
-    border: 1px solid #3a1060;
-    height: 10px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .sp-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #6600cc, #aa44ff);
-    box-shadow: 0 0 8px #aa44ff;
-    transition: width 0.3s;
-  }
-
-  .sp-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: #cc88ff;
-    white-space: nowrap;
-  }
-
-  /* ログ */
-  .battle-log {
-    height: 56px;
-    overflow: hidden;
-    border-top: 1px solid rgba(0,255,245,0.1);
-    padding-top: 6px;
-  }
-
-  .log-entry {
-    font-size: 13px;
-    line-height: 1.5;
-    color: #88aabb;
-    animation: logFade 0.3s ease;
-  }
-
-  .log-entry.latest { color: #cce8ff; }
-  .log-entry b.player { color: var(--cyan); }
-  .log-entry b.enemy { color: var(--magenta); }
-  .log-entry b.dmg { color: var(--yellow); }
-
-  @keyframes logFade {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  /* ===== RESULT SCREEN ===== */
-  #result-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 20px;
-  }
-
-  .result-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(32px, 8vw, 64px);
-    letter-spacing: 0.15em;
-    animation: resultPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .result-title.win { color: var(--cyan); text-shadow: var(--glow-cyan); }
-  .result-title.lose { color: var(--magenta); text-shadow: var(--glow-mag); }
-
-  @keyframes resultPop {
-    from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
-    to { transform: scale(1) rotate(0deg); opacity: 1; }
-  }
-
-  .result-story {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 16px 24px;
-    max-width: 500px;
-    font-size: 13px;
-    line-height: 1.8;
-    color: #99bbcc;
-    text-align: center;
-  }
-
-  .result-story b { color: var(--yellow); }
-
-  .btn-next {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    padding: 12px 32px;
-    background: transparent;
-    border: 2px solid var(--cyan);
-    color: var(--cyan);
-    text-shadow: var(--glow-cyan);
-    box-shadow: var(--glow-cyan);
-    cursor: pointer;
-    transition: all 0.2s;
-    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
-    animation: pulse2 2s infinite;
-  }
-
-  .btn-next:hover {
-    background: var(--cyan);
-    color: var(--bg);
-    text-shadow: none;
-  }
-
-  @keyframes pulse2 {
-    0%, 100% { box-shadow: var(--glow-cyan); }
-    50% { box-shadow: 0 0 20px #00fff5, 0 0 60px #00fff588; }
-  }
-
-  /* フラッシュ */
-  .screen-flash {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 500;
-    opacity: 0;
-    transition: opacity 0.1s;
-  }
-
-  .screen-flash.cyan { background: rgba(0,255,245,0.15); }
-  .screen-flash.red { background: rgba(255,0,80,0.2); }
-  .screen-flash.active { opacity: 1; }
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+:root{
+  --c:#00fff5;--m:#ff00aa;--y:#ffe600;--g:#00ff88;--pu:#bb44ff;
+  --bg:#03040f;--panel:#080d1e;--border:#0d2040;
+  --gc:0 0 10px #00fff5,0 0 30px #00fff566;
+  --gm:0 0 10px #ff00aa,0 0 30px #ff00aa66;
+  --gy:0 0 10px #ffe600,0 0 30px #ffe60066;
+  --gg:0 0 10px #00ff88,0 0 30px #00ff8866;
+  --gp:0 0 10px #bb44ff,0 0 30px #bb44ff66;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:#cce8ff;font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,245,.02) 2px,rgba(0,255,245,.02) 4px);pointer-events:none;z-index:9999;}
+#bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,245,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,245,.04) 1px,transparent 1px);background-size:40px 40px;animation:gridScroll 20s linear infinite;pointer-events:none;}
+@keyframes gridScroll{from{background-position:0 0}to{background-position:0 40px}}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:500;opacity:0;transition:opacity .1s;}
+.flash.cyan{background:rgba(0,255,245,.15)}.flash.red{background:rgba(255,0,80,.2)}.flash.gold{background:rgba(255,230,0,.15)}.flash.on{opacity:1}
+
+.screen{position:relative;z-index:10;display:none;flex-direction:column;height:100vh;max-width:960px;margin:0 auto;padding:10px;gap:8px;}
+.screen.active{display:flex;}
+
+/* TITLE */
+#title-screen{align-items:center;justify-content:center;gap:20px;}
+.logo{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(26px,5.5vw,50px);text-align:center;letter-spacing:.1em;color:var(--c);text-shadow:var(--gc);animation:flicker 5s infinite;}
+.logo span{display:block;color:var(--m);text-shadow:var(--gm);font-size:.5em;letter-spacing:.3em;margin-top:4px;}
+@keyframes flicker{0%,94%,100%{opacity:1}95%{opacity:.7}96%{opacity:1}97%{opacity:.5}98%{opacity:1}}
+.story-box{background:linear-gradient(135deg,#080d1e,#0d1530);border:1px solid var(--c);border-left:4px solid var(--c);box-shadow:var(--gc),inset 0 0 30px rgba(0,255,245,.03);padding:18px 22px;max-width:620px;width:100%;font-size:13px;line-height:1.9;color:#aaddf0;position:relative;}
+.story-box::before{content:'STORY';position:absolute;top:7px;right:11px;font-family:'Orbitron',monospace;font-size:9px;color:var(--c);opacity:.4;letter-spacing:.2em;}
+.story-box b{color:var(--y);text-shadow:var(--gy);}
+.title-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.btn-hex{font-family:'Orbitron',monospace;font-weight:700;font-size:13px;letter-spacing:.2em;padding:12px 28px;background:transparent;border:2px solid;cursor:pointer;transition:all .2s;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.btn-hex.mag{border-color:var(--m);color:var(--m);text-shadow:var(--gm);box-shadow:var(--gm);animation:pulseM 2s infinite;}
+.btn-hex.cyan{border-color:var(--c);color:var(--c);text-shadow:var(--gc);box-shadow:var(--gc);}
+.btn-hex.mag:hover{background:var(--m);color:var(--bg);text-shadow:none;}
+.btn-hex.cyan:hover{background:var(--c);color:var(--bg);text-shadow:none;}
+@keyframes pulseM{0%,100%{box-shadow:var(--gm)}50%{box-shadow:0 0 20px #ff00aa,0 0 60px #ff00aa88}}
+
+/* HELP */
+#help-screen{overflow-y:auto;padding-bottom:20px;}
+.help-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid rgba(0,255,245,.2);padding-bottom:8px;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.help-title{font-family:'Orbitron',monospace;font-size:16px;color:var(--c);text-shadow:var(--gc);letter-spacing:.15em;}
+.help-btns{display:flex;gap:8px;}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:580px){.help-grid{grid-template-columns:1fr}}
+.hcard{background:var(--panel);border:1px solid var(--border);padding:12px 14px;}
+.hcard h3{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.15em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid;}
+.hcard.c h3{color:var(--c);border-color:rgba(0,255,245,.2);}
+.hcard.m h3{color:var(--m);border-color:rgba(255,0,170,.2);}
+.hcard.y h3{color:var(--y);border-color:rgba(255,230,0,.2);}
+.hcard.g h3{color:var(--g);border-color:rgba(0,255,136,.2);}
+.hcard.p h3{color:var(--pu);border-color:rgba(187,68,255,.2);}
+.hcard p,.hcard li{font-size:12px;line-height:1.8;color:#99bbcc;}
+.hcard ul{list-style:none;padding:0;}
+.hcard ul li::before{content:'▶ ';color:var(--y);}
+.krow{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.k{font-family:'Orbitron',monospace;font-weight:700;font-size:11px;color:var(--y);text-shadow:var(--gy);background:#0a1220;border:1px solid #334466;padding:2px 6px;display:inline-block;min-width:34px;text-align:center;}
+.kd{font-size:11px;color:#99bbcc;}
+.irow{display:flex;gap:6px;margin-bottom:5px;align-items:flex-start;}
+.iicon{font-size:17px;min-width:24px;}
+.iiname{font-size:12px;color:var(--g);font-weight:700;}
+.iidesc{font-size:11px;color:#778899;}
+
+/* BATTLE */
+#battle-screen{gap:6px;}
+.hud-top{display:flex;justify-content:space-between;align-items:center;font-family:'Orbitron',monospace;font-size:10px;color:var(--c);letter-spacing:.12em;padding:3px 6px;border-bottom:1px solid rgba(0,255,245,.2);}
+.stage-lbl{color:var(--y);text-shadow:var(--gy);}
+.btn-sm{font-family:'Orbitron',monospace;font-size:9px;padding:3px 8px;background:transparent;border:1px solid var(--c);color:var(--c);cursor:pointer;letter-spacing:.1em;transition:all .2s;}
+.btn-sm:hover{background:var(--c);color:var(--bg);}
+
+.fighters{display:grid;grid-template-columns:1fr 48px 1fr;gap:6px;align-items:center;}
+.fcard{background:var(--panel);border:1px solid var(--border);padding:7px 11px;}
+.fcard.p{border-color:var(--c);box-shadow:inset 0 0 20px rgba(0,255,245,.04);}
+.fcard.e{border-color:var(--m);box-shadow:inset 0 0 20px rgba(255,0,170,.04);text-align:right;}
+.fname{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;margin-bottom:4px;}
+.fcard.p .fname{color:var(--c);text-shadow:var(--gc);}
+.fcard.e .fname{color:var(--m);text-shadow:var(--gm);}
+.hplbl{font-family:'Orbitron',monospace;font-size:9px;color:#556677;margin-bottom:2px;}
+.hpwrap{background:#0a1220;border:1px solid #1a3050;height:13px;overflow:hidden;}
+.hpf{height:100%;transition:width .4s;position:relative;}
+.hpf::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 8px,rgba(255,255,255,.06) 8px,rgba(255,255,255,.06) 9px);}
+.hpf.ph{background:linear-gradient(90deg,#005577,var(--c));box-shadow:0 0 8px var(--c);}
+.hpf.eh{background:linear-gradient(90deg,var(--m),#770033);float:right;box-shadow:0 0 8px var(--m);}
+.hpnum{font-family:'Orbitron',monospace;font-size:10px;color:#aaccdd;margin-top:2px;}
+.vs{text-align:center;font-family:'Orbitron',monospace;font-weight:900;font-size:15px;color:var(--y);text-shadow:var(--gy);animation:vsp 1.5s infinite alternate;}
+@keyframes vsp{from{transform:scale(1)}to{transform:scale(1.12)}}
+.eq{display:flex;gap:3px;justify-content:flex-end;margin-top:3px;}
+.eqdot{width:7px;height:7px;border-radius:50%;background:#330033;border:1px solid #660066;transition:all .3s;}
+.eqdot.alive{background:var(--m);box-shadow:0 0 5px var(--m);}
+.eqdot.cur{background:#ff66cc;box-shadow:0 0 8px #ff66cc;transform:scale(1.3);}
+
+.arena{flex:1;background:var(--panel);border:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;min-height:0;}
+.arena::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--c),transparent);opacity:.2;}
+.aside{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:6px;gap:3px;position:relative;}
+.char{font-size:clamp(44px,6.5vw,68px);line-height:1;filter:drop-shadow(0 0 5px currentColor);}
+.char.pc{color:var(--c);}
+.char.ec{color:var(--m);transform:scaleX(-1);}
+.char.atk{animation:atkA .3s ease;}
+.char.atke{animation:atkE .3s ease;}
+.char.hurt{animation:hurtS .3s ease;}
+.char.dead{filter:grayscale(1) opacity(.2);}
+@keyframes atkA{0%{transform:translateX(0) scaleX(1)}40%{transform:translateX(16px) scaleX(1.1)}100%{transform:translateX(0) scaleX(1)}}
+@keyframes atkE{0%{transform:translateX(0) scaleX(-1)}40%{transform:translateX(-16px) scaleX(-1.1)}100%{transform:translateX(0) scaleX(-1)}}
+@keyframes hurtS{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ctag{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.1em;padding:2px 5px;border:1px solid;}
+.ps .ctag{color:var(--c);border-color:var(--c);}
+.es .ctag{color:var(--m);border-color:var(--m);}
+.dfloat{position:absolute;font-family:'Orbitron',monospace;font-weight:900;font-size:19px;pointer-events:none;animation:fUp .8s ease forwards;z-index:100;}
+@keyframes fUp{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-26px) scale(1.2)}100%{opacity:0;transform:translateY(-52px) scale(.7)}}
+
+.cpanel{background:var(--panel);border:1px solid var(--border);border-top:2px solid rgba(255,0,170,.15);padding:7px 11px;}
+.sprow{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.splbl{font-family:'Orbitron',monospace;font-size:9px;color:var(--pu);letter-spacing:.1em;white-space:nowrap;}
+.spbg{flex:1;background:#0a1220;border:1px solid #3a1060;height:9px;overflow:hidden;}
+.spf{height:100%;background:linear-gradient(90deg,#6600cc,var(--pu));box-shadow:0 0 6px var(--pu);transition:width .3s;}
+.spnum{font-family:'Orbitron',monospace;font-size:9px;color:#cc88ff;white-space:nowrap;}
+
+.irow2{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.ilbl{font-family:'Orbitron',monospace;font-size:9px;color:var(--g);letter-spacing:.1em;white-space:nowrap;}
+.islot{width:33px;height:33px;background:#060e18;border:1px solid #1a3040;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s;position:relative;}
+.islot:hover:not(.empty){border-color:var(--g);box-shadow:var(--gg);}
+.islot.empty{opacity:.22;cursor:default;}
+.islot .ic{position:absolute;bottom:0;right:1px;font-size:9px;font-family:'Orbitron',monospace;color:var(--y);}
+.islot .ik{position:absolute;top:0;left:1px;font-size:8px;font-family:'Orbitron',monospace;color:#668899;}
+
+.clbl{font-family:'Orbitron',monospace;font-size:9px;color:#446688;letter-spacing:.12em;margin-bottom:4px;}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.cbtn{background:linear-gradient(135deg,#0a1220,#0d1830);border:1px solid var(--border);color:#aaccdd;padding:5px 3px;text-align:center;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .15s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);}
+.cbtn:hover:not(:disabled){border-color:var(--c);box-shadow:var(--gc);color:var(--c);}
+.cbtn:disabled{opacity:.26;cursor:not-allowed;}
+.cbtn .kb{display:block;font-family:'Orbitron',monospace;font-weight:700;font-size:11px;color:var(--y);text-shadow:var(--gy);}
+.cbtn .cn{font-size:10px;}
+.cbtn .ci{font-size:8px;color:#778899;margin-top:1px;}
+.cbtn.sp{border-color:#3a1060;color:#cc88ff;}
+.cbtn.sp:hover:not(:disabled){border-color:var(--pu);box-shadow:var(--gp);color:var(--pu);}
+.cbtn.sp .kb{color:#cc88ff;text-shadow:var(--gp);}
+.cbtn.fire{border-color:#661100;color:#ff8844;}
+.cbtn.fire:hover:not(:disabled){border-color:#ff6600;box-shadow:0 0 10px #ff6600,0 0 30px #ff660066;color:#ff8844;}
+.cbtn.fire .kb{color:#ff8844;text-shadow:0 0 8px #ff6600;}
+
+.blog{height:48px;overflow:hidden;border-top:1px solid rgba(0,255,245,.1);padding-top:4px;}
+.be{font-size:12px;line-height:1.5;color:#778899;animation:lf .3s ease;}
+.be.lat{color:#cce8ff;}
+@keyframes lf{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.be b.p{color:var(--c)}.be b.e{color:var(--m)}.be b.d{color:var(--y)}.be b.g{color:var(--g)}
+
+/* 敵のセリフ大表示 */
+#speech-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.speech-box{background:linear-gradient(135deg,#0a0018,#160030);border:2px solid var(--m);box-shadow:var(--gm),inset 0 0 40px rgba(255,0,170,.08);padding:20px 28px;max-width:560px;width:90%;text-align:center;position:relative;clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%);animation:speechPop .35s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes speechPop{from{transform:scale(.6) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.speech-name{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.2em;color:var(--m);text-shadow:var(--gm);margin-bottom:10px;opacity:.8;}
+.speech-text{font-size:clamp(16px,3vw,22px);font-weight:700;line-height:1.6;color:#fff;text-shadow:0 0 20px rgba(255,0,170,.5);letter-spacing:.05em;}
+.speech-skip{font-family:'Orbitron',monospace;font-size:9px;color:#446688;margin-top:12px;letter-spacing:.15em;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#result-screen{align-items:center;justify-content:center;gap:18px;}
+.rtitle{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(26px,7vw,56px);letter-spacing:.15em;animation:rpop .5s cubic-bezier(.175,.885,.32,1.275);}
+.rtitle.win{color:var(--c);text-shadow:var(--gc);}
+.rtitle.lose{color:var(--m);text-shadow:var(--gm);}
+@keyframes rpop{from{transform:scale(.3) rotate(-8deg);opacity:0}to{transform:scale(1);opacity:1}}
+.rstory{background:var(--panel);border:1px solid var(--border);padding:14px 20px;max-width:520px;width:100%;font-size:13px;line-height:1.8;color:#99bbcc;text-align:center;}
+.rstory b{color:var(--y);}
+.rreward{background:linear-gradient(135deg,#040c04,#081a10);border:1px solid var(--g);box-shadow:var(--gg);padding:9px 18px;font-size:13px;color:var(--g);text-align:center;}
 </style>
 </head>
 <body>
 <div id="bg-grid"></div>
-<div class="screen-flash cyan" id="flash-cyan"></div>
-<div class="screen-flash red" id="flash-red"></div>
+<div class="flash cyan" id="fl-c"></div>
+<div class="flash red" id="fl-r"></div>
+<div class="flash gold" id="fl-g"></div>
 
-<div id="game">
-
-<!-- ===== タイトル ===== -->
-<div id="title-screen">
-  <div class="game-logo">
-    コードウォーリアー
-    <span>DIGITAL WARS</span>
+<div id="speech-overlay" style="display:none">
+  <div class="speech-box">
+    <div class="speech-name" id="speech-name">ENEMY</div>
+    <div class="speech-text" id="speech-text"></div>
+    <div class="speech-skip">▶ Enterキーまたはクリックで進む</div>
   </div>
-  <div class="story-box">
-    <p>西暦 <b>2087年</b>。デジタル空間「サイバーネット」が人々の心をのっとろうとしていた。</p>
-    <p>その中で、ただ一人の少年がキーボードを武器に立ち上がった。</p>
-    <p>コードを打ち込み、技を発動させる。敵を倒し、世界を救え。</p>
-    <p>お前が<b>コードウォーリアー</b>だ！</p>
-  </div>
-  <button class="btn-start" onclick="startGame()">▶ BATTLE START</button>
 </div>
 
-<!-- ===== バトル ===== -->
-<div id="battle-screen">
+<!-- TITLE -->
+<div class="screen active" id="title-screen">
+  <div class="logo">コードウォーリアー<span>DIGITAL WARS v2.0</span></div>
+  <div class="story-box">
+    <p>西暦 <b>2087年</b>。デジタル空間「サイバーネット」が危機に瀕している。</p>
+    <p>強大な闇の軍団が次々と現れ、世界のデータを破壊しつつあった。</p>
+    <p>ただ一人の少年が、キーボードを武器に立ち向かう。</p>
+    <p>技を磨き、アイテムを使い、すべての敵を倒せ。お前が<b>コードウォーリアー</b>だ！</p>
+  </div>
+  <div class="title-btns">
+    <button class="btn-hex mag" onclick="startGame()">▶ BATTLE START</button>
+    <button class="btn-hex cyan" onclick="showHelp(false)">？ ルール・そうさ</button>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="screen" id="help-screen">
+  <div class="help-header">
+    <div class="help-title">MANUAL — ルール &amp; そうさ</div>
+    <div class="help-btns">
+      <button class="btn-hex cyan" id="btn-back-title" onclick="backTitle()" style="font-size:11px;padding:8px 16px;">← タイトル</button>
+      <button class="btn-hex mag" id="btn-back-battle" onclick="backBattle()" style="font-size:11px;padding:8px 16px;display:none;">⚔ バトルへ</button>
+    </div>
+  </div>
+  <div class="help-grid">
+    <div class="hcard c">
+      <h3>🎮 わざのキーそうさ</h3>
+      <div class="krow"><span class="k">A</span><span class="kd">コードアタック — 通常攻撃 SP+15</span></div>
+      <div class="krow"><span class="k">S</span><span class="kd">バリアーシールド — 防御＋HP回復 SP+10</span></div>
+      <div class="krow"><span class="k">D</span><span class="kd">デバッグバースト — 弱攻撃 SP+35</span></div>
+      <div class="krow"><span class="k">G</span><span class="kd">ファイアコード — 強力な炎攻撃 SP+20</span></div>
+      <div class="krow"><span class="k">H</span><span class="kd">ビートダウン — 3連続攻撃 SP+25</span></div>
+      <div class="krow"><span class="k">SPC</span><span class="kd">オーバードライブ — SP100必要・超強攻撃</span></div>
+      <div class="krow"><span class="k">J</span><span class="kd">コードノヴァ — SP100必要・全体攻撃！</span></div>
+    </div>
+    <div class="hcard m">
+      <h3>⚔ バトルのルール</h3>
+      <ul>
+        <li>プレイヤーと敵が交互に攻撃する</li>
+        <li>相手のHPを0にしたら勝ち！</li>
+        <li>ステージによって複数の敵が出る</li>
+        <li>敵は1体ずつ倒していこう</li>
+        <li>すべての敵を倒せばステージクリア！</li>
+        <li>SPゲージをためると必殺技が使える</li>
+        <li>敵の攻撃パターンに注意しよう！</li>
+        <li>負けてもアイテムは残る（HP・SPリセット）</li>
+      </ul>
+    </div>
+    <div class="hcard g">
+      <h3>🎒 アイテムの使いかた（数字キー）</h3>
+      <div class="irow"><div class="iicon">💊</div><div><div class="iiname">ヒールパック [1]</div><div class="iidesc">HPを40回復する。ピンチのときに！</div></div></div>
+      <div class="irow"><div class="iicon">⚡</div><div><div class="iiname">SPブースター [2]</div><div class="iidesc">SPを50一気にためる。必殺技を早く！</div></div></div>
+      <div class="irow"><div class="iicon">🛡️</div><div><div class="iiname">アーマーシール [3]</div><div class="iidesc">次の攻撃ダメージを半分にする！</div></div></div>
+      <div class="irow"><div class="iicon">💥</div><div><div class="iiname">バグボム [4]</div><div class="iidesc">敵に固定60ダメージ！防御を無視！</div></div></div>
+      <p style="font-size:11px;color:#556677;margin-top:5px;">※アイテムはステージクリアのほうしゅうでもらえる</p>
+    </div>
+    <div class="hcard y">
+      <h3>💡 攻略のコツ</h3>
+      <ul>
+        <li>デバッグバーストでSPをためてから必殺技！</li>
+        <li>HP半分以下でヒールパックを使おう</li>
+        <li>ボスにはバグボムが超効果的！</li>
+        <li>複数の敵にはコードノヴァが有効！</li>
+        <li>アーマーシールは敵の大技の前に使う</li>
+        <li>バリアーシールドは防御＋回復が同時！</li>
+        <li>ビートダウンはSPと攻撃が両立できる！</li>
+      </ul>
+    </div>
+    <div class="hcard p">
+      <h3>👾 敵のとくちょう</h3>
+      <ul>
+        <li>敵には攻撃パターンがある（ノーマル・コンボ・必殺）</li>
+        <li>ボスはトリプルアタックも使う！</li>
+        <li>ステージ2-1から複数の敵が出現！</li>
+        <li>ステージ3-1では3体同時に戦う！</li>
+        <li>最終ボスNEO-VIRUSは最も手強い！</li>
+      </ul>
+    </div>
+    <div class="hcard c" style="border-color:rgba(0,255,245,.2);">
+      <h3>📊 SP（スペシャルポイント）</h3>
+      <ul>
+        <li>攻撃や防御をするとSPがたまる</li>
+        <li>デバッグバーストはSP+35（最も多い）</li>
+        <li>SP100でオーバードライブ（単体超強攻撃）</li>
+        <li>SP100でコードノヴァ（全体攻撃）</li>
+        <li>必殺技を使うとSPが0になる</li>
+        <li>SPブースターでSP+50の一気補充！</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- BATTLE -->
+<div class="screen" id="battle-screen">
   <div class="hud-top">
-    <span id="stage-label" class="stage-info">STAGE 1-1</span>
-    <span>CODE WARRIOR DIGITAL WARS</span>
-    <span id="turn-label">TURN 1</span>
+    <span class="stage-lbl" id="stage-lbl">STAGE 1-1</span>
+    <span>CODE WARRIOR v2.0</span>
+    <button class="btn-sm" onclick="showHelp(true)">？ ルール</button>
   </div>
 
   <div class="fighters">
-    <div class="fighter-card player">
-      <div class="fighter-name">⚡ RYU-X</div>
-      <div class="hp-label">HP</div>
-      <div class="hp-bar-wrap">
-        <div class="hp-bar player-hp" id="player-hp-bar" style="width:100%"></div>
-      </div>
-      <div class="hp-num" id="player-hp-num">100 / 100</div>
+    <div class="fcard p">
+      <div class="fname">⚡ RYU-X</div>
+      <div class="hplbl">HP</div>
+      <div class="hpwrap"><div class="hpf ph" id="p-hpbar" style="width:100%"></div></div>
+      <div class="hpnum" id="p-hpnum">120 / 120</div>
     </div>
-    <div class="vs-badge">VS</div>
-    <div class="fighter-card enemy">
-      <div class="fighter-name" id="enemy-name-hud">VIRUS-01 🦠</div>
-      <div class="hp-label">HP</div>
-      <div class="hp-bar-wrap">
-        <div class="hp-bar enemy-hp" id="enemy-hp-bar" style="width:100%"></div>
-      </div>
-      <div class="hp-num" id="enemy-hp-num">80 / 80</div>
+    <div class="vs">VS</div>
+    <div class="fcard e">
+      <div class="fname" id="e-fname">VIRUS-01 🦠</div>
+      <div class="hplbl">HP</div>
+      <div class="hpwrap"><div class="hpf eh" id="e-hpbar" style="width:100%"></div></div>
+      <div class="hpnum" id="e-hpnum">90 / 90</div>
+      <div class="eq" id="eq"></div>
     </div>
   </div>
 
   <div class="arena">
-    <div class="arena-side player-side">
-      <div class="char player-char" id="player-char">🤖</div>
-      <div class="char-name-tag">PLAYER</div>
+    <div class="aside ps">
+      <div class="char pc" id="p-char">🤖</div>
+      <div class="ctag">PLAYER</div>
     </div>
-    <div class="arena-side enemy-side">
-      <div class="char enemy-char" id="enemy-char">🦠</div>
-      <div class="char-name-tag" id="enemy-tag">VIRUS-01</div>
+    <div class="aside es">
+      <div class="char ec" id="e-char">🦠</div>
+      <div class="ctag" id="e-ctag">VIRUS-01</div>
     </div>
   </div>
 
-  <div class="command-panel">
-    <div class="sp-bar-wrap">
-      <span class="sp-label">SP GAUGE</span>
-      <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-bar" style="width:0%"></div></div>
-      <span class="sp-num" id="sp-num">0 / 100</span>
+  <div class="cpanel">
+    <div class="sprow">
+      <span class="splbl">SP GAUGE</span>
+      <div class="spbg"><div class="spf" id="spf" style="width:0%"></div></div>
+      <span class="spnum" id="spnum">0/100</span>
     </div>
-    <div class="command-label">COMMAND SELECT — キーを押してわざを選べ！</div>
-    <div class="command-grid">
-      <button class="cmd-btn" id="btn-a" onclick="playerAction(0)">
-        <span class="key-badge">A</span>
-        <span class="cmd-name">コードアタック</span>
-        <span class="cmd-cost">通常攻撃</span>
-      </button>
-      <button class="cmd-btn" id="btn-s" onclick="playerAction(1)">
-        <span class="key-badge">S</span>
-        <span class="cmd-name">バリアーシールド</span>
-        <span class="cmd-cost">防御+回復</span>
-      </button>
-      <button class="cmd-btn" id="btn-d" onclick="playerAction(2)">
-        <span class="key-badge">D</span>
-        <span class="cmd-name">デバッグバースト</span>
-        <span class="cmd-cost">SP +20</span>
-      </button>
-      <button class="cmd-btn special" id="btn-space" onclick="playerAction(3)">
-        <span class="key-badge">SPACE</span>
-        <span class="cmd-name">オーバードライブ</span>
-        <span class="cmd-cost">SP 100 必要</span>
-      </button>
+    <div class="irow2">
+      <span class="ilbl">ITEMS</span>
+      <div class="islot empty" id="isl-0" onclick="useItem(0)"><span class="ik">1</span>💊<span class="ic" id="ic-0"></span></div>
+      <div class="islot empty" id="isl-1" onclick="useItem(1)"><span class="ik">2</span>⚡<span class="ic" id="ic-1"></span></div>
+      <div class="islot empty" id="isl-2" onclick="useItem(2)"><span class="ik">3</span>🛡️<span class="ic" id="ic-2"></span></div>
+      <div class="islot empty" id="isl-3" onclick="useItem(3)"><span class="ik">4</span>💥<span class="ic" id="ic-3"></span></div>
+      <span style="font-size:10px;color:#446688;margin-left:4px;">←数字キーで使える</span>
     </div>
-    <div class="battle-log" id="battle-log">
-      <div class="log-entry latest">▶ バトル開始！コマンドを選べ！</div>
+    <div class="clbl" id="turn-lbl">TURN 1 — コマンドを選べ！（A S D F G H / SPACE J）</div>
+    <div class="cgrid">
+      <button class="cbtn" id="btn-a" onclick="pAct(0)"><span class="kb">A</span><span class="cn">コードアタック</span><span class="ci">通常攻撃 SP+15</span></button>
+      <button class="cbtn" id="btn-s" onclick="pAct(1)"><span class="kb">S</span><span class="cn">バリアーシールド</span><span class="ci">防御＋回復 SP+10</span></button>
+      <button class="cbtn" id="btn-d" onclick="pAct(2)"><span class="kb">D</span><span class="cn">デバッグバースト</span><span class="ci">弱攻撃 SP+35</span></button>
+
+      <button class="cbtn fire" id="btn-g" onclick="pAct(4)"><span class="kb">G</span><span class="cn">ファイアコード</span><span class="ci">炎攻撃 SP+20</span></button>
+      <button class="cbtn" id="btn-h" onclick="pAct(5)"><span class="kb">H</span><span class="cn">ビートダウン</span><span class="ci">3連撃 SP+25</span></button>
+      <button class="cbtn sp" id="btn-spc" onclick="pAct(6)"><span class="kb">SPC</span><span class="cn">オーバードライブ</span><span class="ci">SP100必要</span></button>
+      <button class="cbtn sp" id="btn-j" onclick="pAct(7)"><span class="kb">J</span><span class="cn">コードノヴァ</span><span class="ci">SP100・全体攻撃</span></button>
     </div>
+    <div class="blog" id="blog"><div class="be lat">▶ バトル開始！</div></div>
   </div>
 </div>
 
-<!-- ===== リザルト ===== -->
-<div id="result-screen">
-  <div class="result-title" id="result-title">VICTORY</div>
-  <div class="result-story" id="result-story"></div>
-  <button class="btn-next" id="btn-next" onclick="nextStage()">▶ NEXT STAGE</button>
-</div>
-
+<!-- RESULT -->
+<div class="screen" id="result-screen">
+  <div class="rtitle" id="rtitle">VICTORY</div>
+  <div class="rstory" id="rstory"></div>
+  <div class="rreward" id="rreward" style="display:none">🎁 ほうしゅう: <span id="rreward-txt"></span></div>
+  <button class="btn-hex mag" id="btn-next" onclick="nextStage()">▶ NEXT STAGE</button>
 </div>
 
 <script>
-const STAGES = [
-  {
-    stage: '1-1',
-    enemy: { name: 'VIRUS-01', emoji: '🦠', tag: 'VIRUS-01', hp: 80, maxHp: 80, atk: [8,12], def: 0, spd: 0.3 },
-    intro: '「ウフフ、子どもが来たか。デジタルウイルスのワシに勝てるかな？」',
-    winStory: '<b>VIRUS-01</b>を撃退した！<br>ウイルスは消滅した。しかしこれはまだ始まりにすぎない……',
-    loseStory: 'ウイルスにやられてしまった……<br>もう一度立ち上がれ、<b>コードウォーリアー</b>！'
-  },
-  {
-    stage: '1-2',
-    enemy: { name: 'HACKER-X', emoji: '💀', tag: 'HACKER-X', hp: 100, maxHp: 100, atk: [10,16], def: 2, spd: 0.4 },
-    intro: '「オレは闇のハッカー、HACKER-X。お前のコードはオレには通じない！」',
-    winStory: '<b>HACKER-X</b>を倒した！<br>「まさか……本物のコードウォーリアーだったのか……」<br>奥の扉が開いた。',
-    loseStory: 'ハッカーの攻撃は速かった……<br>あきらめるな！<b>SP</b>をためてオーバードライブを使え！'
-  },
-  {
-    stage: '2-1',
-    enemy: { name: 'DARK-AI', emoji: '🤖', tag: 'DARK-AI', hp: 130, maxHp: 130, atk: [12,20], def: 4, spd: 0.5 },
-    intro: '「わたしは闇のAI。感情なし、弱点なし。あなたは負ける。」',
-    winStory: '<b>DARK-AI</b>を撃破！<br>「……にんげん、つよい。ワタシ、りかいデキナイ……」<br>AIの目から青い光が消えた。',
-    loseStory: 'ダークAIは強すぎた……<br><b>バリアーシールド</b>で防御しながら戦え！'
-  },
-  {
-    stage: '2-2',
-    enemy: { name: 'NEO-VIRUS', emoji: '👾', tag: 'NEO-VIRUS', hp: 160, maxHp: 160, atk: [15,22], def: 6, spd: 0.55 },
-    intro: '「やっと来たな……ワシが最強のNEO-VIRUSだ！世界はすでにオレのものだ！」',
-    winStory: '<b>NEO-VIRUS</b>を完全消滅！<br>「バカな……キーボードひとつで……！」<br>サイバーネットに平和が戻った！<br><b>おめでとう！世界を救ったぞ！</b>',
-    loseStory: 'NEO-VIRUSは最強だった……<br>でも、あきらめない心が本当の強さだ。<br>もう一度挑戦しろ！'
-  }
+const STAGES=[
+  // ===== WORLD 1: デジタルジャングル =====
+  {id:'1-1',world:'🌐 WORLD 1',
+   enemies:[{name:'MINI-VIRUS',emoji:'🦠',hp:75,maxHp:75,atk:[10,15],def:0,pats:['n','n','c']}],
+   intro:'「ぼくはMINI-VIRUS！まだ小さいけど負けないぞ！」',
+   win:'<b>MINI-VIRUS</b>を撃退！これはまだ準備運動にすぎない……',
+   lose:'最初の敵にやられた！<b>コードアタック(A)</b>と<b>ファイアコード(G)</b>を使おう！',
+   reward:{items:[0],desc:'ヒールパック ×1'}},
+
+  {id:'1-2',world:'🌐 WORLD 1',
+   enemies:[{name:'VIRUS-01',emoji:'🧫',hp:110,maxHp:110,atk:[13,18],def:1,pats:['n','c','n','b']}],
+   intro:'「ちっぽけな人間め！デジタルウイルスに勝てると思うな！」',
+   win:'<b>VIRUS-01</b>を撃退！ウイルスは消滅した。',
+   lose:'ウイルスにやられた。<b>バリアーシールド(S)</b>で防御しながら戦おう！',
+   reward:{items:[1],desc:'SPブースター ×1'}},
+
+  {id:'1-3',world:'🌐 WORLD 1',
+   enemies:[
+     {name:'バグ兄',emoji:'🐛',hp:95,maxHp:95,atk:[12,17],def:1,pats:['n','c','n','b']},
+     {name:'バグ弟',emoji:'🐞',hp:85,maxHp:85,atk:[13,18],def:1,pats:['c','n','b','n']},
+   ],
+   intro:'「バグ兄弟だ！二人でかかるぞ！」',
+   win:'バグ兄弟を撃破！二人まとめてやっつけた！',
+   lose:'二体同時は手強い。<b>ビートダウン(H)</b>の3連撃を試そう！',
+   reward:{items:[3],desc:'バグボム ×1'}},
+
+  {id:'1-4',world:'🌐 WORLD 1 BOSS',
+   enemies:[{name:'HACKER-X',emoji:'💀',hp:160,maxHp:160,atk:[15,22],def:3,pats:['n','c','b','n','c','b']}],
+   intro:'「やあ少年、オレが闇のHACKER-Xだ！このワールドはオレのものだ！」',
+   win:'<b>HACKER-X</b>を倒した！「まさか……」奥の扉が開いた。WORLD 2へ進め！',
+   lose:'ハッカーの攻撃は速かった。<b>デバッグバースト(D)</b>でSPをためてから必殺技を！',
+   reward:{items:[0,2],desc:'ヒールパック ×1 ＆ アーマーシール ×1'}},
+
+  // ===== WORLD 2: サイバー工場 =====
+  {id:'2-1',world:'⚙️ WORLD 2',
+   enemies:[{name:'ROBOT-Ω',emoji:'🦾',hp:145,maxHp:145,atk:[15,21],def:5,pats:['n','c','b','n','b']}],
+   intro:'「ガチャガチャ……わたしはROBOT-Ω。命令通りに破壊する。」',
+   win:'<b>ROBOT-Ω</b>を破壊！工場の奥へ進む道が開いた。',
+   lose:'ロボットの防御が固い！<b>ファイアコード(G)</b>で焼き切ろう！',
+   reward:{items:[1],desc:'SPブースター ×1'}},
+
+  {id:'2-2',world:'⚙️ WORLD 2',
+   enemies:[
+     {name:'ドローン-α',emoji:'🚁',hp:105,maxHp:105,atk:[14,19],def:2,pats:['c','n','b','c']},
+     {name:'ドローン-β',emoji:'🛸',hp:100,maxHp:100,atk:[15,20],def:2,pats:['n','c','n','b']},
+   ],
+   intro:'「ドローン部隊、発進！人間を消滅させろ！」',
+   win:'ドローン部隊を撃墜！工場の制御室が見えてきた。',
+   lose:'空からの攻撃は読みにくい。<b>コードノヴァ(J)</b>で一気に！',
+   reward:{items:[3],desc:'バグボム ×1'}},
+
+  {id:'2-3',world:'⚙️ WORLD 2',
+   enemies:[
+     {name:'鉄ゴーレム',emoji:'🗿',hp:175,maxHp:175,atk:[17,24],def:7,pats:['n','b','c','b','n','b']},
+     {name:'スパークボット',emoji:'⚡',hp:95,maxHp:95,atk:[16,22],def:1,pats:['c','c','n','b']},
+   ],
+   intro:'「鉄ゴーレムとスパークボット、ダブルパンチだ！」',
+   win:'鉄ゴーレムとスパークボットを倒した！すごい！',
+   lose:'鉄ゴーレムは固い！<b>バグボム(4)</b>で防御を無視して攻めろ！',
+   reward:{items:[0,1],desc:'ヒールパック ×1 ＆ SPブースター ×1'}},
+
+  {id:'2-4',world:'⚙️ WORLD 2 BOSS',
+   enemies:[{name:'DARK-AI',emoji:'🤖',hp:210,maxHp:210,atk:[17,25],def:5,pats:['n','b','c','b','n','c','b']}],
+   intro:'「わたしは感情なき闇のAI。あなたに勝機はない。計算済みだ。」',
+   win:'<b>DARK-AI</b>撃破！「……人間の感情が……わたしを超えた……」WORLD 3へ！',
+   lose:'ダークAIは強すぎた。<b>アーマーシール(3)</b>で大技をしのごう！',
+   reward:{items:[2,3],desc:'アーマーシール ×1 ＆ バグボム ×1'}},
+
+  // ===== WORLD 3: 闇のネットワーク =====
+  {id:'3-1',world:'🌑 WORLD 3',
+   enemies:[
+     {name:'SHADOW-A',emoji:'👻',hp:120,maxHp:120,atk:[16,22],def:3,pats:['c','n','b','c','n']},
+     {name:'SHADOW-B',emoji:'🌑',hp:115,maxHp:115,atk:[17,23],def:4,pats:['n','b','c','b','n']},
+   ],
+   intro:'「闇からの刺客だ！影に飲み込まれろ！」',
+   win:'影の戦士たちを撃破！闇の奥へ進め！',
+   lose:'影の攻撃は速い。<b>バリアーシールド(S)</b>で回復しながら戦え！',
+   reward:{items:[0],desc:'ヒールパック ×1'}},
+
+  {id:'3-2',world:'🌑 WORLD 3',
+   enemies:[
+     {name:'PHANTOM-X',emoji:'💀',hp:155,maxHp:155,atk:[17,23],def:4,pats:['b','n','c','b','n','b']},
+     {name:'GHOST-0',emoji:'👾',hp:135,maxHp:135,atk:[15,21],def:3,pats:['c','b','n','b','c']},
+     {name:'SPECTER',emoji:'🔮',hp:110,maxHp:110,atk:[16,22],def:2,pats:['n','c','b','n','b']},
+   ],
+   intro:'「三体の幽霊が来たぞ！おまえに勝てるか！？」',
+   win:'三体の幽霊を成敗！「ば……バカな……」闇の扉が揺れた……',
+   lose:'三体同時は超手強い！<b>コードノヴァ(J)</b>と<b>バグボム(4)</b>を駆使しろ！',
+   reward:{items:[1,3],desc:'SPブースター ×1 ＆ バグボム ×1'}},
+
+  {id:'3-3',world:'🌑 WORLD 3',
+   enemies:[{name:'カオスドラゴン',emoji:'🐉',hp:250,maxHp:250,atk:[19,27],def:6,pats:['n','b','c','b','t','n','b','b']}],
+   intro:'「グォォォ……わしはカオスドラゴン！デジタルの炎で焼き尽くす！」',
+   win:'<b>カオスドラゴン</b>を討伐！「グォォ……まさか……人間に……」',
+   lose:'ドラゴンの炎攻撃が強烈！<b>アーマーシール(3)</b>で大技をしのげ！',
+   reward:{items:[0,2],desc:'ヒールパック ×1 ＆ アーマーシール ×1'}},
+
+  {id:'3-4',world:'🌑 WORLD 3 BOSS',
+   enemies:[
+     {name:'ダークナイト',emoji:'⚔️',hp:200,maxHp:200,atk:[18,25],def:6,pats:['b','n','c','b','t','b']},
+     {name:'ダークウィザード',emoji:'🧙',hp:175,maxHp:175,atk:[20,28],def:3,pats:['b','b','n','c','b','t']},
+   ],
+   intro:'「ダークナイトとダークウィザード！二人がかりで葬ってやる！」',
+   win:'闇の騎士と魔法使いを撃破！最終決戦の場所へ……',
+   lose:'二人の強敵！まずウィザードを先に倒そう！<b>バグボム(4)</b>が有効！',
+   reward:{items:[0,1,3],desc:'ヒールパック ×1 ＆ SPブースター ×1 ＆ バグボム ×1'}},
+
+  // ===== WORLD 4: 最終決戦 =====
+  {id:'4-1',world:'💥 FINAL WORLD',
+   enemies:[
+     {name:'NEO-VIRUS-α',emoji:'🔴',hp:195,maxHp:195,atk:[18,25],def:5,pats:['b','n','c','b','n','t']},
+     {name:'NEO-VIRUS-β',emoji:'🟡',hp:185,maxHp:185,atk:[17,24],def:4,pats:['n','b','c','b','t','n']},
+     {name:'NEO-VIRUS-γ',emoji:'🔵',hp:175,maxHp:175,atk:[16,23],def:3,pats:['c','b','n','b','n','t']},
+   ],
+   intro:'「NEO-VIRUSの三分身だ！どれが本物かわからないだろう！」',
+   win:'三体のNEO-VIRUSを全滅！本体が現れた……準備しろ！',
+   lose:'三体同時は絶望的！全アイテムを使い切る覚悟で挑め！',
+   reward:{items:[0,0,1,1],desc:'ヒールパック ×2 ＆ SPブースター ×2'}},
+
+  {id:'FINAL',world:'💥 FINAL BOSS',
+   enemies:[{name:'NEO-VIRUS OMEGA',emoji:'👾',hp:350,maxHp:350,atk:[22,32],def:8,pats:['b','c','b','t','n','b','b','t','c','b']}],
+   intro:'「ハハハ！わしがNEO-VIRUS OMEGA！全宇宙最強の存在だ！お前のような人間に何ができる！！」',
+   win:'<b>NEO-VIRUS OMEGA</b>を完全消滅！「バカな……キーボードひとつで……！」<br>サイバーネットに平和が戻った！<br><b>🎉🎉 おめでとう！全15ステージ完全クリア！！ 🎉🎉</b>',
+   lose:'NEO-VIRUS OMEGAは史上最強の敵！でも必ず倒せる！全アイテム・全技を使い切れ！',
+   reward:{items:[],desc:''}},
 ];
 
-const MOVES = [
-  { name: 'コードアタック', type: 'attack', dmgMult: 1.0, spGain: 15 },
-  { name: 'バリアーシールド', type: 'defend', healPct: 0.12, spGain: 10 },
-  { name: 'デバッグバースト', type: 'spcharge', spGain: 35, dmgMult: 0.5 },
-  { name: 'オーバードライブ', type: 'special', dmgMult: 2.8, spCost: 100 }
+const MOVES=[
+  {name:'コードアタック',type:'atk',dmg:[14,20],spG:10},
+  {name:'バリアーシールド',type:'def',hpct:.08,spG:8},
+  {name:'デバッグバースト',type:'spc',dmg:[6,10],spG:28},
+  {name:'フリーズボム',type:'frz',spG:10},
+  {name:'ファイアコード',type:'fire',dmg:[19,27],spG:14},
+  {name:'ビートダウン',type:'tri',dmg:[7,12],spG:18},
+  {name:'オーバードライブ',type:'ult',mult:2.3,spCost:100},
+  {name:'コードノヴァ',type:'nova',dmg:[35,50],spCost:100},
 ];
 
-let gs = {};
+let gs={};
+let fromBattle=false;
 
-function startGame() {
-  document.getElementById('title-screen').style.display = 'none';
-  document.getElementById('battle-screen').style.display = 'flex';
+function rng(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function cdmg(base,def){return Math.max(1,rng(base[0],base[1])-def);}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function showHelp(fromB){
+  fromBattle=!!fromB;
+  document.getElementById('btn-back-title').style.display=fromB?'none':'';
+  document.getElementById('btn-back-battle').style.display=fromB?'':'none';
+  showScreen('help-screen');
+}
+function backTitle(){showScreen('title-screen');}
+function backBattle(){showScreen('battle-screen');}
+
+function showSpeech(name, text, onClose){
+  const ov=document.getElementById('speech-overlay');
+  document.getElementById('speech-name').textContent='【 '+name+' 】';
+  document.getElementById('speech-text').textContent=text;
+  ov.style.display='flex';
+  ov.style.pointerEvents='all';
+  const close=()=>{
+    ov.style.display='none';
+    ov.style.pointerEvents='none';
+    ov.removeEventListener('click',close);
+    if(onClose) onClose();
+  };
+  ov.addEventListener('click',close);
+  gs._speechClose=close;
+}
+
+function startGame(){
+  gs={stageIdx:0,player:{hp:100,maxHp:100,sp:0,def:false,armored:false},items:[0,0,0,0],turn:1,busy:false,enemyIdx:0,enemies:[]};
+  showScreen('battle-screen');
   loadStage(0);
 }
 
-function loadStage(idx) {
-  const s = STAGES[idx];
-  const e = { ...s.enemy };
-
-  gs = {
-    stageIdx: idx,
-    stage: s,
-    player: { hp: 100, maxHp: 100, def: false, sp: 0 },
-    enemy: e,
-    turn: 1,
-    playerTurn: true,
-    busy: false
-  };
-
-  document.getElementById('stage-label').textContent = 'STAGE ' + s.stage;
-  document.getElementById('turn-label').textContent = 'TURN 1';
-  document.getElementById('enemy-name-hud').textContent = e.name + ' ' + e.emoji;
-  document.getElementById('enemy-char').textContent = e.emoji;
-  document.getElementById('enemy-tag').textContent = e.tag;
-  document.getElementById('player-char').textContent = '🤖';
-  document.getElementById('player-char').className = 'char player-char';
-  document.getElementById('enemy-char').className = 'char enemy-char';
-
+function loadStage(idx){
+  const st=STAGES[idx];
+  gs.stageIdx=idx;gs.stage=st;gs.turn=1;gs.busy=false;gs.enemyIdx=0;
+  gs.player.def=false;gs.player.armored=false;
+  gs.enemies=st.enemies.map(e=>({...e,frozen:false,pi:0}));
+  document.getElementById('stage-lbl').textContent=(st.world?st.world+' ':'')+'STAGE '+st.id;
+  document.getElementById('p-char').className='char pc';
+  document.getElementById('p-char').textContent='🤖';
+  setEnemy(0);
   updateUI();
-  setLog(`【${e.name}】${s.intro}`, false);
-  setTimeout(() => addLog('▶ バトル開始！コマンドを選べ！'), 1200);
-  setButtons(true);
-}
-
-function updateUI() {
-  const p = gs.player, e = gs.enemy;
-  document.getElementById('player-hp-bar').style.width = Math.max(0, (p.hp / p.maxHp) * 100) + '%';
-  document.getElementById('player-hp-num').textContent = `${Math.max(0,p.hp)} / ${p.maxHp}`;
-  document.getElementById('enemy-hp-bar').style.width = Math.max(0, (e.hp / e.maxHp) * 100) + '%';
-  document.getElementById('enemy-hp-num').textContent = `${Math.max(0,e.hp)} / ${e.maxHp}`;
-  document.getElementById('sp-bar').style.width = p.sp + '%';
-  document.getElementById('sp-num').textContent = `${Math.round(p.sp)} / 100`;
-  document.getElementById('btn-space').disabled = p.sp < 100;
-}
-
-function setButtons(enabled) {
-  ['btn-a','btn-s','btn-d','btn-space'].forEach(id => {
-    const btn = document.getElementById(id);
-    btn.disabled = !enabled;
-  });
-  if (enabled && gs.player.sp < 100) document.getElementById('btn-space').disabled = true;
-}
-
-function setLog(txt, latest = true) {
-  const log = document.getElementById('battle-log');
-  log.innerHTML = `<div class="log-entry ${latest ? 'latest' : ''}">${txt}</div>`;
-}
-
-function addLog(txt) {
-  const log = document.getElementById('battle-log');
-  const prev = log.querySelector('.log-entry.latest');
-  if (prev) prev.className = 'log-entry';
-  const div = document.createElement('div');
-  div.className = 'log-entry latest';
-  div.innerHTML = txt;
-  log.appendChild(div);
-  while (log.children.length > 3) log.removeChild(log.firstChild);
-}
-
-function floatDamage(x, y, val, color) {
-  const el = document.createElement('div');
-  el.className = 'damage-float';
-  el.style.left = x + 'px';
-  el.style.top = y + 'px';
-  el.style.color = color;
-  el.textContent = '-' + val;
-  document.getElementById('game').appendChild(el);
-  setTimeout(() => el.remove(), 800);
-}
-
-function flash(type) {
-  const el = document.getElementById('flash-' + type);
-  el.classList.add('active');
-  setTimeout(() => el.classList.remove('active'), 150);
-}
-
-function animChar(id, cls, duration = 350) {
-  return new Promise(resolve => {
-    const el = document.getElementById(id);
-    el.classList.add(cls);
-    setTimeout(() => { el.classList.remove(cls); resolve(); }, duration);
+  showSpeech(st.enemies[0].name, st.intro, ()=>{
+    setLog('▶ バトル開始！コマンドを選べ！（A S D G H / SPACE J / 1 2 3 4）');
+    setBtns(true);
   });
 }
 
-function calcDmg(base, mult, def) {
-  const raw = base[0] + Math.floor(Math.random() * (base[1] - base[0] + 1));
-  return Math.max(1, Math.round(raw * mult) - def);
+function setEnemy(i){
+  const e=gs.enemies[i];
+  document.getElementById('e-fname').textContent=e.name+' '+e.emoji;
+  document.getElementById('e-char').textContent=e.emoji;
+  document.getElementById('e-char').className='char ec';
+  document.getElementById('e-ctag').textContent=e.name;
+  renderEQ();
 }
 
-async function playerAction(moveIdx) {
-  if (!gs.playerTurn || gs.busy) return;
-  gs.busy = true;
-  setButtons(false);
+function renderEQ(){
+  const eq=document.getElementById('eq');
+  if(gs.enemies.length<=1){eq.innerHTML='';return;}
+  eq.innerHTML=gs.enemies.map((e,i)=>{
+    let c='eqdot';
+    if(i<gs.enemyIdx)c='eqdot';
+    else if(i===gs.enemyIdx)c='eqdot cur';
+    else c='eqdot alive';
+    return `<div class="${c}"></div>`;
+  }).join('');
+}
 
-  const move = MOVES[moveIdx];
-  const p = gs.player;
+function updateUI(){
+  const p=gs.player,e=gs.enemies[gs.enemyIdx];
+  document.getElementById('p-hpbar').style.width=Math.max(0,p.hp/p.maxHp*100)+'%';
+  document.getElementById('p-hpnum').textContent=Math.max(0,p.hp)+' / '+p.maxHp;
+  document.getElementById('e-hpbar').style.width=Math.max(0,e.hp/e.maxHp*100)+'%';
+  document.getElementById('e-hpnum').textContent=Math.max(0,e.hp)+' / '+e.maxHp;
+  document.getElementById('spf').style.width=gs.player.sp+'%';
+  document.getElementById('spnum').textContent=Math.round(gs.player.sp)+'/100';
+  gs.items.forEach((n,i)=>{
+    document.getElementById('ic-'+i).textContent=n>0?n:'';
+    document.getElementById('isl-'+i).className='islot'+(n<=0?' empty':'');
+  });
+  renderEQ();
+}
 
-  if (move.type === 'special' && p.sp < 100) {
-    addLog('⚠ SPが足りない！');
-    gs.busy = false;
-    setButtons(true);
-    return;
+function setBtns(on){
+  ['btn-a','btn-s','btn-d','btn-g','btn-h','btn-spc','btn-j'].forEach(id=>document.getElementById(id).disabled=!on);
+  if(on){
+    document.getElementById('btn-spc').disabled=gs.player.sp<100;
+    document.getElementById('btn-j').disabled=gs.player.sp<100;
+  }
+  document.getElementById('turn-lbl').textContent=on?`TURN ${gs.turn} — コマンドを選べ！`:`TURN ${gs.turn} — 待機中…`;
+}
+
+function setLog(t){document.getElementById('blog').innerHTML=`<div class="be lat">${t}</div>`;}
+function addLog(t){
+  const b=document.getElementById('blog');
+  const p=b.querySelector('.be.lat');if(p)p.className='be';
+  const d=document.createElement('div');d.className='be lat';d.innerHTML=t;b.appendChild(d);
+  while(b.children.length>3)b.removeChild(b.firstChild);
+}
+
+function fl(t){const m={cyan:'fl-c',red:'fl-r',gold:'fl-g'};const el=document.getElementById(m[t]);el.classList.add('on');setTimeout(()=>el.classList.remove('on'),140);}
+
+function anim(id,cls,dur=310){
+  return new Promise(r=>{const el=document.getElementById(id);el.classList.add(cls);setTimeout(()=>{el.classList.remove(cls);r();},dur);});
+}
+
+function spawnF(x,y,txt,col){
+  const el=document.createElement('div');el.className='dfloat';
+  el.style.cssText=`left:${x}px;top:${y}px;color:${col};text-shadow:0 0 8px ${col};`;
+  el.textContent=txt;
+  document.getElementById('battle-screen').appendChild(el);
+  setTimeout(()=>el.remove(),800);
+}
+
+async function pAct(mi){
+  if(gs.busy)return;
+  gs.busy=true;setBtns(false);
+  const m=MOVES[mi],p=gs.player,e=gs.enemies[gs.enemyIdx];
+
+  if((m.type==='ult'||m.type==='nova')&&p.sp<100){
+    addLog('⚠ SPが足りない！（SP100必要）');
+    gs.busy=false;setBtns(true);return;
   }
 
-  // プレイヤー行動
-  if (move.type === 'attack') {
-    const baseDmg = [18, 25];
-    const dmg = calcDmg(baseDmg, move.dmgMult, gs.enemy.def);
-    gs.enemy.hp -= dmg;
-    p.sp = Math.min(100, p.sp + move.spGain);
-    p.def = false;
-    await animChar('player-char', 'attack-anim');
-    flash('cyan');
-    const enemyEl = document.getElementById('enemy-char');
-    const rect = enemyEl.getBoundingClientRect();
-    floatDamage(rect.left + 20, rect.top, dmg, '#ffe600');
-    await animChar('enemy-char', 'hurt-anim');
-    addLog(`<b class="player">RYU-X</b> の<b>${move.name}</b>！ <b class="dmg">${dmg}ダメージ</b>！`);
+  const er=document.getElementById('e-char').getBoundingClientRect();
+  const pr=document.getElementById('p-char').getBoundingClientRect();
 
-  } else if (move.type === 'defend') {
-    const heal = Math.round(p.maxHp * move.healPct);
-    p.hp = Math.min(p.maxHp, p.hp + heal);
-    p.sp = Math.min(100, p.sp + move.spGain);
-    p.def = true;
-    await animChar('player-char', 'attack-anim');
-    flash('cyan');
-    addLog(`<b class="player">RYU-X</b> が<b>${move.name}</b>！ HP+${heal}、防御態勢！`);
+  if(m.type==='atk'){
+    const d=cdmg(m.dmg,e.def);e.hp-=d;p.sp=Math.min(100,p.sp+m.spG);p.def=false;
+    await anim('p-char','atk');fl('cyan');
+    spawnF(er.left+10,er.top,'-'+d,'#ffe600');
+    await anim('e-char','hurt');
+    addLog(`<b class="p">RYU-X</b> の<b>${m.name}</b>！ <b class="d">${d}ダメージ</b>！`);
 
-  } else if (move.type === 'spcharge') {
-    const baseDmg = [10, 15];
-    const dmg = calcDmg(baseDmg, move.dmgMult, gs.enemy.def);
-    gs.enemy.hp -= dmg;
-    p.sp = Math.min(100, p.sp + move.spGain);
-    p.def = false;
-    await animChar('player-char', 'attack-anim');
-    flash('cyan');
-    addLog(`<b class="player">RYU-X</b> の<b>${move.name}</b>！ ${dmg}ダメージ＆SP+${move.spGain}！`);
+  }else if(m.type==='def'){
+    const h=Math.round(p.maxHp*m.hpct);p.hp=Math.min(p.maxHp,p.hp+h);p.sp=Math.min(100,p.sp+m.spG);p.def=true;
+    await anim('p-char','atk');fl('cyan');
+    spawnF(pr.left+10,pr.top,'+'+h,'#00ff88');
+    addLog(`<b class="p">RYU-X</b> が<b>${m.name}</b>！ <b class="g">HP+${h}</b>、防御態勢！`);
 
-  } else if (move.type === 'special') {
-    const baseDmg = [18, 25];
-    const dmg = calcDmg(baseDmg, move.dmgMult, 0);
-    gs.enemy.hp -= dmg;
-    p.sp = 0;
-    p.def = false;
-    await animChar('player-char', 'attack-anim');
-    flash('cyan');
-    flash('red');
-    const enemyEl = document.getElementById('enemy-char');
-    const rect = enemyEl.getBoundingClientRect();
-    floatDamage(rect.left + 10, rect.top - 10, dmg, '#ff44ff');
-    await animChar('enemy-char', 'hurt-anim');
-    addLog(`🌟 <b class="player">RYU-X</b> の<b>${move.name}</b>！！ <b class="dmg">${dmg}ダメージ</b>！！`);
+  }else if(m.type==='spc'){
+    const d=cdmg(m.dmg,e.def);e.hp-=d;p.sp=Math.min(100,p.sp+m.spG);p.def=false;
+    await anim('p-char','atk');fl('cyan');
+    spawnF(er.left+10,er.top,'-'+d,'#aaccff');
+    addLog(`<b class="p">RYU-X</b> の<b>${m.name}</b>！ ${d}ダメージ＆<b class="g">SP+${m.spG}</b>！`);
+
+  }else if(m.type==='frz'){
+    e.frozen=true;p.sp=Math.min(100,p.sp+m.spG);p.def=false;
+    await anim('p-char','atk');fl('cyan');
+    spawnF(er.left+10,er.top,'❄','#88ddff');
+    addLog(`<b class="p">RYU-X</b> の<b>${m.name}</b>！ ${e.name}を1ターン停止！`);
+
+  }else if(m.type==='fire'){
+    const d=cdmg(m.dmg,e.def);e.hp-=d;p.sp=Math.min(100,p.sp+m.spG);p.def=false;
+    await anim('p-char','atk');fl('gold');fl('red');
+    spawnF(er.left+10,er.top,'-'+d,'#ff8844');
+    await anim('e-char','hurt');
+    addLog(`🔥 <b class="p">RYU-X</b> の<b>${m.name}</b>！ <b class="d">${d}ダメージ</b>！`);
+
+  }else if(m.type==='tri'){
+    let tot=0;p.def=false;
+    for(let i=0;i<3;i++){
+      const d=cdmg(m.dmg,e.def);e.hp-=d;tot+=d;
+      await anim('p-char','atk');fl('cyan');
+      spawnF(er.left+8+i*6,er.top+i*4,'-'+d,'#aaffcc');
+      await new Promise(r=>setTimeout(r,110));
+    }
+    p.sp=Math.min(100,p.sp+m.spG);
+    await anim('e-char','hurt');
+    addLog(`⚡ <b class="p">RYU-X</b> の<b>${m.name}</b>！ 3連撃 合計<b class="d">${tot}ダメージ</b>！`);
+
+  }else if(m.type==='ult'){
+    const d=Math.round(cdmg([18,26],0)*m.mult);
+    e.hp-=d;p.sp=0;p.def=false;
+    await anim('p-char','atk');fl('cyan');fl('gold');fl('red');
+    spawnF(er.left+5,er.top-10,'-'+d,'#ff44ff');
+    await anim('e-char','hurt');
+    addLog(`🌟 <b class="p">RYU-X</b> の<b>${m.name}</b>！！ <b class="d">${d}ダメージ</b>！！`);
+
+  }else if(m.type==='nova'){
+    p.sp=0;p.def=false;
+    let msg=`🌌 <b class="p">RYU-X</b> の<b>コードノヴァ</b>！！ `;
+    await anim('p-char','atk');fl('cyan');fl('gold');fl('red');
+    for(let i=0;i<gs.enemies.length;i++){
+      if(gs.enemies[i].hp<=0)continue;
+      const d=cdmg(m.dmg,gs.enemies[i].def);
+      gs.enemies[i].hp-=d;
+      msg+=`${gs.enemies[i].name} <b class="d">-${d}</b>　`;
+    }
+    await anim('e-char','hurt');
+    addLog(msg);
   }
 
   updateUI();
+  await checkEnemyDead();
+}
 
-  // 敵倒した？
-  if (gs.enemy.hp <= 0) {
-    gs.enemy.hp = 0;
+async function checkEnemyDead(){
+  // 現在の敵が死んだか
+  if(gs.enemies[gs.enemyIdx].hp<=0){
+    gs.enemies[gs.enemyIdx].hp=0;updateUI();
+    document.getElementById('e-char').classList.add('dead');
+    await new Promise(r=>setTimeout(r,500));
+    // 残りの生きている敵を探す
+    const next=gs.enemies.findIndex((e,i)=>e.hp>0);
+    if(next<0){showResult(true);return;}
+    gs.enemyIdx=next;
+    setEnemy(next);
+    addLog(`▶ 次の敵！ <b class="e">${gs.enemies[next].name}</b> が現れた！`);
     updateUI();
-    document.getElementById('enemy-char').classList.add('dead');
-    setTimeout(() => showResult(true), 800);
+    gs.busy=false;setBtns(true);
     return;
   }
+  // ノヴァで全員倒した可能性
+  if(gs.enemies.every(e=>e.hp<=0)){showResult(true);return;}
 
-  // 敵のターン
-  await new Promise(r => setTimeout(r, 600));
+  await new Promise(r=>setTimeout(r,500));
   await enemyTurn();
 }
 
-async function enemyTurn() {
-  const e = gs.enemy;
-  const p = gs.player;
-
-  // 難易度：一定確率で強攻撃
-  const roll = Math.random();
-  let dmg = 0;
-  let msg = '';
-
-  if (roll < e.spd) {
-    // 2回攻撃
-    const d1 = calcDmg(e.atk, 0.8, p.def ? 6 : 0);
-    const d2 = calcDmg(e.atk, 0.8, p.def ? 6 : 0);
-    dmg = d1 + d2;
-    msg = `<b class="enemy">${e.name}</b> の<b>れんぞく攻撃</b>！ <b class="dmg">${dmg}ダメージ</b>！`;
-  } else if (roll < 0.85) {
-    dmg = calcDmg(e.atk, 1.0, p.def ? 6 : 0);
-    msg = `<b class="enemy">${e.name}</b> の攻撃！ <b class="dmg">${dmg}ダメージ</b>！`;
-  } else {
-    // 大技
-    dmg = calcDmg(e.atk, 1.6, p.def ? 4 : 0);
-    msg = `⚠ <b class="enemy">${e.name}</b> の<b>必殺技</b>！！ <b class="dmg">${dmg}ダメージ</b>！！`;
+async function enemyTurn(){
+  const e=gs.enemies[gs.enemyIdx],p=gs.player;
+  if(e.frozen){
+    e.frozen=false;
+    addLog(`❄ <b class="e">${e.name}</b> はこおっていて動けない！`);
+    gs.turn++;document.getElementById('turn-lbl').textContent=`TURN ${gs.turn}`;
+    gs.busy=false;setBtns(true);return;
   }
 
-  p.hp -= dmg;
-  p.def = false;
+  const pat=e.pats[e.pi%e.pats.length];e.pi++;
+  const db=p.def?3:0;
+  let dmg=0,msg='';
 
-  await animChar('enemy-char', 'attack-anim');
-  flash('red');
-  const playerEl = document.getElementById('player-char');
-  const rect = playerEl.getBoundingClientRect();
-  floatDamage(rect.left + 20, rect.top, dmg, '#ff4466');
-  await animChar('player-char', 'hurt-anim');
+  if(pat==='n'){dmg=cdmg(e.atk,db);msg=`<b class="e">${e.name}</b> の攻撃！ <b class="d">${dmg}ダメージ</b>！`;}
+  else if(pat==='c'){const d1=cdmg(e.atk,db),d2=cdmg(e.atk,db);dmg=d1+d2;msg=`<b class="e">${e.name}</b> のれんぞく攻撃！ <b class="d">${dmg}ダメージ</b>！`;}
+  else if(pat==='b'){dmg=cdmg(e.atk,0);dmg=Math.round(dmg*2.1);msg=`⚠ <b class="e">${e.name}</b> の<b>必殺技</b>！！ <b class="d">${dmg}ダメージ</b>！！`;}
+  else if(pat==='t'){const d1=cdmg(e.atk,db),d2=cdmg(e.atk,db),d3=cdmg(e.atk,db);dmg=d1+d2+d3;msg=`💀 <b class="e">${e.name}</b> の<b>トリプルアタック</b>！！ <b class="d">${dmg}ダメージ</b>！！`;}
+
+  if(p.armored){dmg=Math.ceil(dmg/2);p.armored=false;msg+=' 🛡️アーマー発動！ダメージ半減！';}
+  p.hp-=dmg;p.def=false;
+
+  const pr=document.getElementById('p-char').getBoundingClientRect();
+  await anim('e-char','atke');fl('red');
+  spawnF(pr.left+10,pr.top,'-'+dmg,'#ff4466');
+  await anim('p-char','hurt');
   addLog(msg);
-
   updateUI();
   gs.turn++;
-  document.getElementById('turn-label').textContent = `TURN ${gs.turn}`;
 
-  if (p.hp <= 0) {
-    p.hp = 0;
+  if(p.hp<=0){
+    p.hp=0;updateUI();
+    document.getElementById('p-char').classList.add('dead');
+    setTimeout(()=>showResult(false),800);return;
+  }
+  gs.busy=false;setBtns(true);
+}
+
+function useItem(i){
+  if(gs.busy||gs.items[i]<=0)return;
+  const p=gs.player;
+  gs.items[i]--;
+  const pr=document.getElementById('p-char').getBoundingClientRect();
+  const er=document.getElementById('e-char').getBoundingClientRect();
+  if(i===0){
+    const h=Math.min(40,p.maxHp-p.hp);p.hp+=h;
+    fl('gold');spawnF(pr.left+10,pr.top,'+'+h,'#00ff88');
+    addLog(`💊 <b class="g">ヒールパック</b>使用！ <b class="g">HP+${h}</b>！`);
+  }else if(i===1){
+    p.sp=Math.min(100,p.sp+50);fl('cyan');
+    addLog(`⚡ <b class="g">SPブースター</b>使用！ <b class="g">SP+50</b>！`);
+  }else if(i===2){
+    p.armored=true;fl('cyan');
+    addLog(`🛡️ <b class="g">アーマーシール</b>使用！次の攻撃ダメージ半分！`);
+  }else if(i===3){
+    const e=gs.enemies[gs.enemyIdx];
+    e.hp=Math.max(0,e.hp-60);
+    fl('red');fl('gold');spawnF(er.left+5,er.top,'-60','#ff8800');
+    addLog(`💥 <b class="g">バグボム</b>炸裂！ <b class="d">固定60ダメージ</b>！`);
     updateUI();
-    document.getElementById('player-char').classList.add('dead');
-    setTimeout(() => showResult(false), 800);
-    return;
-  }
-
-  gs.busy = false;
-  setButtons(true);
-}
-
-function showResult(win) {
-  const s = gs.stage;
-  document.getElementById('battle-screen').style.display = 'none';
-  document.getElementById('result-screen').style.display = 'flex';
-
-  const title = document.getElementById('result-title');
-  const story = document.getElementById('result-story');
-  const btnNext = document.getElementById('btn-next');
-
-  if (win) {
-    title.textContent = 'VICTORY!!';
-    title.className = 'result-title win';
-    story.innerHTML = s.winStory;
-    const isLast = gs.stageIdx >= STAGES.length - 1;
-    btnNext.textContent = isLast ? '▶ TITLE へ' : '▶ NEXT STAGE';
-  } else {
-    title.textContent = 'DEFEATED...';
-    title.className = 'result-title lose';
-    story.innerHTML = s.loseStory;
-    btnNext.textContent = '▶ もう一度！';
-  }
-}
-
-function nextStage() {
-  const win = gs.stage && document.getElementById('result-title').className.includes('win');
-  document.getElementById('result-screen').style.display = 'none';
-
-  if (win) {
-    const nextIdx = gs.stageIdx + 1;
-    if (nextIdx >= STAGES.length) {
-      // ゲームクリア → タイトルへ
-      document.getElementById('title-screen').style.display = 'flex';
-      document.getElementById('battle-screen').style.display = 'none';
-    } else {
-      document.getElementById('battle-screen').style.display = 'flex';
-      loadStage(nextIdx);
+    if(e.hp<=0){
+      document.getElementById('e-char').classList.add('dead');
+      setTimeout(async()=>{
+        const next=gs.enemies.findIndex(en=>en.hp>0);
+        if(next<0){showResult(true);return;}
+        gs.enemyIdx=next;setEnemy(next);
+        addLog(`▶ 次の敵！ <b class="e">${gs.enemies[next].name}</b> が現れた！`);
+        updateUI();
+      },500);
+      return;
     }
-  } else {
-    document.getElementById('battle-screen').style.display = 'flex';
+  }
+  updateUI();
+}
+
+function showResult(win){
+  showScreen('result-screen');
+  const st=gs.stage;
+  document.getElementById('rtitle').textContent=win?'VICTORY!!':'DEFEATED...';
+  document.getElementById('rtitle').className='rtitle '+(win?'win':'lose');
+  document.getElementById('rstory').innerHTML=win?st.win:st.lose;
+  const rr=document.getElementById('rreward');
+  if(win&&st.reward&&st.reward.items.length>0){
+    st.reward.items.forEach(i=>gs.items[i]++);
+    document.getElementById('rreward-txt').textContent=st.reward.desc;
+    rr.style.display='block';
+  }else{rr.style.display='none';}
+  const isLast=gs.stageIdx>=STAGES.length-1;
+  document.getElementById('btn-next').textContent=win?(isLast?'▶ TITLE へ':'▶ NEXT STAGE'):'▶ もう一度！';
+}
+
+function nextStage(){
+  const win=document.getElementById('rtitle').className.includes('win');
+  showScreen('battle-screen');
+  if(win){
+    const next=gs.stageIdx+1;
+    if(next>=STAGES.length){showScreen('title-screen');return;}
+    gs.player.hp=gs.player.maxHp;gs.player.sp=0;
+    loadStage(next);
+  }else{
+    gs.player.hp=gs.player.maxHp;gs.player.sp=0;
     loadStage(gs.stageIdx);
   }
 }
 
-// キーボード操作
-document.addEventListener('keydown', e => {
-  if (document.getElementById('battle-screen').style.display === 'flex') {
-    if (e.code === 'KeyA') playerAction(0);
-    else if (e.code === 'KeyS') playerAction(1);
-    else if (e.code === 'KeyD') playerAction(2);
-    else if (e.code === 'Space') { e.preventDefault(); playerAction(3); }
+document.addEventListener('keydown',ev=>{
+  const bs=document.getElementById('battle-screen').classList.contains('active');
+  const ts=document.getElementById('title-screen').classList.contains('active');
+  const rs=document.getElementById('result-screen').classList.contains('active');
+  if(document.getElementById('speech-overlay').style.display==='flex'){
+    if(ev.code==='Enter'||ev.code==='Space'){ev.preventDefault();if(gs._speechClose)gs._speechClose();}
+    return;
   }
-  if (document.getElementById('title-screen').style.display !== 'none') {
-    if (e.code === 'Space' || e.code === 'Enter') startGame();
+  if(bs){
+    if(ev.code==='KeyA')pAct(0);
+    else if(ev.code==='KeyS')pAct(1);
+    else if(ev.code==='KeyD')pAct(2);
+    else if(ev.code==='KeyG')pAct(4);
+    else if(ev.code==='KeyH')pAct(5);
+    else if(ev.code==='Space'){ev.preventDefault();pAct(6);}
+    else if(ev.code==='KeyJ')pAct(7);
+    else if(ev.code==='Digit1')useItem(0);
+    else if(ev.code==='Digit2')useItem(1);
+    else if(ev.code==='Digit3')useItem(2);
+    else if(ev.code==='Digit4')useItem(3);
   }
-  if (document.getElementById('result-screen').style.display !== 'none') {
-    if (e.code === 'Space' || e.code === 'Enter') nextStage();
-  }
+  if(ts&&(ev.code==='Space'||ev.code==='Enter')){ev.preventDefault();startGame();}
+  if(rs&&(ev.code==='Space'||ev.code==='Enter')){ev.preventDefault();nextStage();}
 });
 </script>
 </body>
