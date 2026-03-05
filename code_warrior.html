@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コードウォーリアー：デジタル大戦</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  :root {
+    --cyan: #00fff5;
+    --magenta: #ff00aa;
+    --yellow: #ffe600;
+    --bg: #03040f;
+    --panel: #080d1e;
+    --border: #0d2040;
+    --glow-cyan: 0 0 10px #00fff5, 0 0 30px #00fff566;
+    --glow-mag: 0 0 10px #ff00aa, 0 0 30px #ff00aa66;
+    --glow-yellow: 0 0 10px #ffe600, 0 0 30px #ffe60066;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: #cce8ff;
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* スキャンライン */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,245,0.02) 2px,
+      rgba(0,255,245,0.02) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ノイズ */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+  }
+
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,245,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,245,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridScroll 20s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gridScroll {
+    from { background-position: 0 0; }
+    to { background-position: 0 40px; }
+  }
+
+  #game {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* ===== TITLE ===== */
+  #title-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 24px;
+  }
+
+  .game-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(28px, 6vw, 52px);
+    text-align: center;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    animation: flicker 4s infinite;
+  }
+
+  .game-logo span {
+    display: block;
+    color: var(--magenta);
+    text-shadow: var(--glow-mag);
+    font-size: 0.55em;
+    letter-spacing: 0.25em;
+  }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.8; }
+    97% { opacity: 1; }
+    98% { opacity: 0.6; }
+    99% { opacity: 1; }
+  }
+
+  .story-box {
+    background: linear-gradient(135deg, #080d1e, #0d1530);
+    border: 1px solid var(--cyan);
+    border-left: 4px solid var(--cyan);
+    box-shadow: var(--glow-cyan), inset 0 0 30px rgba(0,255,245,0.03);
+    padding: 20px 24px;
+    max-width: 600px;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #aaddf0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .story-box::before {
+    content: 'STORY';
+    position: absolute;
+    top: 8px; right: 12px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    opacity: 0.5;
+    letter-spacing: 0.2em;
+  }
+
+  .story-box b {
+    color: var(--yellow);
+    text-shadow: var(--glow-yellow);
+  }
+
+  .btn-start {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.2em;
+    padding: 14px 40px;
+    background: transparent;
+    border: 2px solid var(--magenta);
+    color: var(--magenta);
+    text-shadow: var(--glow-mag);
+    box-shadow: var(--glow-mag);
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    animation: pulse 2s infinite;
+  }
+
+  .btn-start:hover {
+    background: var(--magenta);
+    color: var(--bg);
+    text-shadow: none;
+    transform: scale(1.05);
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: var(--glow-mag); }
+    50% { box-shadow: 0 0 20px #ff00aa, 0 0 60px #ff00aa88; }
+  }
+
+  /* ===== BATTLE SCREEN ===== */
+  #battle-screen { display: none; flex-direction: column; height: 100%; gap: 10px; }
+
+  /* ヘッダー */
+  .hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(0,255,245,0.2);
+  }
+
+  .stage-info { color: var(--yellow); text-shadow: var(--glow-yellow); }
+
+  /* HP バー */
+  .fighters {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .fighter-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    position: relative;
+  }
+
+  .fighter-card.player { border-color: var(--cyan); box-shadow: inset 0 0 20px rgba(0,255,245,0.05); }
+  .fighter-card.enemy { border-color: var(--magenta); box-shadow: inset 0 0 20px rgba(255,0,170,0.05); text-align: right; }
+
+  .fighter-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .fighter-card.player .fighter-name { color: var(--cyan); text-shadow: var(--glow-cyan); }
+  .fighter-card.enemy .fighter-name { color: var(--magenta); text-shadow: var(--glow-mag); }
+
+  .hp-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: #668899;
+    margin-bottom: 3px;
+  }
+
+  .hp-bar-wrap {
+    background: #0a1220;
+    border: 1px solid #1a3050;
+    height: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hp-bar {
+    height: 100%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .hp-bar.player-hp {
+    background: linear-gradient(90deg, #005577, var(--cyan));
+    box-shadow: 0 0 10px var(--cyan);
+  }
+
+  .hp-bar.enemy-hp {
+    background: linear-gradient(90deg, var(--magenta), #770033);
+    float: right;
+    box-shadow: 0 0 10px var(--magenta);
+  }
+
+  .hp-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg, transparent, transparent 8px,
+      rgba(255,255,255,0.06) 8px, rgba(255,255,255,0.06) 9px
+    );
+  }
+
+  .hp-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: #aaccdd;
+    margin-top: 3px;
+  }
+
+  .vs-badge {
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--yellow);
+    text-shadow: var(--glow-yellow);
+    animation: vsPulse 1.5s infinite alternate;
+  }
+
+  @keyframes vsPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+
+  /* バトルアリーナ */
+  .arena {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid rgba(0,255,245,0.15);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .arena::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
+    opacity: 0.3;
+  }
+
+  .arena-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px;
+    gap: 4px;
+    position: relative;
+  }
+
+  /* キャラクター */
+  .char {
+    font-size: clamp(50px, 8vw, 80px);
+    line-height: 1;
+    filter: drop-shadow(0 0 8px currentColor);
+    transition: transform 0.1s;
+    position: relative;
+  }
+
+  .char.player-char { color: var(--cyan); }
+  .char.enemy-char { color: var(--magenta); transform: scaleX(-1); }
+  .char.attack-anim { animation: attackBounce 0.3s ease; }
+  .char.hurt-anim { animation: hurtShake 0.3s ease; }
+  .char.dead { filter: grayscale(1) opacity(0.3); }
+
+  @keyframes attackBounce {
+    0% { transform: translateX(0) scaleX(1); }
+    40% { transform: translateX(20px) scaleX(1.1); }
+    100% { transform: translateX(0) scaleX(1); }
+  }
+  .char.enemy-char.attack-anim {
+    animation: attackBounceEnemy 0.3s ease;
+  }
+  @keyframes attackBounceEnemy {
+    0% { transform: translateX(0) scaleX(-1); }
+    40% { transform: translateX(-20px) scaleX(-1.1); }
+    100% { transform: translateX(0) scaleX(-1); }
+  }
+  @keyframes hurtShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .char-name-tag {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 2px 8px;
+    border: 1px solid;
+  }
+
+  .player-side .char-name-tag { color: var(--cyan); border-color: var(--cyan); text-shadow: var(--glow-cyan); }
+  .enemy-side .char-name-tag { color: var(--magenta); border-color: var(--magenta); text-shadow: var(--glow-mag); }
+
+  /* ダメージ表示 */
+  .damage-float {
+    position: absolute;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 24px;
+    pointer-events: none;
+    animation: floatUp 0.8s ease forwards;
+    z-index: 100;
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    50% { opacity: 1; transform: translateY(-30px) scale(1.3); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+  }
+
+  /* コマンドパネル */
+  .command-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid rgba(255,0,170,0.2);
+    padding: 10px 14px;
+  }
+
+  .command-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: #446688;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+  }
+
+  .command-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .cmd-btn {
+    background: linear-gradient(135deg, #0a1220, #0d1830);
+    border: 1px solid var(--border);
+    color: #aaccdd;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    transition: all 0.15s;
+    position: relative;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .cmd-btn:hover:not(:disabled) {
+    border-color: var(--cyan);
+    box-shadow: var(--glow-cyan);
+    color: var(--cyan);
+    background: linear-gradient(135deg, #0d2030, #0a1a28);
+  }
+
+  .cmd-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .cmd-btn .key-badge {
+    display: block;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--yellow);
+    text-shadow: var(--glow-yellow);
+    margin-bottom: 2px;
+  }
+
+  .cmd-btn .cmd-name { font-size: 11px; }
+  .cmd-btn .cmd-cost { font-size: 9px; color: #88aabb; margin-top: 2px; }
+
+  .cmd-btn.special {
+    border-color: #3a1060;
+    color: #cc88ff;
+  }
+  .cmd-btn.special:hover:not(:disabled) {
+    border-color: #aa44ff;
+    box-shadow: 0 0 10px #aa44ff, 0 0 30px #aa44ff66;
+    color: #aa44ff;
+  }
+  .cmd-btn.special .key-badge { color: #cc88ff; text-shadow: 0 0 10px #aa44ff; }
+
+  /* SPゲージ */
+  .sp-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .sp-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: #aa44ff;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .sp-bar-bg {
+    flex: 1;
+    background: #0a1220;
+    border: 1px solid #3a1060;
+    height: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6600cc, #aa44ff);
+    box-shadow: 0 0 8px #aa44ff;
+    transition: width 0.3s;
+  }
+
+  .sp-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: #cc88ff;
+    white-space: nowrap;
+  }
+
+  /* ログ */
+  .battle-log {
+    height: 56px;
+    overflow: hidden;
+    border-top: 1px solid rgba(0,255,245,0.1);
+    padding-top: 6px;
+  }
+
+  .log-entry {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #88aabb;
+    animation: logFade 0.3s ease;
+  }
+
+  .log-entry.latest { color: #cce8ff; }
+  .log-entry b.player { color: var(--cyan); }
+  .log-entry b.enemy { color: var(--magenta); }
+  .log-entry b.dmg { color: var(--yellow); }
+
+  @keyframes logFade {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ===== RESULT SCREEN ===== */
+  #result-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 20px;
+  }
+
+  .result-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(32px, 8vw, 64px);
+    letter-spacing: 0.15em;
+    animation: resultPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .result-title.win { color: var(--cyan); text-shadow: var(--glow-cyan); }
+  .result-title.lose { color: var(--magenta); text-shadow: var(--glow-mag); }
+
+  @keyframes resultPop {
+    from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+    to { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .result-story {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px 24px;
+    max-width: 500px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #99bbcc;
+    text-align: center;
+  }
+
+  .result-story b { color: var(--yellow); }
+
+  .btn-next {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    padding: 12px 32px;
+    background: transparent;
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    box-shadow: var(--glow-cyan);
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    animation: pulse2 2s infinite;
+  }
+
+  .btn-next:hover {
+    background: var(--cyan);
+    color: var(--bg);
+    text-shadow: none;
+  }
+
+  @keyframes pulse2 {
+    0%, 100% { box-shadow: var(--glow-cyan); }
+    50% { box-shadow: 0 0 20px #00fff5, 0 0 60px #00fff588; }
+  }
+
+  /* フラッシュ */
+  .screen-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  .screen-flash.cyan { background: rgba(0,255,245,0.15); }
+  .screen-flash.red { background: rgba(255,0,80,0.2); }
+  .screen-flash.active { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="bg-grid"></div>
+<div class="screen-flash cyan" id="flash-cyan"></div>
+<div class="screen-flash red" id="flash-red"></div>
+
+<div id="game">
+
+<!-- ===== タイトル ===== -->
+<div id="title-screen">
+  <div class="game-logo">
+    コードウォーリアー
+    <span>DIGITAL WARS</span>
+  </div>
+  <div class="story-box">
+    <p>西暦 <b>2087年</b>。デジタル空間「サイバーネット」が人々の心をのっとろうとしていた。</p>
+    <p>その中で、ただ一人の少年がキーボードを武器に立ち上がった。</p>
+    <p>コードを打ち込み、技を発動させる。敵を倒し、世界を救え。</p>
+    <p>お前が<b>コードウォーリアー</b>だ！</p>
+  </div>
+  <button class="btn-start" onclick="startGame()">▶ BATTLE START</button>
+</div>
+
+<!-- ===== バトル ===== -->
+<div id="battle-screen">
+  <div class="hud-top">
+    <span id="stage-label" class="stage-info">STAGE 1-1</span>
+    <span>CODE WARRIOR DIGITAL WARS</span>
+    <span id="turn-label">TURN 1</span>
+  </div>
+
+  <div class="fighters">
+    <div class="fighter-card player">
+      <div class="fighter-name">⚡ RYU-X</div>
+      <div class="hp-label">HP</div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar player-hp" id="player-hp-bar" style="width:100%"></div>
+      </div>
+      <div class="hp-num" id="player-hp-num">100 / 100</div>
+    </div>
+    <div class="vs-badge">VS</div>
+    <div class="fighter-card enemy">
+      <div class="fighter-name" id="enemy-name-hud">VIRUS-01 🦠</div>
+      <div class="hp-label">HP</div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar enemy-hp" id="enemy-hp-bar" style="width:100%"></div>
+      </div>
+      <div class="hp-num" id="enemy-hp-num">80 / 80</div>
+    </div>
+  </div>
+
+  <div class="arena">
+    <div class="arena-side player-side">
+      <div class="char player-char" id="player-char">🤖</div>
+      <div class="char-name-tag">PLAYER</div>
+    </div>
+    <div class="arena-side enemy-side">
+      <div class="char enemy-char" id="enemy-char">🦠</div>
+      <div class="char-name-tag" id="enemy-tag">VIRUS-01</div>
+    </div>
+  </div>
+
+  <div class="command-panel">
+    <div class="sp-bar-wrap">
+      <span class="sp-label">SP GAUGE</span>
+      <div class="sp-bar-bg"><div class="sp-bar-fill" id="sp-bar" style="width:0%"></div></div>
+      <span class="sp-num" id="sp-num">0 / 100</span>
+    </div>
+    <div class="command-label">COMMAND SELECT — キーを押してわざを選べ！</div>
+    <div class="command-grid">
+      <button class="cmd-btn" id="btn-a" onclick="playerAction(0)">
+        <span class="key-badge">A</span>
+        <span class="cmd-name">コードアタック</span>
+        <span class="cmd-cost">通常攻撃</span>
+      </button>
+      <button class="cmd-btn" id="btn-s" onclick="playerAction(1)">
+        <span class="key-badge">S</span>
+        <span class="cmd-name">バリアーシールド</span>
+        <span class="cmd-cost">防御+回復</span>
+      </button>
+      <button class="cmd-btn" id="btn-d" onclick="playerAction(2)">
+        <span class="key-badge">D</span>
+        <span class="cmd-name">デバッグバースト</span>
+        <span class="cmd-cost">SP +20</span>
+      </button>
+      <button class="cmd-btn special" id="btn-space" onclick="playerAction(3)">
+        <span class="key-badge">SPACE</span>
+        <span class="cmd-name">オーバードライブ</span>
+        <span class="cmd-cost">SP 100 必要</span>
+      </button>
+    </div>
+    <div class="battle-log" id="battle-log">
+      <div class="log-entry latest">▶ バトル開始！コマンドを選べ！</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== リザルト ===== -->
+<div id="result-screen">
+  <div class="result-title" id="result-title">VICTORY</div>
+  <div class="result-story" id="result-story"></div>
+  <button class="btn-next" id="btn-next" onclick="nextStage()">▶ NEXT STAGE</button>
+</div>
+
+</div>
+
+<script>
+const STAGES = [
+  {
+    stage: '1-1',
+    enemy: { name: 'VIRUS-01', emoji: '🦠', tag: 'VIRUS-01', hp: 80, maxHp: 80, atk: [8,12], def: 0, spd: 0.3 },
+    intro: '「ウフフ、子どもが来たか。デジタルウイルスのワシに勝てるかな？」',
+    winStory: '<b>VIRUS-01</b>を撃退した！<br>ウイルスは消滅した。しかしこれはまだ始まりにすぎない……',
+    loseStory: 'ウイルスにやられてしまった……<br>もう一度立ち上がれ、<b>コードウォーリアー</b>！'
+  },
+  {
+    stage: '1-2',
+    enemy: { name: 'HACKER-X', emoji: '💀', tag: 'HACKER-X', hp: 100, maxHp: 100, atk: [10,16], def: 2, spd: 0.4 },
+    intro: '「オレは闇のハッカー、HACKER-X。お前のコードはオレには通じない！」',
+    winStory: '<b>HACKER-X</b>を倒した！<br>「まさか……本物のコードウォーリアーだったのか……」<br>奥の扉が開いた。',
+    loseStory: 'ハッカーの攻撃は速かった……<br>あきらめるな！<b>SP</b>をためてオーバードライブを使え！'
+  },
+  {
+    stage: '2-1',
+    enemy: { name: 'DARK-AI', emoji: '🤖', tag: 'DARK-AI', hp: 130, maxHp: 130, atk: [12,20], def: 4, spd: 0.5 },
+    intro: '「わたしは闇のAI。感情なし、弱点なし。あなたは負ける。」',
+    winStory: '<b>DARK-AI</b>を撃破！<br>「……にんげん、つよい。ワタシ、りかいデキナイ……」<br>AIの目から青い光が消えた。',
+    loseStory: 'ダークAIは強すぎた……<br><b>バリアーシールド</b>で防御しながら戦え！'
+  },
+  {
+    stage: '2-2',
+    enemy: { name: 'NEO-VIRUS', emoji: '👾', tag: 'NEO-VIRUS', hp: 160, maxHp: 160, atk: [15,22], def: 6, spd: 0.55 },
+    intro: '「やっと来たな……ワシが最強のNEO-VIRUSだ！世界はすでにオレのものだ！」',
+    winStory: '<b>NEO-VIRUS</b>を完全消滅！<br>「バカな……キーボードひとつで……！」<br>サイバーネットに平和が戻った！<br><b>おめでとう！世界を救ったぞ！</b>',
+    loseStory: 'NEO-VIRUSは最強だった……<br>でも、あきらめない心が本当の強さだ。<br>もう一度挑戦しろ！'
+  }
+];
+
+const MOVES = [
+  { name: 'コードアタック', type: 'attack', dmgMult: 1.0, spGain: 15 },
+  { name: 'バリアーシールド', type: 'defend', healPct: 0.12, spGain: 10 },
+  { name: 'デバッグバースト', type: 'spcharge', spGain: 35, dmgMult: 0.5 },
+  { name: 'オーバードライブ', type: 'special', dmgMult: 2.8, spCost: 100 }
+];
+
+let gs = {};
+
+function startGame() {
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('battle-screen').style.display = 'flex';
+  loadStage(0);
+}
+
+function loadStage(idx) {
+  const s = STAGES[idx];
+  const e = { ...s.enemy };
+
+  gs = {
+    stageIdx: idx,
+    stage: s,
+    player: { hp: 100, maxHp: 100, def: false, sp: 0 },
+    enemy: e,
+    turn: 1,
+    playerTurn: true,
+    busy: false
+  };
+
+  document.getElementById('stage-label').textContent = 'STAGE ' + s.stage;
+  document.getElementById('turn-label').textContent = 'TURN 1';
+  document.getElementById('enemy-name-hud').textContent = e.name + ' ' + e.emoji;
+  document.getElementById('enemy-char').textContent = e.emoji;
+  document.getElementById('enemy-tag').textContent = e.tag;
+  document.getElementById('player-char').textContent = '🤖';
+  document.getElementById('player-char').className = 'char player-char';
+  document.getElementById('enemy-char').className = 'char enemy-char';
+
+  updateUI();
+  setLog(`【${e.name}】${s.intro}`, false);
+  setTimeout(() => addLog('▶ バトル開始！コマンドを選べ！'), 1200);
+  setButtons(true);
+}
+
+function updateUI() {
+  const p = gs.player, e = gs.enemy;
+  document.getElementById('player-hp-bar').style.width = Math.max(0, (p.hp / p.maxHp) * 100) + '%';
+  document.getElementById('player-hp-num').textContent = `${Math.max(0,p.hp)} / ${p.maxHp}`;
+  document.getElementById('enemy-hp-bar').style.width = Math.max(0, (e.hp / e.maxHp) * 100) + '%';
+  document.getElementById('enemy-hp-num').textContent = `${Math.max(0,e.hp)} / ${e.maxHp}`;
+  document.getElementById('sp-bar').style.width = p.sp + '%';
+  document.getElementById('sp-num').textContent = `${Math.round(p.sp)} / 100`;
+  document.getElementById('btn-space').disabled = p.sp < 100;
+}
+
+function setButtons(enabled) {
+  ['btn-a','btn-s','btn-d','btn-space'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.disabled = !enabled;
+  });
+  if (enabled && gs.player.sp < 100) document.getElementById('btn-space').disabled = true;
+}
+
+function setLog(txt, latest = true) {
+  const log = document.getElementById('battle-log');
+  log.innerHTML = `<div class="log-entry ${latest ? 'latest' : ''}">${txt}</div>`;
+}
+
+function addLog(txt) {
+  const log = document.getElementById('battle-log');
+  const prev = log.querySelector('.log-entry.latest');
+  if (prev) prev.className = 'log-entry';
+  const div = document.createElement('div');
+  div.className = 'log-entry latest';
+  div.innerHTML = txt;
+  log.appendChild(div);
+  while (log.children.length > 3) log.removeChild(log.firstChild);
+}
+
+function floatDamage(x, y, val, color) {
+  const el = document.createElement('div');
+  el.className = 'damage-float';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.color = color;
+  el.textContent = '-' + val;
+  document.getElementById('game').appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+function flash(type) {
+  const el = document.getElementById('flash-' + type);
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 150);
+}
+
+function animChar(id, cls, duration = 350) {
+  return new Promise(resolve => {
+    const el = document.getElementById(id);
+    el.classList.add(cls);
+    setTimeout(() => { el.classList.remove(cls); resolve(); }, duration);
+  });
+}
+
+function calcDmg(base, mult, def) {
+  const raw = base[0] + Math.floor(Math.random() * (base[1] - base[0] + 1));
+  return Math.max(1, Math.round(raw * mult) - def);
+}
+
+async function playerAction(moveIdx) {
+  if (!gs.playerTurn || gs.busy) return;
+  gs.busy = true;
+  setButtons(false);
+
+  const move = MOVES[moveIdx];
+  const p = gs.player;
+
+  if (move.type === 'special' && p.sp < 100) {
+    addLog('⚠ SPが足りない！');
+    gs.busy = false;
+    setButtons(true);
+    return;
+  }
+
+  // プレイヤー行動
+  if (move.type === 'attack') {
+    const baseDmg = [18, 25];
+    const dmg = calcDmg(baseDmg, move.dmgMult, gs.enemy.def);
+    gs.enemy.hp -= dmg;
+    p.sp = Math.min(100, p.sp + move.spGain);
+    p.def = false;
+    await animChar('player-char', 'attack-anim');
+    flash('cyan');
+    const enemyEl = document.getElementById('enemy-char');
+    const rect = enemyEl.getBoundingClientRect();
+    floatDamage(rect.left + 20, rect.top, dmg, '#ffe600');
+    await animChar('enemy-char', 'hurt-anim');
+    addLog(`<b class="player">RYU-X</b> の<b>${move.name}</b>！ <b class="dmg">${dmg}ダメージ</b>！`);
+
+  } else if (move.type === 'defend') {
+    const heal = Math.round(p.maxHp * move.healPct);
+    p.hp = Math.min(p.maxHp, p.hp + heal);
+    p.sp = Math.min(100, p.sp + move.spGain);
+    p.def = true;
+    await animChar('player-char', 'attack-anim');
+    flash('cyan');
+    addLog(`<b class="player">RYU-X</b> が<b>${move.name}</b>！ HP+${heal}、防御態勢！`);
+
+  } else if (move.type === 'spcharge') {
+    const baseDmg = [10, 15];
+    const dmg = calcDmg(baseDmg, move.dmgMult, gs.enemy.def);
+    gs.enemy.hp -= dmg;
+    p.sp = Math.min(100, p.sp + move.spGain);
+    p.def = false;
+    await animChar('player-char', 'attack-anim');
+    flash('cyan');
+    addLog(`<b class="player">RYU-X</b> の<b>${move.name}</b>！ ${dmg}ダメージ＆SP+${move.spGain}！`);
+
+  } else if (move.type === 'special') {
+    const baseDmg = [18, 25];
+    const dmg = calcDmg(baseDmg, move.dmgMult, 0);
+    gs.enemy.hp -= dmg;
+    p.sp = 0;
+    p.def = false;
+    await animChar('player-char', 'attack-anim');
+    flash('cyan');
+    flash('red');
+    const enemyEl = document.getElementById('enemy-char');
+    const rect = enemyEl.getBoundingClientRect();
+    floatDamage(rect.left + 10, rect.top - 10, dmg, '#ff44ff');
+    await animChar('enemy-char', 'hurt-anim');
+    addLog(`🌟 <b class="player">RYU-X</b> の<b>${move.name}</b>！！ <b class="dmg">${dmg}ダメージ</b>！！`);
+  }
+
+  updateUI();
+
+  // 敵倒した？
+  if (gs.enemy.hp <= 0) {
+    gs.enemy.hp = 0;
+    updateUI();
+    document.getElementById('enemy-char').classList.add('dead');
+    setTimeout(() => showResult(true), 800);
+    return;
+  }
+
+  // 敵のターン
+  await new Promise(r => setTimeout(r, 600));
+  await enemyTurn();
+}
+
+async function enemyTurn() {
+  const e = gs.enemy;
+  const p = gs.player;
+
+  // 難易度：一定確率で強攻撃
+  const roll = Math.random();
+  let dmg = 0;
+  let msg = '';
+
+  if (roll < e.spd) {
+    // 2回攻撃
+    const d1 = calcDmg(e.atk, 0.8, p.def ? 6 : 0);
+    const d2 = calcDmg(e.atk, 0.8, p.def ? 6 : 0);
+    dmg = d1 + d2;
+    msg = `<b class="enemy">${e.name}</b> の<b>れんぞく攻撃</b>！ <b class="dmg">${dmg}ダメージ</b>！`;
+  } else if (roll < 0.85) {
+    dmg = calcDmg(e.atk, 1.0, p.def ? 6 : 0);
+    msg = `<b class="enemy">${e.name}</b> の攻撃！ <b class="dmg">${dmg}ダメージ</b>！`;
+  } else {
+    // 大技
+    dmg = calcDmg(e.atk, 1.6, p.def ? 4 : 0);
+    msg = `⚠ <b class="enemy">${e.name}</b> の<b>必殺技</b>！！ <b class="dmg">${dmg}ダメージ</b>！！`;
+  }
+
+  p.hp -= dmg;
+  p.def = false;
+
+  await animChar('enemy-char', 'attack-anim');
+  flash('red');
+  const playerEl = document.getElementById('player-char');
+  const rect = playerEl.getBoundingClientRect();
+  floatDamage(rect.left + 20, rect.top, dmg, '#ff4466');
+  await animChar('player-char', 'hurt-anim');
+  addLog(msg);
+
+  updateUI();
+  gs.turn++;
+  document.getElementById('turn-label').textContent = `TURN ${gs.turn}`;
+
+  if (p.hp <= 0) {
+    p.hp = 0;
+    updateUI();
+    document.getElementById('player-char').classList.add('dead');
+    setTimeout(() => showResult(false), 800);
+    return;
+  }
+
+  gs.busy = false;
+  setButtons(true);
+}
+
+function showResult(win) {
+  const s = gs.stage;
+  document.getElementById('battle-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'flex';
+
+  const title = document.getElementById('result-title');
+  const story = document.getElementById('result-story');
+  const btnNext = document.getElementById('btn-next');
+
+  if (win) {
+    title.textContent = 'VICTORY!!';
+    title.className = 'result-title win';
+    story.innerHTML = s.winStory;
+    const isLast = gs.stageIdx >= STAGES.length - 1;
+    btnNext.textContent = isLast ? '▶ TITLE へ' : '▶ NEXT STAGE';
+  } else {
+    title.textContent = 'DEFEATED...';
+    title.className = 'result-title lose';
+    story.innerHTML = s.loseStory;
+    btnNext.textContent = '▶ もう一度！';
+  }
+}
+
+function nextStage() {
+  const win = gs.stage && document.getElementById('result-title').className.includes('win');
+  document.getElementById('result-screen').style.display = 'none';
+
+  if (win) {
+    const nextIdx = gs.stageIdx + 1;
+    if (nextIdx >= STAGES.length) {
+      // ゲームクリア → タイトルへ
+      document.getElementById('title-screen').style.display = 'flex';
+      document.getElementById('battle-screen').style.display = 'none';
+    } else {
+      document.getElementById('battle-screen').style.display = 'flex';
+      loadStage(nextIdx);
+    }
+  } else {
+    document.getElementById('battle-screen').style.display = 'flex';
+    loadStage(gs.stageIdx);
+  }
+}
+
+// キーボード操作
+document.addEventListener('keydown', e => {
+  if (document.getElementById('battle-screen').style.display === 'flex') {
+    if (e.code === 'KeyA') playerAction(0);
+    else if (e.code === 'KeyS') playerAction(1);
+    else if (e.code === 'KeyD') playerAction(2);
+    else if (e.code === 'Space') { e.preventDefault(); playerAction(3); }
+  }
+  if (document.getElementById('title-screen').style.display !== 'none') {
+    if (e.code === 'Space' || e.code === 'Enter') startGame();
+  }
+  if (document.getElementById('result-screen').style.display !== 'none') {
+    if (e.code === 'Space' || e.code === 'Enter') nextStage();
+  }
+});
+</script>
+</body>
+</html>
