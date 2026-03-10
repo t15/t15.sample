@@ -96,7 +96,7 @@ body::before {
 }
 .nav-btn-danger:hover { color: #e07a7a; border-color: rgba(224,120,120,0.4); }
 
-/* ── Canvas layer for bubbles ── */
+.nav-btn-active { color: var(--accent) !important; border-color: rgba(200,184,154,0.55) !important; background: rgba(200,184,154,0.07); }
 #canvas { position: fixed; inset: 0; z-index: 10; }
 
 /* ── Lightbox ── */
@@ -292,6 +292,7 @@ body::before {
       <input type="file" accept="image/*" multiple id="fileInput">
     </label>
     <button class="nav-btn nav-btn-danger" id="clearBtn">✕ クリア</button>
+    <button class="nav-btn" id="gridBtn">⊞ グリッド</button>
     <button class="nav-btn" id="helpBtn">? how to use</button>
   </div>
   <div class="nav-right">
@@ -330,11 +331,15 @@ body::before {
     <ul class="help-list">
       <li>
         <span class="help-key">Add photos</span>
-        <span class="help-val">Click "写真を追加" at the bottom, or drag &amp; drop images anywhere.</span>
+        <span class="help-val">Click "+ 写真を追加" in the toolbar, or drag &amp; drop images anywhere on screen.</span>
       </li>
       <li>
         <span class="help-key">Browse</span>
         <span class="help-val">Photos float as bubbles. Drag or swipe to stir them.</span>
+      </li>
+      <li>
+        <span class="help-key">Grid</span>
+        <span class="help-val">Click "⊞ グリッド" to align all bubbles in a tidy grid. Click "◎ フロート" to return to free-float.</span>
       </li>
       <li>
         <span class="help-key">View</span>
@@ -447,7 +452,7 @@ function resize() {
   W = canvas.width  = window.innerWidth;
   H = canvas.height = window.innerHeight;
 }
-window.addEventListener('resize', () => { resize(); layoutBubbles(); });
+window.addEventListener('resize', () => { resize(); layoutBubbles(); if (gridMode) calcGridPositions(); });
 resize();
 
 class Bubble {
@@ -505,11 +510,12 @@ class Bubble {
   }
 
   draw(t) {
-    // wobble offset
-    const wx = Math.sin(t * this.wobbleSpd + this.phase) * this.wobbleAmp;
-    const wy = Math.cos(t * this.wobbleSpd * 0.7 + this.phase + 1) * this.wobbleAmp;
+    // wobble only in float mode
+    const wx = gridMode ? 0 : Math.sin(t * this.wobbleSpd + this.phase) * this.wobbleAmp;
+    const wy = gridMode ? 0 : Math.cos(t * this.wobbleSpd * 0.7 + this.phase + 1) * this.wobbleAmp;
     const sc = this.scale;
-    const r  = Math.round(this.r * sc);
+    const baseR = gridMode ? (this.gridR ?? this.r) : this.r;
+    const r  = Math.round(baseR * sc);
 
     if (this.imgReady) this.buildCache(r);
 
@@ -567,19 +573,29 @@ class Bubble {
   }
 
   update(t) {
-    this.x += this.vx;
-    this.y += this.vy;
-
-    // wrap-around: reappear from opposite edge
-    const pad = this.r;
-    if (this.x < -pad)    this.x = W + pad;
-    if (this.x > W + pad) this.x = -pad;
-    if (this.y < -pad)    this.y = H + pad;
-    if (this.y > H + pad) this.y = -pad;
-
-    // velocity drag (slow back to base speed after stir)
-    this.vx += (this.baseVx - this.vx) * 0.008;
-    this.vy += (this.baseVy - this.vy) * 0.008;
+    if (gridMode) {
+      // spring toward grid target
+      const tx = this.targetX ?? this.x;
+      const ty = this.targetY ?? this.y;
+      this.vx += (tx - this.x) * 0.06;
+      this.vy += (ty - this.y) * 0.06;
+      this.vx *= 0.78; // dampen
+      this.vy *= 0.78;
+      this.x += this.vx;
+      this.y += this.vy;
+    } else {
+      this.x += this.vx;
+      this.y += this.vy;
+      // wrap-around
+      const pad = this.r;
+      if (this.x < -pad)    this.x = W + pad;
+      if (this.x > W + pad) this.x = -pad;
+      if (this.y < -pad)    this.y = H + pad;
+      if (this.y > H + pad) this.y = -pad;
+      // velocity drag back to base
+      this.vx += (this.baseVx - this.vx) * 0.008;
+      this.vy += (this.baseVy - this.vy) * 0.008;
+    }
 
     // scale spring (hover)
     const target = this.hovered ? 1 : 0;
@@ -589,8 +605,41 @@ class Bubble {
 
   contains(mx, my) {
     const dx = mx - this.x, dy = my - this.y;
-    return Math.sqrt(dx*dx + dy*dy) < this.r * this.scale;
+    const r = gridMode ? (this.gridR ?? this.r) : this.r;
+    return Math.sqrt(dx*dx + dy*dy) < r * this.scale;
   }
+}
+
+let gridMode = false;
+
+function calcGridPositions() {
+  const n = bubbles.length;
+  if (n === 0) return;
+  const HEADER = 64;
+  const avail_w = W;
+  const avail_h = H - HEADER;
+
+  // find best grid cols that minimises wasted space
+  let bestCols = 1, bestR = 0;
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    const rx = (avail_w / cols) * 0.42;
+    const ry = (avail_h / rows) * 0.42;
+    const r  = Math.min(rx, ry, 130);
+    if (r > bestR) { bestR = r; bestCols = cols; }
+  }
+  const cols = bestCols;
+  const rows = Math.ceil(n / cols);
+  const cellW = avail_w / cols;
+  const cellH = avail_h / rows;
+
+  bubbles.forEach((b, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    b.targetX = cellW * col + cellW / 2;
+    b.targetY = HEADER + cellH * row + cellH / 2;
+    b.gridR   = Math.min(cellW, cellH) * 0.38;
+  });
 }
 
 function layoutBubbles() {
@@ -599,8 +648,10 @@ function layoutBubbles() {
     const b = new Bubble(p, i);
     b.x = 120 + Math.random() * (W - 240);
     b.y = 100 + Math.random() * (H - 200);
+    b.targetX = b.x; b.targetY = b.y; b.gridR = b.r;
     return b;
   });
+  if (gridMode) calcGridPositions();
 }
 
 let t = 0;
@@ -718,11 +769,34 @@ lightbox.addEventListener('touchend', e => {
 //  CLEAR PHOTOS
 // ════════════════════════════════════════
 document.getElementById('clearBtn').addEventListener('click', () => {
-  if (photos.length === 0) return; // already demo mode
+  if (photos.length === 0) return;
   photos = [];
   closeLightbox();
   layoutBubbles();
   updateCount();
+});
+
+// ════════════════════════════════════════
+//  GRID MODE
+// ════════════════════════════════════════
+const gridBtn = document.getElementById('gridBtn');
+gridBtn.addEventListener('click', () => {
+  gridMode = !gridMode;
+  gridBtn.classList.toggle('nav-btn-active', gridMode);
+  gridBtn.textContent = gridMode ? '◎ フロート' : '⊞ グリッド';
+  if (gridMode) {
+    // freeze base velocity so bubbles stay put after toggling back
+    bubbles.forEach(b => { b.vx = 0; b.vy = 0; });
+    calcGridPositions();
+  } else {
+    // restore gentle random velocities
+    bubbles.forEach(b => {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = bubbleSpeedMult * (0.5 + Math.random() * 0.5);
+      b.baseVx = b.vx = Math.cos(angle) * spd;
+      b.baseVy = b.vy = Math.sin(angle) * spd;
+    });
+  }
 });
 
 // ════════════════════════════════════════
@@ -906,7 +980,8 @@ canvas.addEventListener('touchend', e => {
 
 // ── Stir function: push bubbles near pointer ──
 function stir(px, py, dx, dy) {
-  const REACH  = 180; // influence radius
+  if (gridMode) return; // no stir in grid mode
+  const REACH  = 180;
   const FORCE  = 0.06;
   bubbles.forEach(b => {
     const bdx = b.x - px, bdy = b.y - py;
