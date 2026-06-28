@@ -243,14 +243,12 @@
   }
   .btn-clear:hover { background: #e0e0e0; }
 
-  a.back-link {
-    display: inline-block;
+  .citation {
     margin-top: 28px;
-    font-size: 0.8rem;
-    color: #999;
-    text-decoration: none;
+    font-size: 0.75rem;
+    color: #aaa;
+    text-align: right;
   }
-  a.back-link:hover { color: #4f6ef7; }
 </style>
 </head>
 <body>
@@ -284,7 +282,7 @@
     <button class="btn-clear" onclick="clearAll()">すべてリセット</button>
   </div>
 
-  <a class="back-link" href="index.html">← 一覧に戻る</a>
+  <p class="citation">出典：Alex F. Osborn, <em>Applied Imagination</em> (1953), Scribner</p>
 </div>
 
 <script>
@@ -295,6 +293,7 @@ const CHECKS = [
     ja: "代替する",
     icon: "🔄",
     desc: "何か別のものに置き換えられないか？材料・場所・人・プロセス・感情などを入れ替えてみます。",
+    example: "例：紙の申請書 → オンラインフォームに置き換える",
     questions: [
       "「{theme}」の構成要素のひとつを、まったく別のものに置き換えたら？",
       "担当者・場所・タイミングを変えたらどうなる？",
@@ -307,6 +306,7 @@ const CHECKS = [
     ja: "組み合わせる",
     icon: "🔗",
     desc: "別のアイデアや機能と合体させられないか？異なる要素をひとつにまとめてシナジーを生みます。",
+    example: "例：カフェ × 図書館 → 静かに読書できるブックカフェ",
     questions: [
       "「{theme}」と、一見無関係なものを組み合わせたら？",
       "複数のステップを同時にできないか？",
@@ -319,6 +319,7 @@ const CHECKS = [
     ja: "応用する",
     icon: "🌱",
     desc: "他の分野のアイデアや方法を借用できないか？異業種・自然・歴史から着想を得ます。",
+    example: "例：航空業界の安全チェックリスト → 医療の手術前確認に転用",
     questions: [
       "他の業界ではどんな方法で似た課題を解決している？",
       "「{theme}」を自然界のしくみに例えると？",
@@ -327,14 +328,41 @@ const CHECKS = [
   },
   {
     key: "modify",
-    en: "Modify / Magnify",
-    ja: "修正・拡大する",
+    en: "Modify",
+    ja: "修正する",
+    icon: "✏️",
+    desc: "形・色・音・匂い・意味などを変えてみる。質感や見た目を少し変えるだけで印象が大きく変わります。",
+    example: "例：会議室の壁の色を白→暖色系に変えて創造性を高める",
+    questions: [
+      "「{theme}」の見た目・形・色・素材を変えたら？",
+      "名前や言葉の表現を変えるとイメージが変わる？",
+      "ターゲットや用途の定義を少しずらしたら？"
+    ]
+  },
+  {
+    key: "magnify",
+    en: "Magnify",
+    ja: "拡大する",
     icon: "🔍",
-    desc: "形・色・サイズ・意味などを変えてみる。もっと大きく・多く・強くしたら？",
+    desc: "もっと大きく・多く・長く・強くしたら？誇張することで新たな価値が見えてきます。",
+    example: "例：通常サイズの付箋 → 特大付箋でワークショップの視認性アップ",
     questions: [
       "「{theme}」をもっと大きく・多く・頻繁にしたら？",
       "スピードや強度を10倍にしたらどうなる？",
       "重要な部分だけを誇張して際立たせると？"
+    ]
+  },
+  {
+    key: "minify",
+    en: "Minify",
+    ja: "縮小する",
+    icon: "🔬",
+    desc: "もっと小さく・軽く・短く・省略したら？コンパクトにすることで携帯性や手軽さが増します。",
+    example: "例：分厚いマニュアル → 1枚のクイックリファレンスカードに凝縮",
+    questions: [
+      "「{theme}」をもっと小さく・軽く・短くできないか？",
+      "ステップ数や工数を半分に減らすとしたら？",
+      "ミニマム版・お試し版として提供するとどうなる？"
     ]
   },
   {
@@ -343,6 +371,7 @@ const CHECKS = [
     ja: "他に使えないか",
     icon: "♻️",
     desc: "今の用途以外に使えないか？別の文脈・対象・シーンに転用してみます。",
+    example: "例：社内研修コンテンツ → 採用広報や顧客教育にも活用",
     questions: [
       "「{theme}」を本来の目的以外に使えないか？",
       "別のターゲット層や市場に展開したら？",
@@ -355,6 +384,7 @@ const CHECKS = [
     ja: "削除・省略する",
     icon: "✂️",
     desc: "何かを取り除いたら？シンプルにすることで本質が見えることがあります。",
+    example: "例：週次レポートの項目を半分削減 → 作成時間を短縮し本質情報に集中",
     questions: [
       "「{theme}」から何かをなくしたらどうなる？",
       "なくても成立するルール・ステップ・機能は？",
@@ -367,6 +397,7 @@ const CHECKS = [
     ja: "並べ替え・逆にする",
     icon: "↩️",
     desc: "順序を入れ替えたり、逆転の発想をしてみる。前後・上下・原因と結果を逆にします。",
+    example: "例：講義→演習の順を逆に → 先に体験させてから解説（反転授業）",
     questions: [
       "「{theme}」の工程や順序を逆にしたら？",
       "提供者と受け手の役割をひっくり返すと？",
@@ -403,7 +434,7 @@ function renderCards() {
         </div>
         <span class="card-toggle">▼</span>
       </div>
-      <div class="card-desc">${c.desc}</div>
+      <div class="card-desc">${c.desc}<br><span style="color:#4f6ef7;font-size:0.78rem;">${c.example}</span></div>
       <div class="card-prompts">
         ${c.questions.map((q, qi) => {
           const label = formatQ(q);
