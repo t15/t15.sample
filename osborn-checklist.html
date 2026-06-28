@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>オズボーンのチェックリスト</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+    background: #f5f4f0;
+    color: #222;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 28px 24px 20px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+  }
+  header p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #aaa;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ────── テーマ入力 ────── */
+  .theme-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .theme-section label {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .theme-row {
+    display: flex;
+    gap: 10px;
+  }
+  .theme-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 7px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .theme-row input:focus { border-color: #4f6ef7; }
+  .theme-row button {
+    padding: 10px 18px;
+    background: #4f6ef7;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .theme-row button:hover { background: #3a56d4; }
+
+  /* ────── 説明パネル ────── */
+  .intro {
+    background: #eef2ff;
+    border-left: 4px solid #4f6ef7;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #333;
+  }
+  .intro strong { color: #1a1a2e; }
+
+  /* ────── チェックリスト ────── */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 12px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1.5px solid #f0f0f0;
+  }
+  .card-header:hover { background: #fafafa; }
+  .card-icon {
+    font-size: 1.4rem;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .card-title-block { flex: 1; min-width: 0; }
+  .card-en {
+    font-size: 0.7rem;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .card-ja {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .card-toggle {
+    font-size: 0.75rem;
+    color: #aaa;
+    transition: transform 0.2s;
+  }
+  .card.open .card-toggle { transform: rotate(180deg); }
+
+  .card-desc {
+    font-size: 0.8rem;
+    color: #555;
+    padding: 0 16px 12px;
+    line-height: 1.6;
+    display: none;
+    border-bottom: 1.5px solid #f0f0f0;
+  }
+  .card.open .card-desc { display: block; }
+
+  .card-prompts {
+    padding: 10px 16px 6px;
+    display: none;
+  }
+  .card.open .card-prompts { display: block; }
+
+  .prompt-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-q {
+    font-size: 0.78rem;
+    color: #444;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .prompt-q .theme-highlight { color: #4f6ef7; font-weight: 600; }
+
+  .idea-input {
+    width: 100%;
+    padding: 7px 10px;
+    margin-top: 4px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    resize: vertical;
+    min-height: 54px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .idea-input:focus { border-color: #4f6ef7; }
+
+  /* ────── まとめ ────── */
+  .summary-section {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    padding: 20px 24px;
+  }
+  .summary-section h2 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    color: #1a1a2e;
+  }
+  #summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+  }
+  #summary-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #333;
+  }
+  #summary-list li:last-child { border-bottom: none; }
+  .summary-label {
+    font-size: 0.7rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .empty-msg {
+    color: #bbb;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .btn-clear {
+    padding: 8px 16px;
+    background: #f0f0f0;
+    color: #555;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-clear:hover { background: #e0e0e0; }
+
+  a.back-link {
+    display: inline-block;
+    margin-top: 28px;
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+  }
+  a.back-link:hover { color: #4f6ef7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>オズボーンのチェックリスト</h1>
+  <p>9つの視点でアイデアを広げる発想法</p>
+</header>
+
+<div class="container">
+
+  <div class="intro">
+    <strong>オズボーンのチェックリスト</strong>とは、ブレインストーミングの考案者アレックス・F・オズボーン（Alex F. Osborn）が提案した発想フレームワークです。<br>
+    既存のモノ・コト・仕組みを「9つの切り口」で変形・組み替えることで、意外なアイデアを体系的に生み出します。<br>
+    テーマを入力して、各カードに自由にアイデアを書いてみましょう。
+  </div>
+
+  <div class="theme-section">
+    <label>アイデアを出したいテーマ</label>
+    <div class="theme-row">
+      <input type="text" id="theme-input" placeholder="例：会議の進め方、社内報、新商品のパッケージ…" maxlength="80">
+      <button onclick="applyTheme()">設定</button>
+    </div>
+  </div>
+
+  <div class="checklist-grid" id="cards"></div>
+
+  <div class="summary-section">
+    <h2>💡 出てきたアイデア一覧</h2>
+    <ul id="summary-list"><li class="empty-msg">アイデアを入力すると、ここにまとめて表示されます</li></ul>
+    <button class="btn-clear" onclick="clearAll()">すべてリセット</button>
+  </div>
+
+  <a class="back-link" href="index.html">← 一覧に戻る</a>
+</div>
+
+<script>
+const CHECKS = [
+  {
+    key: "substitute",
+    en: "Substitute",
+    ja: "代替する",
+    icon: "🔄",
+    desc: "何か別のものに置き換えられないか？材料・場所・人・プロセス・感情などを入れ替えてみます。",
+    questions: [
+      "「{theme}」の構成要素のひとつを、まったく別のものに置き換えたら？",
+      "担当者・場所・タイミングを変えたらどうなる？",
+      "使っている素材やツールを別のものにできないか？"
+    ]
+  },
+  {
+    key: "combine",
+    en: "Combine",
+    ja: "組み合わせる",
+    icon: "🔗",
+    desc: "別のアイデアや機能と合体させられないか？異なる要素をひとつにまとめてシナジーを生みます。",
+    questions: [
+      "「{theme}」と、一見無関係なものを組み合わせたら？",
+      "複数のステップを同時にできないか？",
+      "ふたつのチームや目的を合流させたら何が生まれる？"
+    ]
+  },
+  {
+    key: "adapt",
+    en: "Adapt",
+    ja: "応用する",
+    icon: "🌱",
+    desc: "他の分野のアイデアや方法を借用できないか？異業種・自然・歴史から着想を得ます。",
+    questions: [
+      "他の業界ではどんな方法で似た課題を解決している？",
+      "「{theme}」を自然界のしくみに例えると？",
+      "過去の成功事例を「{theme}」に当てはめると？"
+    ]
+  },
+  {
+    key: "modify",
+    en: "Modify / Magnify",
+    ja: "修正・拡大する",
+    icon: "🔍",
+    desc: "形・色・サイズ・意味などを変えてみる。もっと大きく・多く・強くしたら？",
+    questions: [
+      "「{theme}」をもっと大きく・多く・頻繁にしたら？",
+      "スピードや強度を10倍にしたらどうなる？",
+      "重要な部分だけを誇張して際立たせると？"
+    ]
+  },
+  {
+    key: "put",
+    en: "Put to other uses",
+    ja: "他に使えないか",
+    icon: "♻️",
+    desc: "今の用途以外に使えないか？別の文脈・対象・シーンに転用してみます。",
+    questions: [
+      "「{theme}」を本来の目的以外に使えないか？",
+      "別のターゲット層や市場に展開したら？",
+      "廃棄・余剰になっているものを活かすとしたら？"
+    ]
+  },
+  {
+    key: "eliminate",
+    en: "Eliminate",
+    ja: "削除・省略する",
+    icon: "✂️",
+    desc: "何かを取り除いたら？シンプルにすることで本質が見えることがあります。",
+    questions: [
+      "「{theme}」から何かをなくしたらどうなる？",
+      "なくても成立するルール・ステップ・機能は？",
+      "最小限の要素だけ残したバージョンとは？"
+    ]
+  },
+  {
+    key: "rearrange",
+    en: "Rearrange / Reverse",
+    ja: "並べ替え・逆にする",
+    icon: "↩️",
+    desc: "順序を入れ替えたり、逆転の発想をしてみる。前後・上下・原因と結果を逆にします。",
+    questions: [
+      "「{theme}」の工程や順序を逆にしたら？",
+      "提供者と受け手の役割をひっくり返すと？",
+      "問題を「どうすれば失敗するか？」という視点で考えると？"
+    ]
+  }
+];
+
+let themeText = "";
+
+function applyTheme() {
+  themeText = document.getElementById("theme-input").value.trim();
+  renderCards();
+}
+
+function renderCards() {
+  const grid = document.getElementById("cards");
+  grid.innerHTML = "";
+  CHECKS.forEach((c, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.key = c.key;
+
+    const savedValues = CHECKS.map((_, j) =>
+      document.querySelectorAll(".idea-input")
+    );
+
+    card.innerHTML = `
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-title-block">
+          <div class="card-en">${c.en}</div>
+          <div class="card-ja">${c.ja}</div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-desc">${c.desc}</div>
+      <div class="card-prompts">
+        ${c.questions.map((q, qi) => {
+          const label = formatQ(q);
+          return `
+          <div class="prompt-item">
+            <div class="prompt-q">${label}</div>
+          </div>
+          <textarea class="idea-input" data-key="${c.key}" data-qi="${qi}"
+            placeholder="アイデアを自由に…"
+            oninput="updateSummary()">${""}</textarea>`;
+        }).join("")}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  updateSummary();
+}
+
+function formatQ(q) {
+  if (!themeText) return q.replace(/\{theme\}/g, "<em>テーマ</em>");
+  return q.replace(/\{theme\}/g, `<span class="theme-highlight">${escapeHtml(themeText)}</span>`);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function toggleCard(header) {
+  header.parentElement.classList.toggle("open");
+}
+
+function updateSummary() {
+  const list = document.getElementById("summary-list");
+  const inputs = document.querySelectorAll(".idea-input");
+  const items = [];
+  inputs.forEach(inp => {
+    const val = inp.value.trim();
+    if (!val) return;
+    const key = inp.dataset.key;
+    const c = CHECKS.find(x => x.key === key);
+    items.push({ label: c ? c.ja : key, text: val });
+  });
+  if (items.length === 0) {
+    list.innerHTML = '<li class="empty-msg">アイデアを入力すると、ここにまとめて表示されます</li>';
+    return;
+  }
+  list.innerHTML = items.map(it =>
+    `<li><span class="summary-label">${it.label}</span>${escapeHtml(it.text)}</li>`
+  ).join("");
+}
+
+function clearAll() {
+  if (!confirm("入力したアイデアをすべて削除します。よろしいですか？")) return;
+  document.querySelectorAll(".idea-input").forEach(el => { el.value = ""; });
+  updateSummary();
+}
+
+// 初期表示
+renderCards();
+
+// Enterキーでテーマ確定
+document.getElementById("theme-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") applyTheme();
+});
+</script>
+</body>
+</html>
